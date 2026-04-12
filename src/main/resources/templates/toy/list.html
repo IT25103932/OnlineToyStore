@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Toy List</title>
+</head>
+<body>
+
+<h1>All Toys</h1>
+
+<a href="/toys/add">+ Add New Toy</a> |
+<a href="/toys/search">Search Toys</a>
+
+<br/><br/>
+
+<table border="1">
+    <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Category</th>
+        <th>Description</th>
+        <th>Price (Rs.)</th>
+        <th>Stock</th>
+        <th>Actions</th>
+    </tr>
+    <tr th:each="toy : ${toys}">
+        <td th:text="${toy.toyId}"></td>
+        <td th:text="${toy.name}"></td>
+        <td th:text="${toy.category}"></td>
+        <td th:text="${toy.description}"></td>
+        <td th:text="${toy.price}"></td>
+        <td th:text="${toy.stockQuantity}"></td>
+        <td>
+            <a th:href="@{/toys/edit/{id}(id=${toy.toyId})}">Edit</a> |
+            <a th:href="@{/toys/delete/{id}(id=${toy.toyId})}"
+               onclick="return confirm('Are you sure?')">Delete</a>
+        </td>
+    </tr>
+</table>
+
+</body>
+</html>

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Search Toys</title>
+</head>
+<body>
+
+<h1>Search Toys</h1>
+
+<form action="/toys/search" method="get">
+    <input type="text" name="keyword"
+           th:value="${keyword}"
+           placeholder="Search by name or category"/>
+    <button type="submit">Search</button>
+</form>
+
+<br/>
+<a href="/toys">← Back to All Toys</a>
+<br/><br/>
+
+<div th:if="${toys != null and !toys.isEmpty()}">
+    <table border="1">
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Category</th>
+            <th>Price (Rs.)</th>
+            <th>Stock</th>
+        </tr>
+        <tr th:each="toy : ${toys}">
+            <td th:text="${toy.toyId}"></td>
+            <td th:text="${toy.name}"></td>
+            <td th:text="${toy.category}"></td>
+            <td th:text="${toy.price}"></td>
+            <td th:text="${toy.stockQuantity}"></td>
+        </tr>
+    </table>
+</div>
+
+<div th:if="${toys == null or toys.isEmpty()}">
+    <p>No toys found.</p>
+</div>
+
+</body>
+</html>
