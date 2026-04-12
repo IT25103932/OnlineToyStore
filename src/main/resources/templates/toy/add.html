@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Add Toy</title>
+</head>
+<body>
+
+<h1>Add New Toy</h1>
+
+<form action="/toys/add" method="post">
+
+    <label>Name:</label><br/>
+    <input type="text" name="name" required/><br/><br/>
+
+    <label>Category:</label><br/>
+    <select name="category">
+        <option value="EDUCATIONAL">Educational</option>
+        <option value="ELECTRONIC">Electronic</option>
+        <option value="SOFT">Soft Toy</option>
+        <option value="GENERAL">General</option>
+    </select><br/><br/>
+
+    <label>Description:</label><br/>
+    <textarea name="description" rows="3" cols="30"></textarea><br/><br/>
+
+    <label>Price (Rs.):</label><br/>
+    <input type="number" name="price" step="0.01" required/><br/><br/>
+
+    <label>Stock Quantity:</label><br/>
+    <input type="number" name="stockQuantity" required/><br/><br/>
+
+    <button type="submit">Add Toy</button>
+    <a href="/toys">Cancel</a>
+
+</form>
+
+</body>
+</html>
