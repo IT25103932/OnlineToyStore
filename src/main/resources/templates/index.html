@@ -1,24 +1,124 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Online Toy Store</title>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Online Toy Store — Dashboard</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
 </head>
 <body>
 
-<h1>Welcome to Online Toy Store</h1>
-<p>Toy Store home page.</p>
+<!-- Navbar -->
+<nav class="navbar">
+    <a href="/" class="navbar-brand">🧸 <span>ToyStore</span></a>
+    <ul class="navbar-nav">
+        <li><a href="/" class="active">Dashboard</a></li>
+        <li><a href="/users">Users</a></li>
+        <li><a href="/toys">Toys</a></li>
+        <li><a href="/cart">Cart</a></li>
+        <li><a href="/orders">Orders</a></li>
+        <li><a href="/reviews">Reviews</a></li>
+        <li><a href="/inventory">Inventory</a></li>
+    </ul>
+</nav>
 
-<hr/>
+<div class="page">
 
-<h2>Quick Links</h2>
-<ul>
-    <li><a href="/users">User Management</a></li>
-    <li><a href="/toys">Toy Management</a></li>
-    <li><a href="/cart">Shopping Cart</a></li>
-    <li><a href="/orders">Order & Payment</a></li>
-    <li><a href="/reviews">Review & Rating</a></li>
-    <li><a href="/inventory">Inventory & Supplier</a></li>
-</ul>
+    <!-- Page Header -->
+    <div class="page-header">
+        <h1>
+            <span class="icon">📊</span>
+            Dashboard
+        </h1>
+        <span style="color: var(--text-muted); font-size:0.9rem; font-weight:600;">
+            Online Toy Store Management System
+        </span>
+    </div>
+
+    <!-- Stats Row -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#FFF3E0;">👥</div>
+            <div>
+                <h3>Total Users</h3>
+                <p>—</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#E8F5E9;">🧸</div>
+            <div>
+                <h3>Total Toys</h3>
+                <p>—</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#E3F2FD;">📦</div>
+            <div>
+                <h3>Orders</h3>
+                <p>—</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#FCE4EC;">⭐</div>
+            <div>
+                <h3>Reviews</h3>
+                <p>—</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Module Cards -->
+    <h2 style="font-family:'Fredoka One',cursive; color:var(--secondary);
+               font-size:1.3rem; margin-bottom:1.25rem;">
+        Manage Your Store
+    </h2>
+
+    <div class="module-grid">
+
+        <a href="/users" class="module-card" style="--module-color:#4CC9F0;">
+            <div class="module-icon">👤</div>
+            <h3>User Management</h3>
+            <p>Register customers, manage accounts, admin controls and profile updates.</p>
+            <span class="module-arrow">Go to Users →</span>
+        </a>
+
+        <a href="/toys" class="module-card" style="--module-color:#FF6B35;">
+            <div class="module-icon">🧸</div>
+            <h3>Toy Management</h3>
+            <p>Add, edit and remove toys. Search by name or category. Manage stock levels.</p>
+            <span class="module-arrow">Go to Toys →</span>
+        </a>
+
+        <a href="/cart" class="module-card" style="--module-color:#FFD23F;">
+            <div class="module-icon">🛒</div>
+            <h3>Shopping Cart</h3>
+            <p>View and manage cart items, update quantities and calculate totals.</p>
+            <span class="module-arrow">Go to Cart →</span>
+        </a>
+
+        <a href="/orders" class="module-card" style="--module-color:#2DC653;">
+            <div class="module-icon">📦</div>
+            <h3>Order & Payment</h3>
+            <p>Place orders, track status and manage payment methods and history.</p>
+            <span class="module-arrow">Go to Orders →</span>
+        </a>
+
+        <a href="/reviews" class="module-card" style="--module-color:#C77DFF;">
+            <div class="module-icon">⭐</div>
+            <h3>Review & Rating</h3>
+            <p>View customer reviews, moderate content and manage toy ratings.</p>
+            <span class="module-arrow">Go to Reviews →</span>
+        </a>
+
+        <a href="/inventory" class="module-card" style="--module-color:#F72585;">
+            <div class="module-icon">🏭</div>
+            <h3>Inventory & Supplier</h3>
+            <p>Manage suppliers, monitor stock levels and handle restocking alerts.</p>
+            <span class="module-arrow">Go to Inventory →</span>
+        </a>
+
+    </div>
+</div>
 
 </body>
 </html>

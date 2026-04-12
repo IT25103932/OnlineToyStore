@@ -1,45 +1,132 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Search Toys</title>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Search Toys — Online Toy Store</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
 </head>
 <body>
 
-<h1>Search Toys</h1>
+<!-- Navbar -->
+<nav class="navbar">
+    <a href="/" class="navbar-brand">🧸 <span>ToyStore</span></a>
+    <ul class="navbar-nav">
+        <li><a href="/">Dashboard</a></li>
+        <li><a href="/users">Users</a></li>
+        <li><a href="/toys" class="active">Toys</a></li>
+        <li><a href="/cart">Cart</a></li>
+        <li><a href="/orders">Orders</a></li>
+        <li><a href="/reviews">Reviews</a></li>
+        <li><a href="/inventory">Inventory</a></li>
+    </ul>
+</nav>
 
-<form action="/toys/search" method="get">
-    <input type="text" name="keyword"
-           th:value="${keyword}"
-           placeholder="Search by name or category"/>
-    <button type="submit">Search</button>
-</form>
+<div class="page">
 
-<br/>
-<a href="/toys">← Back to All Toys</a>
-<br/><br/>
+    <!-- Page Header -->
+    <div class="page-header">
+        <h1>
+            <span class="icon">🔍</span>
+            Search Toys
+        </h1>
+        <a href="/toys" class="btn btn-outline">← Back to All Toys</a>
+    </div>
 
-<div th:if="${toys != null and !toys.isEmpty()}">
-    <table border="1">
-        <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Category</th>
-            <th>Price (Rs.)</th>
-            <th>Stock</th>
-        </tr>
-        <tr th:each="toy : ${toys}">
-            <td th:text="${toy.toyId}"></td>
-            <td th:text="${toy.name}"></td>
-            <td th:text="${toy.category}"></td>
-            <td th:text="${toy.price}"></td>
-            <td th:text="${toy.stockQuantity}"></td>
-        </tr>
-    </table>
+    <!-- Search Bar -->
+    <form action="/toys/search" method="get" style="margin-bottom:2rem;">
+        <div class="search-bar">
+            <span>🔍</span>
+            <input type="text" name="keyword"
+                   th:value="${keyword}"
+                   placeholder="Search by name, category or description..."
+                   autofocus/>
+            <button type="submit" class="btn btn-primary">Search</button>
+        </div>
+    </form>
+
+    <!-- Results -->
+    <div th:if="${keyword != null and !keyword.isEmpty()}">
+
+        <!-- Results count -->
+        <p style="color:var(--text-muted); font-size:0.9rem; font-weight:600; margin-bottom:1rem;">
+            Showing results for
+            <strong style="color:var(--secondary);" th:text="'&quot;' + ${keyword} + '&quot;'"></strong>
+        </p>
+
+        <!-- Results Table -->
+        <div class="table-wrap" th:if="${toys != null and !toys.isEmpty()}">
+            <table>
+                <thead>
+                <tr>
+                    <th>Toy ID</th>
+                    <th>Name</th>
+                    <th>Category</th>
+                    <th>Description</th>
+                    <th>Price</th>
+                    <th>Stock</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="toy : ${toys}">
+                    <td style="font-size:0.8rem; color:var(--text-muted); font-weight:700;"
+                        th:text="${toy.toyId}"></td>
+                    <td style="font-weight:700;" th:text="${toy.name}"></td>
+                    <td>
+                            <span th:text="${toy.category}"
+                                  th:classappend="${toy.category == 'EDUCATIONAL'} ? 'badge badge-educational' :
+                                                  (${toy.category == 'ELECTRONIC'} ? 'badge badge-electronic' :
+                                                  (${toy.category == 'SOFT'} ? 'badge badge-soft' :
+                                                  'badge badge-general'))">
+                            </span>
+                    </td>
+                    <td style="max-width:200px; color:var(--text-muted); font-size:0.88rem;"
+                        th:text="${toy.description}"></td>
+                    <td style="font-weight:700;">
+                        Rs. <span th:text="${toy.price}"></span>
+                    </td>
+                    <td>
+                            <span th:text="${toy.stockQuantity}"
+                                  th:class="${toy.stockQuantity < 5} ? 'stock-low' : 'stock-ok'">
+                            </span>
+                    </td>
+                    <td>
+                        <div style="display:flex; gap:0.5rem;">
+                            <a th:href="@{/toys/edit/{id}(id=${toy.toyId})}"
+                               class="btn btn-outline btn-sm">✏️ Edit</a>
+                            <a th:href="@{/toys/delete/{id}(id=${toy.toyId})}"
+                               class="btn btn-danger btn-sm"
+                               onclick="return confirm('Delete this toy?')">🗑️</a>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- No results -->
+        <div class="card" th:if="${toys == null or toys.isEmpty()}">
+            <div class="empty-state">
+                <span class="empty-icon">🔍</span>
+                <h3>No toys found</h3>
+                <p>Try searching with a different keyword.</p>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Initial state (no search yet) -->
+    <div th:if="${keyword == null or keyword.isEmpty()}">
+        <div class="card">
+            <div class="empty-state">
+                <span class="empty-icon">🧸</span>
+                <h3>Search for a toy</h3>
+                <p>Type a toy name, category or description above to get started.</p>
+            </div>
+        </div>
+    </div>
+
 </div>
-
-<div th:if="${toys == null or toys.isEmpty()}">
-    <p>No toys found.</p>
-</div>
-
 </body>
 </html>

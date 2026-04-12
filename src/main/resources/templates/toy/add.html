@@ -1,38 +1,89 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Add Toy</title>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Add Toy — Online Toy Store</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
 </head>
 <body>
 
-<h1>Add New Toy</h1>
+<!-- Navbar -->
+<nav class="navbar">
+    <a href="/" class="navbar-brand">🧸 <span>ToyStore</span></a>
+    <ul class="navbar-nav">
+        <li><a href="/">Dashboard</a></li>
+        <li><a href="/users">Users</a></li>
+        <li><a href="/toys" class="active">Toys</a></li>
+        <li><a href="/cart">Cart</a></li>
+        <li><a href="/orders">Orders</a></li>
+        <li><a href="/reviews">Reviews</a></li>
+        <li><a href="/inventory">Inventory</a></li>
+    </ul>
+</nav>
 
-<form action="/toys/add" method="post">
+<div class="page">
 
-    <label>Name:</label><br/>
-    <input type="text" name="name" required/><br/><br/>
+    <!-- Page Header -->
+    <div class="page-header">
+        <h1>
+            <span class="icon">➕</span>
+            Add New Toy
+        </h1>
+        <a href="/toys" class="btn btn-outline">← Back to List</a>
+    </div>
 
-    <label>Category:</label><br/>
-    <select name="category">
-        <option value="EDUCATIONAL">Educational</option>
-        <option value="ELECTRONIC">Electronic</option>
-        <option value="SOFT">Soft Toy</option>
-        <option value="GENERAL">General</option>
-    </select><br/><br/>
+    <!-- Form Card -->
+    <div class="card" style="max-width: 760px;">
 
-    <label>Description:</label><br/>
-    <textarea name="description" rows="3" cols="30"></textarea><br/><br/>
+        <form action="/toys/add" method="post">
 
-    <label>Price (Rs.):</label><br/>
-    <input type="number" name="price" step="0.01" required/><br/><br/>
+            <div class="form-grid">
 
-    <label>Stock Quantity:</label><br/>
-    <input type="number" name="stockQuantity" required/><br/><br/>
+                <div class="form-group">
+                    <label for="name">Toy Name</label>
+                    <input type="text" id="name" name="name"
+                           placeholder="e.g. LEGO Classic Set" required/>
+                </div>
 
-    <button type="submit">Add Toy</button>
-    <a href="/toys">Cancel</a>
+                <div class="form-group">
+                    <label for="category">Category</label>
+                    <select id="category" name="category">
+                        <option value="EDUCATIONAL">🎓 Educational</option>
+                        <option value="ELECTRONIC">⚡ Electronic</option>
+                        <option value="SOFT">🐻 Soft Toy</option>
+                        <option value="GENERAL">🎯 General</option>
+                    </select>
+                </div>
 
-</form>
+                <div class="form-group">
+                    <label for="price">Price (Rs.)</label>
+                    <input type="number" id="price" name="price"
+                           step="0.01" min="0" placeholder="0.00" required/>
+                </div>
 
+                <div class="form-group">
+                    <label for="stockQuantity">Stock Quantity</label>
+                    <input type="number" id="stockQuantity" name="stockQuantity"
+                           min="0" placeholder="0" required/>
+                </div>
+
+                <div class="form-group full">
+                    <label for="description">Description</label>
+                    <textarea id="description" name="description"
+                              placeholder="Describe the toy — age range, features, materials..."></textarea>
+                </div>
+
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">🧸 Add Toy</button>
+                <a href="/toys" class="btn btn-outline">Cancel</a>
+            </div>
+
+        </form>
+    </div>
+
+</div>
 </body>
 </html>

@@ -1,41 +1,109 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Edit Toy</title>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Edit Toy — Online Toy Store</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
 </head>
 <body>
 
-<h1>Edit Toy</h1>
+<!-- Navbar -->
+<nav class="navbar">
+    <a href="/" class="navbar-brand">🧸 <span>ToyStore</span></a>
+    <ul class="navbar-nav">
+        <li><a href="/">Dashboard</a></li>
+        <li><a href="/users">Users</a></li>
+        <li><a href="/toys" class="active">Toys</a></li>
+        <li><a href="/cart">Cart</a></li>
+        <li><a href="/orders">Orders</a></li>
+        <li><a href="/reviews">Reviews</a></li>
+        <li><a href="/inventory">Inventory</a></li>
+    </ul>
+</nav>
 
-<form th:action="@{/toys/edit/{id}(id=${toy.toyId})}" method="post">
+<div class="page">
 
-    <label>Name:</label><br/>
-    <input type="text" name="name" th:value="${toy.name}" required/><br/><br/>
+    <!-- Page Header -->
+    <div class="page-header">
+        <h1>
+            <span class="icon">✏️</span>
+            Edit Toy
+        </h1>
+        <a href="/toys" class="btn btn-outline">← Back to List</a>
+    </div>
 
-    <label>Category:</label><br/>
-    <select name="category">
-        <option value="EDUCATIONAL" th:selected="${toy.category == 'EDUCATIONAL'}">Educational</option>
-        <option value="ELECTRONIC" th:selected="${toy.category == 'ELECTRONIC'}">Electronic</option>
-        <option value="SOFT" th:selected="${toy.category == 'SOFT'}">Soft Toy</option>
-        <option value="GENERAL" th:selected="${toy.category == 'GENERAL'}">General</option>
-    </select><br/><br/>
+    <!-- Toy ID display -->
+    <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:1.5rem; font-weight:600;">
+        Editing:
+        <span style="color:var(--secondary); font-weight:800;"
+              th:text="${toy.toyId}"></span>
+    </p>
 
-    <label>Description:</label><br/>
-    <textarea name="description" rows="3" cols="30"
-              th:text="${toy.description}"></textarea><br/><br/>
+    <!-- Form Card -->
+    <div class="card" style="max-width: 760px;">
 
-    <label>Price (Rs.):</label><br/>
-    <input type="number" name="price" step="0.01"
-           th:value="${toy.price}" required/><br/><br/>
+        <form th:action="@{/toys/edit/{id}(id=${toy.toyId})}" method="post">
 
-    <label>Stock Quantity:</label><br/>
-    <input type="number" name="stockQuantity"
-           th:value="${toy.stockQuantity}" required/><br/><br/>
+            <div class="form-grid">
 
-    <button type="submit">Update Toy</button>
-    <a href="/toys">Cancel</a>
+                <div class="form-group">
+                    <label for="name">Toy Name</label>
+                    <input type="text" id="name" name="name"
+                           th:value="${toy.name}" required/>
+                </div>
 
-</form>
+                <div class="form-group">
+                    <label for="category">Category</label>
+                    <select id="category" name="category">
+                        <option value="EDUCATIONAL"
+                                th:selected="${toy.category == 'EDUCATIONAL'}">
+                            🎓 Educational
+                        </option>
+                        <option value="ELECTRONIC"
+                                th:selected="${toy.category == 'ELECTRONIC'}">
+                            ⚡ Electronic
+                        </option>
+                        <option value="SOFT"
+                                th:selected="${toy.category == 'SOFT'}">
+                            🐻 Soft Toy
+                        </option>
+                        <option value="GENERAL"
+                                th:selected="${toy.category == 'GENERAL'}">
+                            🎯 General
+                        </option>
+                    </select>
+                </div>
 
+                <div class="form-group">
+                    <label for="price">Price (Rs.)</label>
+                    <input type="number" id="price" name="price"
+                           step="0.01" min="0"
+                           th:value="${toy.price}" required/>
+                </div>
+
+                <div class="form-group">
+                    <label for="stockQuantity">Stock Quantity</label>
+                    <input type="number" id="stockQuantity" name="stockQuantity"
+                           min="0" th:value="${toy.stockQuantity}" required/>
+                </div>
+
+                <div class="form-group full">
+                    <label for="description">Description</label>
+                    <textarea id="description" name="description"
+                              th:text="${toy.description}"></textarea>
+                </div>
+
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">💾 Save Changes</button>
+                <a href="/toys" class="btn btn-outline">Cancel</a>
+            </div>
+
+        </form>
+    </div>
+
+</div>
 </body>
 </html>
