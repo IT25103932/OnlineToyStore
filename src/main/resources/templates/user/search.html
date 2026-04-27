@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Search Users — Online Toy Store</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}" />
+  <style>
+    .user-page {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 2rem 1.25rem;
+    }
+
+    .role-admin {
+      background: #E3F2FD;
+      color: #1565C0;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 0.72rem;
+      font-weight: 800;
+    }
+
+    .role-customer {
+      background: #E8F5E9;
+      color: #2E7D32;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 0.72rem;
+      font-weight: 800;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      box-shadow: 0 2px 12px rgba(27, 42, 74, 0.07);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+      font-size: 0.88rem;
+      font-family: 'Nunito', sans-serif;
+    }
+
+    thead {
+      background: var(--secondary);
+      color: #fff;
+    }
+
+    thead th {
+      padding: 11px 14px;
+      text-align: left;
+      font-weight: 700;
+      font-size: 0.75rem;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    tbody tr {
+      border-bottom: 1px solid var(--border);
+      transition: background 0.12s;
+    }
+
+    tbody tr:last-child {
+      border-bottom: none;
+    }
+
+    tbody tr:hover {
+      background: rgba(255, 107, 53, 0.04);
+    }
+
+    tbody td {
+      padding: 11px 14px;
+      vertical-align: middle;
+    }
+
+    .user-avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-weight: 800;
+      font-size: 0.85rem;
+    }
+
+    .user-cell {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+  </style>
+</head>
+
+<body>
+  <nav class="navbar">
+    <a href="/" class="navbar-brand">
+      <ul class="navbar-nav">
+        <span>ToyStore</span>
+    </a>
+    <li><a href="/">Dashboard</a></li>
+    <li><a href="/users" class="active">Users</a></li>
+    <li><a href="/toys">Toys</a></li>
+    <li><a href="/cart">Cart</a></li>
+    <li><a href="/orders">Orders</a></li>
+    <li><a href="/reviews">Reviews</a></li>
+    <li><a href="/inventory">Inventory</a></li>
+    </ul>
+  </nav>
+  <div class="user-page">
+    <div class="page-header">
+      <h1 style="font-family:'Fredoka One',cursive;font-size:1.7rem; color:var(--secondary);">
+        Search Users</h1>
+      <a href="/users" class="btn btn-outline">← All Users</a>
+    </div>
+    <form action="/users/search" method="get" style="margin-bottom:1.5rem;">
+      <div style="display:flex;gap:0.6rem;align-items:center; max-width:480px;">
+        <input type="text" name="keyword" th:value="${keyword}" placeholder="Search by username or email..."
+          style="flex:1;" autofocus />
+        <button type="submit" class="btn btn-primary">Search</button>
+      </div>
+    </form>
+    <div style="font-size:0.82rem;color:var(--muted);font-weight:600;margin-bottom:1rem;"
+      th:if="${keyword != null and !keyword.isEmpty()}">
+      Results for <strong style="color:var(--secondary);" th:text="'&quot;' + ${keyword} + '&quot;'"></strong>
+      — <strong th:text="${users != null ? users.size() : 0}"></strong>
+      found
+    </div>
+
+    <div class="table-wrap" th:if="${users != null and !users.isEmpty()}">
+      <table>
+        <thead>
+          <tr>
+            <th>User</th>
+            <th>User ID</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Role</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr th:each="user : ${users}">
+            <td>
+              <div class="user-cell">
+                <div class="user-avatar" th:text="${#strings.substring(user.username,0,1).toUpperCase()}">
+                </div>
+                <span style="font-weight:700;" th:text="${user.username}"></span>
+              </div>
+            </td>
+            <td style="color:var(--muted);font-size:0.78rem;font-weight:700;" th:text="${user.userId}"></td>
+            <td th:text="${user.email}"></td>
+            <td th:text="${user.phone != null and !user.phone.isEmpty()} ? ${user.phone} : '—'"></td>
+            <td>
+              <span th:text="${user.role}" th:class="${user.role == 'ADMIN'} ? 'roleadmin' : 'role-customer'">
+              </span>
+            </td>
+            <td>
+              <a th:href="@{/users/edit/{id}(id=${user.userId})}" class="btn btn-outline"
+                style="padding:4px 10px;font-size:0.78rem;">
+                Edit
+              </a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div style="background:#fff;border-radius:12px;padding:3rem; 
+text-align:center;border:1px solid var(--border);" th:if="${users == null or users.isEmpty()}">
+      <span style="font-size:3rem;display:block;margin-bottom:0.75rem;">
+        <span th:text="${keyword != null and !keyword.isEmpty()} ? '   ' : 
+'    '"></span>
+      </span>
+      <p style="font-weight:700;color:var(--secondary);margin-bottom:4px;" th:text="${keyword != null and !keyword.isEmpty()} ? 
+'No users found' : 'Search for a user'"></p>
+      <p style="color:var(--muted);font-size:0.85rem;" th:text="${keyword != null and !keyword.isEmpty()} ? 
+'Try a different keyword.' : 
+'Type a username or email above.'"></p>
+    </div>
+  </div>
+</body>
+
+</html>
