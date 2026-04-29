@@ -19,7 +19,7 @@ public class Supplier {
     private String supplyCategory; // EDUCATIONAL, ELECTRONIC, SOFT, GENERAL, ALL
 
     // Abstraction — restock method hidden inside class
-    // Polymorphism — overridden in subclasses
+    // Polymorphism — overridden  in subclasses
     public String getRestockMethod() {
         return "Standard restock order";
     }
