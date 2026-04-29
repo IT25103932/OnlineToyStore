@@ -13,7 +13,7 @@ public class LocalSupplier extends Supplier {
     public LocalSupplier(String supplierId, String name,
                          String contactPerson, String email,
                          String phone, String address,
-                         String supplyCategory, String district) {
+                         String  supplyCategory, String district) {
         super(supplierId, name, contactPerson,
                 email, phone, address, supplyCategory);
         this.district = district;
