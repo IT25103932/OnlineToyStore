@@ -18,6 +18,10 @@
     --radius-sm:  10px;
     --shadow:     0 4px 24px rgba(27,42,74,0.10);
     --shadow-lg:  0 8px 40px rgba(27,42,74,0.15);
+
+    /* ── Added missing variables ── */
+    --muted:      #6B7A99;
+    --white:      #ffffff;
 }
 
 /* ── Reset ─────────────────────────────────────────── */

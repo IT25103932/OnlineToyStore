@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Checkout — Online Toy Store</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+    <style>
+        .checkout-layout {
+            max-width: 780px;
+            margin: 0 auto;
+            padding: 2rem 1.25rem;
+        }
+        .checkout-card {
+            background: #fff;
+            border: 1px solid #E0E6F0;
+            border-radius: 14px;
+            padding: 1.75rem;
+            box-shadow: 0 2px 16px rgba(27,42,74,0.09);
+            margin-bottom: 1.5rem;
+        }
+        .checkout-card h2 {
+            font-family: 'Fredoka One', cursive;
+            font-size: 1.2rem;
+            color: #1B2A4A;
+            margin-bottom: 1.2rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid #E0E6F0;
+        }
+        .item-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.65rem 0;
+            border-bottom: 1px solid #F0F3FA;
+            font-size: 0.92rem;
+        }
+        .item-row:last-child { border-bottom: none; }
+        .item-name { font-weight: 700; color: #1B2A4A; }
+        .item-qty { color: #8A95A8; font-size: 0.82rem; margin-top: 2px; }
+        .item-price { font-family: 'Fredoka One', cursive; color: #1B2A4A; font-size: 1rem; }
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0 0;
+            margin-top: 0.5rem;
+            border-top: 2px solid #E0E6F0;
+        }
+        .total-label { font-weight: 800; font-size: 1rem; color: #1B2A4A; }
+        .total-amount { font-family: 'Fredoka One', cursive; font-size: 1.5rem; color: #FF6B6B; }
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        .info-field {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .info-field label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #8A95A8;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+        .info-field input, .info-field textarea {
+            border: 1.5px solid #E0E6F0;
+            border-radius: 8px;
+            padding: 0.6rem 0.75rem;
+            font-family: 'Nunito', sans-serif;
+            font-size: 0.9rem;
+            color: #1B2A4A;
+            transition: border 0.15s;
+        }
+        .info-field input:focus, .info-field textarea:focus {
+            outline: none;
+            border-color: #FF6B6B;
+        }
+        .info-field textarea { resize: vertical; min-height: 80px; }
+        .full-width { grid-column: 1 / -1; }
+        .empty-checkout {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: #fff;
+            border-radius: 14px;
+            border: 1px solid #E0E6F0;
+        }
+        .btn-checkout {
+            width: 100%;
+            padding: 0.9rem;
+            background: #FF6B6B;
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-family: 'Fredoka One', cursive;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: background 0.2s;
+            text-align: center;
+            display: block;
+            text-decoration: none;
+        }
+        .btn-checkout:hover { background: #e05555; }
+        .btn-back {
+            width: 100%;
+            padding: 0.75rem;
+            background: #fff;
+            color: #1B2A4A;
+            border: 1.5px solid #E0E6F0;
+            border-radius: 10px;
+            font-family: 'Nunito', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 0.75rem;
+            text-align: center;
+            display: block;
+            text-decoration: none;
+        }
+        .btn-back:hover { background: #F7F9FC; }
+        .success-badge {
+            background: #E8F5E9;
+            color: #2E7D32;
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            font-size: 0.88rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        @media (max-width: 600px) {
+            .info-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar">
+    <a href="/" class="navbar-brand"><span>🧸 ToyStore</span></a>
+    <ul class="navbar-nav">
+        <li><a href="/">Dashboard</a></li>
+        <li><a href="/users">Users</a></li>
+        <li><a href="/toys">Toys</a></li>
+        <li><a href="/cart" class="active">Cart</a></li>
+        <li><a href="/orders">Orders</a></li>
+        <li><a href="/reviews">Reviews</a></li>
+        <li><a href="/inventory">Inventory</a></li>
+    </ul>
+</nav>
+
+<div class="checkout-layout">
+
+    <!-- Page Header -->
+    <div class="page-header" style="margin-bottom:1.5rem;">
+        <h1 style="font-family:'Fredoka One',cursive; font-size:1.6rem; color:#1B2A4A;">
+            ✅ Checkout
+        </h1>
+        <a href="/cart" class="btn btn-outline">← Back to Cart</a>
+    </div>
+
+    <!-- Empty cart check -->
+    <div class="empty-checkout" th:if="${cartItems == null or cartItems.isEmpty()}">
+        <span style="font-size:3rem;">🛒</span>
+        <h3 style="margin:1rem 0 0.4rem; font-size:1.2rem; font-weight:800;">Your cart is empty</h3>
+        <p style="color:#8A95A8;">Add some toys before checking out.</p>
+        <br/>
+        <a href="/toys" class="btn-checkout" style="max-width:200px; margin:0 auto;">Browse Toys</a>
+    </div>
+
+    <!-- Checkout content -->
+    <div th:if="${cartItems != null and !cartItems.isEmpty()}">
+
+        <!-- Order Items -->
+        <div class="checkout-card">
+            <h2>🧸 Your Items</h2>
+            <div th:each="item : ${cartItems}" class="item-row">
+                <div>
+                    <div class="item-name" th:text="${item.toyName}"></div>
+                    <div class="item-qty">Qty: <span th:text="${item.quantity}"></span>
+                        × Rs.<span th:text="${item.unitPrice}"></span>
+                    </div>
+                </div>
+                <div class="item-price">
+                    Rs.<span th:text="${#numbers.formatDecimal(item.totalPrice,1,'COMMA',2,'POINT')}"></span>
+                </div>
+            </div>
+            <div class="total-row">
+                <span class="total-label">Total Amount</span>
+                <span class="total-amount">
+                    Rs.<span th:text="${#numbers.formatDecimal(cartTotal,1,'COMMA',2,'POINT')}"></span>
+                </span>
+            </div>
+        </div>
+
+        <!-- Delivery Info -->
+        <div class="checkout-card">
+            <h2>📦 Delivery Information</h2>
+            <div class="success-badge">
+                ℹ️ This is a demo checkout — no real order will be placed yet
+            </div>
+            <form action="/orders" method="get">
+                <div class="info-grid">
+                    <div class="info-field">
+                        <label>Full Name</label>
+                        <input type="text" placeholder="e.g. Kamal Perera" required/>
+                    </div>
+                    <div class="info-field">
+                        <label>Phone Number</label>
+                        <input type="text" placeholder="e.g. 077 123 4567" required/>
+                    </div>
+                    <div class="info-field full-width">
+                        <label>Delivery Address</label>
+                        <textarea placeholder="Enter your full address..."></textarea>
+                    </div>
+                    <div class="info-field">
+                        <label>City</label>
+                        <input type="text" placeholder="e.g. Colombo" required/>
+                    </div>
+                    <div class="info-field">
+                        <label>Postal Code</label>
+                        <input type="text" placeholder="e.g. 10100"/>
+                    </div>
+                </div>
+                <br/>
+                <button type="submit" class="btn-checkout">
+                    Place Order →
+                </button>
+            </form>
+            <a href="/cart" class="btn-back">← Back to Cart</a>
+        </div>
+
+    </div>
+</div>
+</body>
+</html>
