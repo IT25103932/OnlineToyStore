@@ -16,7 +16,7 @@ public abstract class Feedback {
     }
 
     // Parameterized constructor
-    public Feedback(String userId, String comment) {
+    public Feedback(String userId , String comment) {
         this.userId = userId;
         this.comment = comment;
         this.date = LocalDate.now();

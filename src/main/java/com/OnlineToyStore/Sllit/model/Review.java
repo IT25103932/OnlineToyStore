@@ -1,69 +1,56 @@
 package com.OnlineToyStore.Sllit.model;
 
-import java.time.LocalDate;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 
-// Base class — demonstrates ENCAPSULATION
-// VerifiedReview and PublicReview will extend this
-public abstract class Review {
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class Review {
 
-    // Private fields — ENCAPSULATION
-    // No outside class can access these directly
     private String reviewId;
     private String toyId;
+    private String toyName;
     private String userId;
     private String username;
-    private int rating;        // 1 to 5 stars
+    private int rating;
     private String comment;
-    private LocalDate date;
+    private String date;
+    private String status; // PENDING, APPROVED, REJECTED
 
-    // Default constructor
-    public Review() {
-        this.date = LocalDate.now();
+    // Polymorphism — overridden in subclasses
+    public String getDisplayFormat() {
+        return "[" + status + "] " + username +
+                " rated " + rating + "/5 : " + comment;
     }
 
-    // Parameterized constructor
-    public Review(String reviewId, String toyId, String userId,
-                  String username, int rating, String comment) {
-        this.reviewId = reviewId;
-        this.toyId    = toyId;
-        this.userId   = userId;
-        this.username = username;
-        this.rating   = rating;
-        this.comment  = comment;
-        this.date     = LocalDate.now();
-    }
-
-    // Abstract method — POLYMORPHISM
-    // VerifiedReview and PublicReview each give their OWN version of this
-    // Admin sees one format, regular users see another
-    public abstract String getDisplayFormat();
-
-    // Save object as one line in reviews.txt
+    // Review object → one line in reviews.txt
     public String toFileString() {
-        return reviewId + "|" + toyId + "|" + userId + "|"
-                + username + "|" + rating + "|" + comment + "|" + date;
+        return reviewId + "|" +
+                toyId + "|" +
+                (toyName != null ? toyName : "") + "|" +
+                (userId != null ? userId : "") + "|" +
+                (username != null ? username : "") + "|" +
+                rating + "|" +
+                (comment != null ? comment.replace("|", "-") : "") + "|" +
+                (date != null ? date : "") + "|" +
+                (status != null ? status : "PENDING");
     }
 
-    // ─── Getters and Setters — ENCAPSULATION ───
-
-    public String getReviewId() { return reviewId; }
-    public void setReviewId(String reviewId) { this.reviewId = reviewId; }
-
-    public String getToyId() { return toyId; }
-    public void setToyId(String toyId) { this.toyId = toyId; }
-
-    public String getUserId() { return userId; }
-    public void setUserId(String userId) { this.userId = userId; }
-
-    public String getUsername() { return username; }
-    public void setUsername(String username) { this.username = username; }
-
-    public int getRating() { return rating; }
-    public void setRating(int rating) { this.rating = rating; }
-
-    public String getComment() { return comment; }
-    public void setComment(String comment) { this.comment = comment; }
-
-    public LocalDate getDate() { return date; }
-    public void setDate(LocalDate date) { this.date = date; }
+    // One line from reviews.txt → Review object
+    public static Review fromFileString(String line) {
+        String[] p = line.split("\\|", -1);
+        Review r = new Review();
+        r.setReviewId(p[0]);
+        r.setToyId(p[1]);
+        r.setToyName(p.length > 2 ? p[2] : "");
+        r.setUserId(p.length > 3 ? p[3] : "");
+        r.setUsername(p.length > 4 ? p[4] : "");
+        r.setRating(p.length > 5 ? Integer.parseInt(p[5]) : 0);
+        r.setComment(p.length > 6 ? p[6] : "");
+        r.setDate(p.length > 7 ? p[7] : "");
+        r.setStatus(p.length > 8 ? p[8] : "PENDING");
+        return r;
+    }
 }
