@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Order Detail — Online Toy Store</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}"/>
+  <style>
+    .det-page { max-width: 720px; margin: 0 auto; padding: 2rem 1.25rem; }
+    .detail-card {
+      background: #fff; border-radius: 14px; padding: 1.75rem;
+      border: 1px solid var(--border); box-shadow: 0 2px 14px rgba(27,42,74,0.08);
+    }
+    .detail-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 0.8rem 0; border-bottom: 1px solid var(--border); font-size: 0.9rem;
+    }
+    .detail-row:last-child { border-bottom: none; }
+    .detail-row .label { color: var(--muted); font-weight: 600; font-size: 0.82rem; }
+    .detail-row .value { font-weight: 700; color: var(--secondary); }
+
+    /* Status Badges */
+    .badge-status { padding: 5px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 800; }
+    .s-pending { background: #FFF3E0; color: #E65100; }
+    .s-shipped { background: #E3F2FD; color: #1565C0; }
+    .s-delivered { background: #E8F5E9; color: #2E7D32; }
+    .s-cancelled { background: #FFE0E0; color: #C62828; }
+
+    /* Payment Badges */
+    .p-paid { background: #E8F5E9; color: #2E7D32; padding: 4px 10px; border-radius: 20px; font-size: 0.72rem; font-weight: 800; }
+    .p-unpaid { background: #FFF3E0; color: #E65100; padding: 4px 10px; border-radius: 20px; font-size: 0.72rem; font-weight: 800; }
+    .p-refunded { background: #F3E5F5; color: #7B1FA2; padding: 4px 10px; border-radius: 20px; font-size: 0.72rem; font-weight: 800; }
+
+    .total-row {
+      background: rgba(255,107,53,0.05); border-radius: 10px;
+      padding: 1rem 1.25rem; display: flex; justify-content: space-between;
+      align-items: center; margin-top: 1rem;
+    }
+    .total-row span:first-child { font-weight: 700; color: var(--muted); font-size: 0.85rem; }
+    .total-row span:last-child {
+      font-family: 'Fredoka One', cursive; font-size: 1.5rem; color: var(--secondary);
+    }
+  </style>
+</head>
+<body>
+<nav class="navbar">
+  <a href="/" class="navbar-brand"><span>ToyStore</span></a>
+  <ul class="navbar-nav">
+    <li><a href="/">Dashboard</a></li>
+    <li><a href="/users">Users</a></li>
+    <li><a href="/toys">Toys</a></li>
+    <li><a href="/cart">Cart</a></li>
+    <li><a href="/orders" class="active">Orders</a></li>
+    <li><a href="/reviews">Reviews</a></li>
+    <li><a href="/inventory">Inventory</a></li>
+  </ul>
+</nav>
+
+<div class="det-page">
+  <div class="page-header" style="margin-bottom: 1.5rem;">
+    <h1 style="font-family:'Fredoka One',cursive; font-size:1.7rem; color:var(--secondary); display:flex; align-items:center; gap:8px;">
+      Order Detail
+    </h1>
+    <a href="/orders/history" class="btn btn-outline" style="text-decoration: none;">← My Orders</a>
+  </div>
+
+  <!-- Error State -->
+  <div th:if="${order == null}" style="background:#fff; border-radius:14px; padding:3rem; text-align:center; border:1px solid var(--border);">
+    <p style="color:var(--muted);">Order not found.</p>
+    <a href="/orders" class="btn btn-primary">Back to Orders</a>
+  </div>
+
+  <!-- Content State -->
+  <div class="detail-card" th:if="${order != null}">
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1.25rem;">
+      <div>
+        <p style="font-size:0.72rem; color:var(--muted); font-weight:700; margin:0;">ORDER ID</p>
+        <h2 style="font-family:'Fredoka One',cursive; font-size:1.4rem; color:var(--secondary); margin:0;" th:text="${order.orderId}"></h2>
+      </div>
+      <span th:text="${order.status}"
+            th:class="${order.status == 'PENDING' ? 'badge-status s-pending' :
+                            (order.status == 'SHIPPED' ? 'badge-status s-shipped' :
+                            (order.status == 'DELIVERED' ? 'badge-status s-delivered' : 'badge-status s-cancelled'))}">
+            </span>
+    </div>
+
+    <div class="detail-row">
+      <span class="label">Customer</span>
+      <span class="value" th:text="${order.username}"></span>
+    </div>
+    <div class="detail-row">
+      <span class="label">Toy</span>
+      <span class="value" th:text="${order.toyName}"></span>
+    </div>
+    <div class="detail-row">
+      <span class="label">Quantity</span>
+      <span class="value" th:text="${order.quantity} + ' units'"></span>
+    </div>
+    <div class="detail-row">
+      <span class="label">Order Date</span>
+      <span class="value" th:text="${order.orderDate}"></span>
+    </div>
+    <div class="detail-row">
+      <span class="label">Payment Method</span>
+      <span class="value" th:text="${order.paymentMethod == 'ONLINE' ? 'Online Payment' : 'Cash on Delivery'}"></span>
+    </div>
+    <div class="detail-row">
+      <span class="label">Payment Status</span>
+      <span th:text="${order.paymentStatus}"
+            th:class="${order.paymentStatus == 'PAID' ? 'p-paid' :
+                            (order.paymentStatus == 'REFUNDED' ? 'p-refunded' : 'p-unpaid')}">
+            </span>
+    </div>
+
+    <div class="total-row">
+      <span>Total Amount</span>
+      <span>Rs. <span th:text="${#numbers.formatDecimal(order.totalAmount, 1, 'COMMA', 2, 'POINT')}">0.00</span></span>
+    </div>
+
+    <div style="display:flex; gap:0.75rem; margin-top:1.25rem; flex-wrap:wrap;">
+      <a href="/orders/history" class="btn btn-outline">← Back</a>
+
+      <!-- Conditional Cancel Button -->
+      <a th:if="${order.status == 'PENDING'}"
+         th:href="@{/orders/cancel/{id}(id=${order.orderId})}"
+         class="btn btn-danger"
+         onclick="return confirm('Are you sure you want to cancel this order?')">
+        ✕ Cancel Order
+      </a>
+
+      <a href="/orders/checkout" class="btn btn-primary" style="margin-left:auto;">+ Place New Order</a>
+    </div>
+  </div>
+</div>
+</body>
+</html>
