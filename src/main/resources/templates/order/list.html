@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Orders — Online Toy Store</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+    <style>
+        .ord-page { max-width: 1200px; margin: 0 auto; padding: 2rem 1.25rem; }
+        .stats-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1rem; margin-bottom: 1.75rem; }
+        .stat-box {
+            background: #fff; border-radius: 12px; padding: 1.1rem 1.25rem;
+            border: 1px solid var(--border); box-shadow: 0 2px 12px rgba(27,42,74,0.07);
+        }
+        .stat-box h3 {
+            font-size: 0.68rem; color: var(--muted); text-transform: uppercase;
+            letter-spacing: 0.5px; font-weight: 700; margin-bottom: 4px;
+        }
+        .stat-box p { font-family: 'Fredoka One', cursive; font-size: 1.6rem; color: var(--secondary); line-height: 1; margin: 0; }
+
+        .filter-bar { display: flex; gap: 0.5rem; margin-bottom: 1.25rem; flex-wrap: wrap; }
+        .filter-btn {
+            padding: 6px 16px; border-radius: 20px; font-family: 'Nunito', sans-serif;
+            font-weight: 700; font-size: 0.82rem; text-decoration: none;
+            border: 1.5px solid var(--border); color: var(--text); background: #fff; transition: all 0.15s;
+        }
+        .filter-btn:hover { border-color: var(--primary); color: var(--primary); }
+        .filter-btn.act { background: var(--secondary); color: #fff; border-color: var(--secondary); }
+        .filter-btn.pend.act { background: #FF6D00; border-color: #FF6D00; }
+        .filter-btn.ship.act { background: #1565C0; border-color: #1565C0; }
+        .filter-btn.delv.act { background: var(--success); border-color: var(--success); }
+        .filter-btn.canc.act { background: var(--danger); border-color: var(--danger); }
+
+        .table-wrap { overflow-x: auto; border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 2px 12px rgba(27,42,74,0.07); }
+        table { width: 100%; border-collapse: collapse; background: #fff; font-size: 0.87rem; font-family: 'Nunito', sans-serif; }
+        thead { background: var(--secondary); color: #fff; }
+        thead th { padding: 11px 14px; text-align: left; font-weight: 700; font-size: 0.73rem; letter-spacing: 0.5px; text-transform: uppercase; }
+        tbody tr { border-bottom: 1px solid var(--border); transition: background 0.12s; }
+        tbody tr:hover { background: rgba(255,107,53,0.03); }
+        tbody td { padding: 12px 14px; vertical-align: middle; }
+
+        .badge-status { padding: 4px 10px; border-radius: 20px; font-size: 0.72rem; font-weight: 800; }
+        .s-pending { background: #FFF3E0; color: #E65100; }
+        .s-shipped { background: #E3F2FD; color: #1565C0; }
+        .s-delivered { background: #E8F5E9; color: #2E7D32; }
+        .s-cancelled { background: #FFE0E0; color: #C62828; }
+
+        .p-paid { background: #E8F5E9; color: #2E7D32; padding: 3px 9px; border-radius: 20px; font-size: 0.7rem; font-weight: 800; }
+        .p-unpaid { background: #FFF3E0; color: #E65100; padding: 3px 9px; border-radius: 20px; font-size: 0.7rem; font-weight: 800; }
+        .p-refunded { background: #F3E5F5; color: #7B1FA2; padding: 3px 9px; border-radius: 20px; font-size: 0.7rem; font-weight: 800; }
+
+        .status-form select { padding: 5px 8px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 0.8rem; cursor: pointer; }
+        .status-form button { padding: 5px 11px; background: var(--secondary); color: #fff; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; }
+
+        @media(max-width: 900px){ .stats-row { grid-template-columns: 1fr 1fr; } }
+    </style>
+</head>
+<body>
+<nav class="navbar">
+    <a href="/" class="navbar-brand"><span>ToyStore</span></a>
+    <ul class="navbar-nav">
+        <li><a href="/">Dashboard</a></li>
+        <li><a href="/users">Users</a></li>
+        <li><a href="/toys">Toys</a></li>
+        <li><a href="/cart">Cart</a></li>
+        <li><a href="/orders" class="active">Orders</a></li>
+        <li><a href="/reviews">Reviews</a></li>
+        <li><a href="/inventory">Inventory</a></li>
+    </ul>
+</nav>
+
+<div class="ord-page">
+    <div class="page-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <h1 style="font-family:'Fredoka One',cursive; font-size:1.7rem; color:var(--secondary); margin:0;">
+            Order Management
+        </h1>
+        <a href="/orders/checkout" class="btn btn-primary" style="text-decoration:none;">+ Place Order</a>
+    </div>
+
+    <!-- Stats Section -->
+    <div class="stats-row">
+        <div class="stat-box"><h3>Total Orders</h3><p th:text="${totalCount}">0</p></div>
+        <div class="stat-box"><h3>Pending</h3><p style="color:#FF6D00;" th:text="${pendingCount}">0</p></div>
+        <div class="stat-box"><h3>Shipped</h3><p style="color:#1565C0;" th:text="${shippedCount}">0</p></div>
+        <div class="stat-box"><h3>Delivered</h3><p style="color:var(--success);" th:text="${deliveredCount}">0</p></div>
+        <div class="stat-box">
+            <h3>Revenue</h3>
+            <p style="color:var(--primary); font-size:1.2rem;">
+                Rs. <span th:text="${#numbers.formatDecimal(totalRevenue, 1, 'COMMA', 0, 'POINT')}">0</span>
+            </p>
+        </div>
+    </div>
+
+    <!-- Filter bar -->
+    <div class="filter-bar">
+        <a th:href="@{/orders}" th:class="${currentStatus == 'ALL' or currentStatus == null} ? 'filter-btn act' : 'filter-btn'">All Orders</a>
+        <a th:href="@{/orders(status='PENDING')}" th:class="${currentStatus == 'PENDING'} ? 'filter-btn pend act' : 'filter-btn pend'">Pending</a>
+        <a th:href="@{/orders(status='SHIPPED')}" th:class="${currentStatus == 'SHIPPED'} ? 'filter-btn ship act' : 'filter-btn ship'">Shipped</a>
+        <a th:href="@{/orders(status='DELIVERED')}" th:class="${currentStatus == 'DELIVERED'} ? 'filter-btn delv act' : 'filter-btn delv'">Delivered</a>
+        <a th:href="@{/orders(status='CANCELLED')}" th:class="${currentStatus == 'CANCELLED'} ? 'filter-btn canc act' : 'filter-btn canc'">Cancelled</a>
+    </div>
+
+    <p style="font-size:0.82rem; color:var(--muted); font-weight:600; margin-bottom:1rem;">
+        Showing <strong style="color:var(--secondary);" th:text="${orders != null ? orders.size() : 0}">0</strong> order(s)
+    </p>
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+            <tr>
+                <th>Order ID</th>
+                <th>Customer</th>
+                <th>Toy</th>
+                <th>Qty</th>
+                <th>Total</th>
+                <th>Date</th>
+                <th>Payment</th>
+                <th>Status</th>
+                <th>Update</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:if="${orders == null or orders.isEmpty()}">
+                <td colspan="10" style="text-align:center; padding:3rem; color:var(--muted);">
+                    <span style="font-size:2.5rem; display:block; margin-bottom:0.75rem;">📦</span>
+                    No orders found.
+                </td>
+            </tr>
+            <tr th:each="order : ${orders}">
+                <td style="font-size:0.75rem; color:var(--muted); font-weight:700;" th:text="${order.orderId}"></td>
+                <td style="font-weight:700;" th:text="${order.username}"></td>
+                <td th:text="${order.toyName}"></td>
+                <td style="font-weight:700; text-align:center;" th:text="${order.quantity}"></td>
+                <td style="font-weight:800;">
+                    Rs. <span th:text="${#numbers.formatDecimal(order.totalAmount, 1, 'COMMA', 2, 'POINT')}"></span>
+                </td>
+                <td style="color:var(--muted); font-size:0.82rem;" th:text="${order.orderDate}"></td>
+                <td>
+                    <div style="display:flex; flex-direction:column; gap:3px;">
+                        <span th:text="${order.paymentMethod}" style="font-size:0.72rem; font-weight:700; color:var(--muted);"></span>
+                        <span th:text="${order.paymentStatus}" th:class="${order.paymentStatus == 'PAID' ? 'p-paid' : (order.paymentStatus == 'REFUNDED' ? 'p-refunded' : 'p-unpaid')}"></span>
+                    </div>
+                </td>
+                <td>
+                        <span th:text="${order.status}"
+                              th:class="${order.status == 'PENDING' ? 'badge-status s-pending' :
+                                        (order.status == 'SHIPPED' ? 'badge-status s-shipped' :
+                                        (order.status == 'DELIVERED' ? 'badge-status s-delivered' : 'badge-status s-cancelled'))}">
+                        </span>
+                </td>
+                <td>
+                    <form action="/orders/status" method="post" class="status-form">
+                        <input type="hidden" name="orderId" th:value="${order.orderId}"/>
+                        <select name="status">
+                            <option value="PENDING" th:selected="${order.status == 'PENDING'}">Pending</option>
+                            <option value="SHIPPED" th:selected="${order.status == 'SHIPPED'}">Shipped</option>
+                            <option value="DELIVERED" th:selected="${order.status == 'DELIVERED'}">Delivered</option>
+                            <option value="CANCELLED" th:selected="${order.status == 'CANCELLED'}">Cancelled</option>
+                        </select>
+                        <button type="submit">✓</button>
+                    </form>
+                </td>
+                <td>
+                    <div style="display:flex; gap:5px;">
+                        <a th:href="@{/orders/detail/{id}(id=${order.orderId})}" class="btn btn-outline" style="padding:4px 10px; font-size:0.78rem;">View</a>
+                        <a th:href="@{/orders/delete/{id}(id=${order.orderId})}" class="btn btn-danger" style="padding:4px 10px; font-size:0.78rem;" onclick="return confirm('Delete this order?')">✕</a>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

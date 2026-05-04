@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>My Orders — Online Toy Store</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}"/>
+  <style>
+    .hist-page { max-width: 960px; margin: 0 auto; padding: 2rem 1.25rem; }
+    .order-card {
+      background: #fff; border: 1px solid var(--border);
+      border-radius: 14px; padding: 1.25rem 1.4rem; margin-bottom: 0.85rem;
+      box-shadow: 0 2px 12px rgba(27,42,74,0.07); display: flex; align-items: center;
+      justify-content: space-between; flex-wrap: wrap; gap: 1rem; transition: box-shadow 0.2s;
+    }
+    .order-card:hover { box-shadow: 0 4px 20px rgba(27,42,74,0.11); }
+    .order-meta { display: flex; flex-direction: column; gap: 4px; }
+    .order-id { font-size: 0.72rem; color: var(--muted); font-weight: 700; }
+    .order-name { font-weight: 800; font-size: 0.97rem; color: var(--secondary); }
+    .order-date { font-size: 0.78rem; color: var(--muted); }
+    .order-right { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+    .order-total { font-family: 'Fredoka One', cursive; font-size: 1.2rem; color: var(--secondary); }
+
+    .badge-status { padding: 5px 12px; border-radius: 20px; font-size: 0.72rem; font-weight: 800; }
+    .s-pending { background: #FFF3E0; color: #E65100; }
+    .s-shipped { background: #E3F2FD; color: #1565C0; }
+    .s-delivered { background: #E8F5E9; color: #2E7D32; }
+    .s-cancelled { background: #FFE0E0; color: #C62828; }
+
+    .p-paid { background: #E8F5E9; color: #2E7D32; padding: 4px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 800; }
+    .p-unpaid { background: #FFF3E0; color: #E65100; padding: 4px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 800; }
+    .p-refunded { background: #F3E5F5; color: #7B1FA2; padding: 4px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 800; }
+
+    .alert-success { background: #E8F5E9; color: #2E7D32; border: 1px solid #A5D6A7; border-radius: 9px; padding: 0.75rem 1rem; font-size: 0.88rem; font-weight: 600; margin-bottom: 1.25rem; }
+    .empty-ord { background: #fff; border-radius: 14px; padding: 4rem 2rem; text-align: center; border: 1px solid var(--border); }
+  </style>
+</head>
+<body>
+<nav class="navbar">
+  <a href="/" class="navbar-brand"><span>ToyStore</span></a>
+  <ul class="navbar-nav">
+    <li><a href="/">Dashboard</a></li>
+    <li><a href="/users">Users</a></li>
+    <li><a href="/toys">Toys</a></li>
+    <li><a href="/cart">Cart</a></li>
+    <li><a href="/orders" class="active">Orders</a></li>
+    <li><a href="/reviews">Reviews</a></li>
+    <li><a href="/inventory">Inventory</a></li>
+  </ul>
+</nav>
+
+<div class="hist-page">
+  <div class="page-header" style="margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+    <h1 style="font-family:'Fredoka One',cursive; font-size:1.7rem; color:var(--secondary); margin:0;">
+      My Order History
+    </h1>
+    <div style="display:flex; gap:0.6rem;">
+      <a href="/orders" class="btn btn-outline" style="text-decoration:none;">Admin View</a>
+      <a href="/orders/checkout" class="btn btn-primary" style="text-decoration:none;">+ New Order</a>
+    </div>
+  </div>
+
+  <div class="alert-success" th:if="${success}" th:text="${success}"></div>
+
+  <!-- Empty state -->
+  <div class="empty-ord" th:if="${orders == null or orders.isEmpty()}">
+    <span style="font-size:3.5rem; display:block; margin-bottom:1rem;">📦</span>
+    <h3 style="font-weight:800; margin-bottom:4px;">No orders yet</h3>
+    <p style="color:var(--muted); margin-bottom:1.25rem;">
+      Browse the toy store and place your first order!
+    </p>
+    <a href="/orders/checkout" class="btn btn-primary">Place an Order</a>
+  </div>
+
+  <!-- Order cards -->
+  <div th:each="order : ${orders}" class="order-card">
+    <div class="order-meta">
+      <span class="order-id" th:text="${order.orderId}">ORD-123</span>
+      <span class="order-name" th:text="${order.toyName}">Toy Name</span>
+      <span class="order-date">
+                <span th:text="${order.orderDate}">2026-05-04</span>
+                &nbsp;•&nbsp;
+                Qty: <strong th:text="${order.quantity}">1</strong>
+            </span>
+    </div>
+    <div class="order-right">
+      <div style="text-align:center;">
+        <div style="font-size:0.7rem; color:var(--muted); font-weight:700; margin-bottom:2px;">PAYMENT</div>
+        <span th:text="${order.paymentStatus}"
+              th:class="${order.paymentStatus == 'PAID' ? 'p-paid' :
+                                (order.paymentStatus == 'REFUNDED' ? 'p-refunded' : 'p-unpaid')}">
+                </span>
+      </div>
+      <div class="order-total">
+        Rs. <span th:text="${#numbers.formatDecimal(order.totalAmount, 1, 'COMMA', 2, 'POINT')}">0.00</span>
+      </div>
+      <span th:text="${order.status}"
+            th:class="${order.status == 'PENDING' ? 'badge-status s-pending' :
+                            (order.status == 'SHIPPED' ? 'badge-status s-shipped' :
+                            (order.status == 'DELIVERED' ? 'badge-status s-delivered' : 'badge-status s-cancelled'))}">
+            </span>
+      <div style="display:flex; gap:6px;">
+        <a th:href="@{/orders/detail/{id}(id=${order.orderId})}" class="btn btn-outline" style="padding:5px 12px; font-size:0.8rem;">
+          View
+        </a>
+        <a th:if="${order.status == 'PENDING'}"
+           th:href="@{/orders/cancel/{id}(id=${order.orderId})}"
+           class="btn btn-danger"
+           style="padding:5px 12px; font-size:0.8rem;"
+           onclick="return confirm('Are you sure you want to cancel this order?')">
+          ✕ Cancel
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
