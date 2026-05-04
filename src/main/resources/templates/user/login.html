@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login — Online Toy Store</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}" />
+  <style>
+    .auth-wrapper {
+      min-height: calc(100vh - 60px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+
+    .auth-card {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 4px 32px rgba(27, 42, 74, 0.13);
+      padding: 2.5rem;
+      width: 100%;
+      max-width: 420px;
+      border: 1px solid var(--border);
+    }
+
+    .auth-card h1 {
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.8rem;
+      color: var(--secondary);
+      margin-bottom: 0.3rem;
+    }
+
+    .auth-card p {
+      color: var(--muted);
+      font-size: 0.88rem;
+      margin-bottom: 1.75rem;
+    }
+
+    .alert-error {
+      background: #FFE0E0;
+      color: #C62828;
+      border: 1px solid #FFCDD2;
+      border-radius: 9px;
+      padding: 0.75rem 1rem;
+      font-size: 0.88rem;
+      font-weight: 600;
+      margin-bottom: 1.25rem;
+    }
+
+    .alert-success {
+      background: #E8F5E9;
+      color: #2E7D32;
+      border: 1px solid #A5D6A7;
+      border-radius: 9px;
+      padding: 0.75rem 1rem;
+      font-size: 0.88rem;
+      font-weight: 600;
+      margin-bottom: 1.25rem;
+    }
+
+    .auth-footer {
+      text-align: center;
+      margin-top: 1.25rem;
+      font-size: 0.88rem;
+      color: var(--muted);
+    }
+
+    .auth-footer a {
+      color: var(--primary);
+      font-weight: 700;
+      text-decoration: none;
+    }
+  </style>
+</head>
+
+<body>
+
+  <nav class="navbar">
+    <a href="/" class="navbar-brand"> <span>ToyStore</span></a>
+    <ul class="navbar-nav">
+      <li><a href="/">Dashboard</a></li>
+      <li><a href="/users" class="active">Users</a></li>
+      <li><a href="/toys">Toys</a></li>
+      <li><a href="/cart">Cart</a></li>
+      <li><a href="/orders">Orders</a></li>
+      <li><a href="/reviews">Reviews</a></li>
+      <li><a href="/inventory">Inventory</a></li>
+    </ul>
+  </nav>
+
+  <div class="auth-wrapper">
+    <div class="auth-card">
+      <h1> Welcome Back</h1>
+      <p>Log in to your ToyStore account</p>
+
+      <div class="alert-error" th:if="${error}" th:text="${error}"></div>
+      <div class="alert-success" th:if="${success}" th:text="${success}"></div>
+      <form th:action="@{/users/login}" method="post">
+        <div class="form-group" style="margin-bottom:1rem;">
+          <label>Username</label>
+          <input type="text" name="username" placeholder="Enter your username" required autofocus />
+        </div>
+        <div class="form-group" style="margin-bottom:1.5rem;">
+          <label>Password</label>
+          <input type="password" name="password" placeholder="Enter your password" required />
+        </div>
+        <button type="submit" class="btn btn-primary"
+          style="width:100%;justify-content:center; font-size:1rem;padding:0.75rem;">
+          Log In
+        </button>
+      </form>
+      <div class="auth-footer">
+        Don't have an account?
+        <a href="/users/register">Register here</a>
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>
