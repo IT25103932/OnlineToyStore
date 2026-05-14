@@ -134,7 +134,7 @@
 
 <div class="cart-layout">
 
-  <!-- ── Left: cart items ─────────────────────────── -->
+  <!--  Left: cart items-->
   <div>
 
     <!-- Add toy to cart -->
@@ -226,7 +226,7 @@
     </div>
   </div>
 
-  <!-- ── Right: Order Summary ──────────────────────── -->
+  <!--  Right: Order Summary  -->
   <div class="summary-card" th:if="${cartItems != null and !cartItems.isEmpty()}">
     <h2>📋 Order Summary</h2>
     <div class="summary-row" th:each="item : ${cartItems}">
@@ -310,10 +310,10 @@
 </style>
 
 <script>
-  // ── Confetti colors ──────────────────────────────
+  //  Confetti colors
   const COLORS = ['#FF6B35','#FFD23F','#4CC9F0','#2DC653','#E63946','#FF6B6B'];
 
-  // ── Show celebration when add to cart form submitted ──
+  // Show celebration when add to cart form submitted
   document.addEventListener('DOMContentLoaded', function() {
 
     // Check if we just added an item (via URL param)
@@ -341,7 +341,7 @@
     }
   });
 
-  // ── Main celebration function ────────────────────
+  //  Main celebration function
   function showCelebration() {
     const celebration = document.getElementById('celebration');
     const canvas = document.getElementById('confetti-canvas');
@@ -366,7 +366,7 @@
     }, 2500);
   }
 
-  // ── Confetti animation ───────────────────────────
+  //  Confetti animation
   function startConfetti(canvas) {
     const ctx = canvas.getContext('2d');
     canvas.width  = window.innerWidth;
@@ -427,6 +427,7 @@
 
     draw();
   }
+  
 </script>
 </body>
 </html>
