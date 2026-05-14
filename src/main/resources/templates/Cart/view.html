@@ -250,5 +250,183 @@
   </div>
 
 </div>
+<!-- 🎉 Celebration Animation -->
+<div id="celebration" style="
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 9999;
+">
+  <div id="celebration-message" style="
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        border-radius: 20px;
+        padding: 2rem 3rem;
+        text-align: center;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+        z-index: 10000;
+        animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    ">
+    <div style="font-size: 4rem;">🎉</div>
+    <div style="
+            font-family: 'Fredoka One', cursive;
+            font-size: 1.5rem;
+            color: #FF6B35;
+            margin-top: 0.5rem;
+        ">Added to Cart!</div>
+    <div style="
+            font-size: 0.9rem;
+            color: #8A95A8;
+            margin-top: 0.25rem;
+        ">Your toy is in the cart 🧸</div>
+  </div>
+</div>
+
+<!-- Confetti Canvas -->
+<canvas id="confetti-canvas" style="
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 9998;
+    display: none;
+"></canvas>
+
+<style>
+  @keyframes popIn {
+    0%   { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+    100% { transform: translate(-50%, -50%) scale(1);   opacity: 1; }
+  }
+
+  @keyframes fadeOut {
+    0%   { opacity: 1; }
+    100% { opacity: 0; }
+  }
+</style>
+
+<script>
+  // ── Confetti colors ──────────────────────────────
+  const COLORS = ['#FF6B35','#FFD23F','#4CC9F0','#2DC653','#E63946','#FF6B6B'];
+
+  // ── Show celebration when add to cart form submitted ──
+  document.addEventListener('DOMContentLoaded', function() {
+
+    // Check if we just added an item (via URL param)
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('added') === 'true') {
+      showCelebration();
+    }
+
+    // Intercept the Add to Cart form
+    const addForm = document.querySelector('form[action="/cart/add"]');
+    if (addForm) {
+      addForm.addEventListener('submit', function(e) {
+        const toySelect = addForm.querySelector('select[name="toyId"]');
+        if (toySelect && toySelect.value) {
+          // Let form submit normally but show animation first
+          sessionStorage.setItem('showCelebration', 'true');
+        }
+      });
+    }
+
+    // Check sessionStorage after page reload
+    if (sessionStorage.getItem('showCelebration') === 'true') {
+      sessionStorage.removeItem('showCelebration');
+      showCelebration();
+    }
+  });
+
+  // ── Main celebration function ────────────────────
+  function showCelebration() {
+    const celebration = document.getElementById('celebration');
+    const canvas = document.getElementById('confetti-canvas');
+
+    // Show popup
+    celebration.style.display = 'block';
+    canvas.style.display = 'block';
+
+    // Start confetti
+    startConfetti(canvas);
+
+    // Hide after 2.5 seconds
+    setTimeout(function() {
+      celebration.style.animation = 'fadeOut 0.5s forwards';
+      canvas.style.animation = 'fadeOut 0.5s forwards';
+      setTimeout(function() {
+        celebration.style.display = 'none';
+        canvas.style.display = 'none';
+        celebration.style.animation = '';
+        canvas.style.animation = '';
+      }, 500);
+    }, 2500);
+  }
+
+  // ── Confetti animation ───────────────────────────
+  function startConfetti(canvas) {
+    const ctx = canvas.getContext('2d');
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const pieces = [];
+    const count  = 120;
+
+    // Create confetti pieces
+    for (let i = 0; i < count; i++) {
+      pieces.push({
+        x:       Math.random() * canvas.width,
+        y:       Math.random() * canvas.height - canvas.height,
+        w:       Math.random() * 12 + 6,
+        h:       Math.random() * 6  + 4,
+        color:   COLORS[Math.floor(Math.random() * COLORS.length)],
+        speed:   Math.random() * 4  + 2,
+        angle:   Math.random() * 360,
+        spin:    Math.random() * 6  - 3,
+        opacity: Math.random() * 0.7 + 0.3
+      });
+    }
+
+    let frame;
+    let startTime = Date.now();
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      pieces.forEach(function(p) {
+        ctx.save();
+        ctx.globalAlpha = p.opacity;
+        ctx.translate(p.x + p.w / 2, p.y + p.h / 2);
+        ctx.rotate((p.angle * Math.PI) / 180);
+        ctx.fillStyle = p.color;
+        ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+        ctx.restore();
+
+        // Move down
+        p.y     += p.speed;
+        p.angle += p.spin;
+
+        // Reset when off screen
+        if (p.y > canvas.height) {
+          p.y = -10;
+          p.x = Math.random() * canvas.width;
+        }
+      });
+
+      // Stop after 2.5 seconds
+      if (Date.now() - startTime < 2500) {
+        frame = requestAnimationFrame(draw);
+      } else {
+        cancelAnimationFrame(frame);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
+    }
+
+    draw();
+  }
+</script>
 </body>
 </html>
