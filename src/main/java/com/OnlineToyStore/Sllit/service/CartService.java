@@ -25,19 +25,19 @@ public class CartService {
         return dataFilePath + "cart.txt";
     }
 
-    // ── READ ALL items for a user ─────────────────────
+    //  READ ALL items for a user ─────────────────────
     public List<CartItem> getCartItems(String userId) {
         return readAll().stream()
                 .filter(item -> item.getUserId().equals(userId))
                 .collect(Collectors.toList());
     }
 
-    // ── READ ALL items (admin view) ───────────────────
+    //  READ ALL items (admin view) ───────────────────
     public List<CartItem> getAllCartItems() {
         return readAll();
     }
 
-    // ── ADD item to cart ──────────────────────────────
+    // ADD item to cart ──────────────────────────────
     public void addToCart(String userId, String toyId, int quantity) {
         List<CartItem> all = readAll();
 
@@ -95,7 +95,7 @@ public class CartService {
         saveAll(remaining);
     }
 
-    // ── CLEAR entire cart for a user ──────────────────
+    // ── CLEAR entire cart for a user
     public void clearCart(String userId) {
         List<CartItem> remaining = readAll().stream()
                 .filter(item -> !item.getUserId().equals(userId))
@@ -103,21 +103,21 @@ public class CartService {
         saveAll(remaining);
     }
 
-    // ── CALCULATE cart total ──────────────────────────
+    //  CALCULATE cart total
     public double getCartTotal(String userId) {
         return getCartItems(userId).stream()
                 .mapToDouble(CartItem::getTotalPrice)
                 .sum();
     }
 
-    // ── CALCULATE item count ──────────────────────────
+    //  CALCULATE item count ──────────────────────────
     public int getCartItemCount(String userId) {
         return getCartItems(userId).stream()
                 .mapToInt(CartItem::getQuantity)
                 .sum();
     }
 
-    // ── Private helpers ───────────────────────────────
+    //  Private helpers ───────────────────────────────
     private List<CartItem> readAll() {
         List<CartItem> items = new ArrayList<>();
         File file = new File(getFilePath());

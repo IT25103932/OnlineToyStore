@@ -58,7 +58,7 @@ public class CartController {
         return "redirect:/cart";
     }
 
-    // ── Remove item ───────────────────────────────────
+    // ─ Remove item
     @GetMapping("/remove/{cartItemId}")
     public String removeItem(@PathVariable String cartItemId) {
         cartService.removeItem(cartItemId);
