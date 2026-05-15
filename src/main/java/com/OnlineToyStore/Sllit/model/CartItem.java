@@ -8,24 +8,29 @@ import lombok.AllArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CartItem {
+
+    // Encapsulation — all fields are private
+    // Only accessible through getters and setters (Lombok @Data)
     private String cartItemId;
-    private String toyId;
-    private int quantity;
     private String userId;
+    private String toyId;
     private String toyName;
     private String toyImageUrl;
     private double unitPrice;
+    private int quantity;
 
-    //encapsulation - total price calculation
+    // Encapsulation — total price calculation hidden inside the class
     public double getTotalPrice() {
         return unitPrice * quantity;
     }
-    //polymorphism-regular customer gets discount
+
+    // Polymorphism — regular user gets no discount
     public double getDiscountedPrice() {
         return getTotalPrice();
     }
-    // Saving   to cart.txt
-    // Format:> cartItemId|userId|toyId|toyName|toyImageUrl|unitPrice|quantity
+
+    // Save to cart.txt
+    // Format: cartItemId|userId|toyId|toyName|toyImageUrl|unitPrice|quantity
     public String toFileString() {
         return cartItemId + "|" +
                 userId + "|" +
@@ -50,5 +55,3 @@ public class CartItem {
         return item;
     }
 }
-
-
