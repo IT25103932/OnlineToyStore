@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Edit Review — Online Toy Store</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+    <style>
+        .star-selector { display:flex; flex-direction:row-reverse; justify-content:flex-end; gap:4px; margin-top:4px; }
+        .star-selector input { display:none; }
+        .star-selector label { font-size:2rem; color:#ddd; cursor:pointer; transition:color 0.15s; }
+        .star-selector label:hover,
+        .star-selector label:hover ~ label,
+        .star-selector input:checked ~ label { color:#FFB300; }
+    </style>
+</head>
+<body>
+<nav class="navbar">
+    <a href="/" class="navbar-brand"><span>ToyStore</span></a>
+    <ul class="navbar-nav">
+        <li><a href="/">Dashboard</a></li>
+        <li><a href="/users">Users</a></li>
+        <li><a href="/toys">Toys</a></li>
+        <li><a href="/cart">Cart</a></li>
+        <li><a href="/orders">Orders</a></li>
+        <li><a href="/reviews" class="active">Reviews</a></li>
+        <li><a href="/inventory">Inventory</a></li>
+    </ul>
+</nav>
+
+<div class="page">
+    <div class="page-header">
+        <h1 style="font-size:1.7rem; color:var(--secondary);">
+            ✏️ Edit Review
+        </h1>
+        <a href="/reviews" class="btn btn-outline">← Back to Reviews</a>
+    </div>
+
+    <p style="color:var(--muted); font-size:0.8rem;
+              margin-bottom:1.25rem; font-weight:600;">
+        Editing:
+        <strong style="color:var(--secondary);"
+                th:text="${review.reviewId}"></strong>
+    </p>
+
+    <div class="card" style="max-width:640px;">
+        <form th:action="@{/reviews/edit/{id}(id=${r

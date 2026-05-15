@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Toy Reviews — Online Toy Store</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+    <style>
+        .toy-rev-page { max-width:860px; margin:0 auto; padding:2rem 1.25rem; }
+        .toy-summary { background:#fff; border-radius:14px; border:1px solid var(--border); padding:1.5rem; margin-bottom:1.5rem; display:flex; align-items:center; gap:1.5rem; flex-wrap:wrap; }
+        .avg-score { font-size:3.5rem; color:var(--secondary); line-height:1; }
+        .avg-stars { color:#FFB300; font-size:1.6rem; letter-spacing:2px; }
+        .rev-count { font-size:0.85rem; color:var(--muted); font-weight:600; }
+        .review-card { background:#fff; border:1px solid var(--border); border-radius:13px; padding:1.25rem; margin-bottom:0.85rem; }
+        .rev-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:0.6rem; flex-wrap:wrap; gap:0.5rem; }
+        .rev-user { display:flex; align-items:center; gap:8px; }
+        .rev-avatar { width:34px; height:34px; border-radius:50%; background:linear-gradient(135deg,#667eea,#764ba2); display:flex; align-items:center; justify-content:center; color:#fff; font-weight:800; font-size:0.85rem; }
+        .rev-username { font-weight:800; font-size:0.9rem; color:var(--secondary); }
+        .rev-date { font-size:0.73rem; color:var(--muted); }
+        .rev-stars { color:#FFB300; font-size:1rem; letter-spacing:1px; }
+        .rev-comment { font-size:0.9rem; color:var(--text); line-height:1.55; }
+        .empty-rev { background:#fff; border-radius:13px; padding:3rem 2rem; text-align:center; border:1px solid var(--border); }
+    </style>
+</head>
+<body>
+<nav class="navbar">
+    <a href="/" class="navbar-brand"><span>ToyStore</span></a>
+    <ul class="navbar-nav">
+        <li><a href="/">Dashboard</a></li>
+        <li><a href="/users">Users</a></li>
+        <li><a href="/toys">Toys</a></li>
+        <li><a href="/cart">Cart</a></li>
+        <li><a href="/orders">Orders</a></li>
+        <li><a href="/reviews" class="active">Reviews</a></li>
+        <li><a href="/inventory">Inventory</a></li>
+    </ul>
+</nav>
+
+<div class="toy-rev-page">
+    <div class="page-header">
+        <h1 style="font-size:1.6rem; color:var(--secondary);">
+            ⭐ Reviews for
+            <span th:text="${toy != null} ? ${toy.name} : 'Toy'"></span>
+        </h1>
+        <div style="display:flex; gap:0.6rem;">
+            <a href="/reviews" class="btn btn-outline">← All Reviews</a>
+            <a th:href="@{/reviews/submit(toyId=${toy.toyId})}"
+               class="btn btn-primary">✏️ Write Review</a>
+        </div>
+    </div>
+
+    <!-- Rating summary -->
+    <div class="toy-summary"
+         th:if="${reviews != null and !reviews.isEmpty()}">
+        <div>
+            <div class="avg-score"
+                 th:text="${#numbers.formatDecimal(avgRating,1,'POINT',1,'POINT')}">
+                0.0
+            </div>
+        </div>
+        <div>
+            <div class="avg-stars"
+                 th:text="${'★'.repeat(avgRating.intValue()) +
+                            '☆'.repeat(5 - avgRating.intValue())}">
+            </div>
+            <div class="rev-count"
+                 th:text="${reviews.size()} + ' approved review(s)'">
+            </div>
+        </div>
+        <div style="margin-left:auto;">
+            <a th:href="@{/reviews/submit(toyId=${toy.toyId})}"
+               class="btn btn-primary">✏️ Write a Review</a>
+        </div>
+    </div>
+
+    <!-- Empty state -->
+    <div class="empty-rev"
+         th:if="${reviews == null or reviews.isEmpty()}">
+        <span style="font-size:3rem; display:block; margin-bottom:1rem;">⭐</span>
+        <h3 style="font-weight:800; margin-bottom:4px;">No reviews yet</h3>
+        <p style="color:var(--muted); margin-bottom:1.25rem;">
+            Be the first to review this toy!
+        </p>
+        <a th:href="@{/reviews/submit(toyId=${toy.toyId})}"
+           class="btn btn-primary">✏️ Write First Review</a>
+    </div>
+
+    <!-- Review cards -->
+    <div th:each="review : ${reviews}" class="review-card">
+        <div class="rev-header">
+            <div class="rev-user">
+                <div class="rev-avatar"
+                     th:text="${#strings.substring(review.username,0,1).toUpperCase()}">
+                </div>
+                <div>
+                    <div class="rev-username"
+                         th:text="${review.username}"></div>
+                    <div class="rev-date"
+                         th:text="${review.date}"></div>
+                </div>
+            </div>
+            <div style="display:flex; align-items:center; gap:6px;">
+                <span class="rev-stars"
+                      th:text="${'★'.repeat(review.rating) +
+                                 '☆'.repeat(5 - review.rating)}">
+                </span>
+                <span style="font-weight:800; font-size:0.85rem;
+                             color:var(--secondary);"
+                      th:text="${review.rating} + '/5'">
+                </span>
+            </div>
+        </div>
+        <div class="rev-comment"
+             th:text="${review.comment}"></div>
+    </div>
+
+</div>
+</body>
+</html>
