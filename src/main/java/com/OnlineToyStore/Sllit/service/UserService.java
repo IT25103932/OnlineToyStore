@@ -138,4 +138,30 @@ public class UserService {
       e.printStackTrace();
     }
   }
+  // ── CREATE default admin if none exists ───────────
+  public void createDefaultAdminIfNotExists() {
+    boolean adminExists = getAllUsers().stream()
+            .anyMatch(u -> "ADMIN".equalsIgnoreCase(u.getRole()));
+
+    if (!adminExists) {
+      User admin = new User();
+      admin.setUserId("USR-ADMIN-0001");
+      admin.setUsername("admin");
+      admin.setEmail("admin@toystore.lk");
+      admin.setPassword("admin123");
+      admin.setAddress("ToyStore HQ");
+      admin.setPhone("0112345678");
+      admin.setRole("ADMIN");
+
+      try (BufferedWriter writer = new BufferedWriter(
+              new FileWriter(getFilePath(), true))) {
+        writer.write(admin.toFileString());
+        writer.newLine();
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+      System.out.println(
+              "✅ Default admin created — username: admin | password: admin123");
+    }
+  }
 }

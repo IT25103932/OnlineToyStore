@@ -8,19 +8,18 @@ import lombok.AllArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class User {
+
     private String userId;
     private String username;
     private String email;
     private String password;
     private String address;
     private String phone;
-    private String role;
+    private String role;  // ADMIN or CUSTOMER
 
-    // ADMIN or CUSTOMER
-    // Polymorphism — overridden in subclasses
-    public String getRole() {
-        return "CUSTOMER";
-    }
+    // NOTE: We do NOT write getRole() here manually.
+    // Lombok @Data auto-generates it from the 'role' field.
+    // Subclasses AdminUser and CustomerUser override getRole().
 
     // Save to users.txt
     // Format: userId|username|email|password|address|phone|role
@@ -30,8 +29,8 @@ public class User {
                 email + "|" +
                 password + "|" +
                 (address != null ? address : "") + "|" +
-                (phone != null ? phone : "") + "|" +
-                (role != null ? role : "CUSTOMER");
+                (phone   != null ? phone   : "") + "|" +
+                (role    != null ? role    : "CUSTOMER");
     }
 
     // Read one line from users.txt → User object
@@ -43,8 +42,8 @@ public class User {
         u.setEmail(p[2]);
         u.setPassword(p[3]);
         u.setAddress(p.length > 4 ? p[4] : "");
-        u.setPhone(p.length > 5 ? p[5] : "");
-        u.setRole(p.length > 6 ? p[6] : "CUSTOMER");
+        u.setPhone(p.length > 5   ? p[5] : "");
+        u.setRole(p.length > 6    ? p[6] : "CUSTOMER");
         return u;
     }
 }

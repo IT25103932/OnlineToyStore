@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>My Profile — Online Toy Store</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<!-- PASTE THIS NAVBAR into EVERY .html template -->
+<nav class="navbar">
+    <a href="/" class="navbar-brand">🧸 <span>ToyStore</span></a>
+    <ul class="navbar-nav">
+
+        <li><a href="/toys">Toys</a></li>
+
+        <!-- Admin only links -->
+        <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
+            <a href="/dashboard">Dashboard</a>
+        </li>
+        <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
+            <a href="/users">Users</a>
+        </li>
+        <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
+            <a href="/orders">All Orders</a>
+        </li>
+        <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
+            <a href="/inventory">Inventory</a>
+        </li>
+
+        <!-- Any logged-in user -->
+        <li th:if="${session.loggedInUser != null}">
+            <a href="/cart">🛒 Cart</a>
+        </li>
+        <li th:if="${session.loggedInUser != null}">
+            <a href="/orders/history">My Orders</a>
+        </li>
+        <li th:if="${session.loggedInUser != null}">
+            <a href="/reviews">Reviews</a>
+        </li>
+        <li th:if="${session.loggedInUser != null}">
+            <a href="/users/profile"
+               style="color:var(--accent);">
+                👤 <span th:text="${session.loggedInUser?.username}">
+                </span>
+            </a>
+        </li>
+
+        <!-- Guest only -->
+        <li th:if="${session.loggedInUser == null}">
+            <a href="/users/login">Login</a>
+        </li>
+        <li th:if="${session.loggedInUser == null}">
+            <a href="/users/register">Register</a>
+        </li>
+
+        <!-- Logout -->
+        <li th:if="${session.loggedInUser != null}">
+            <a href="/users/logout"
+               style="color:rgba(255,150,150,0.85);">
+                Logout
+            </a>
+        </li>
+    </ul>
+</nav>
+
+<div class="page">
+    <div class="page-header">
+        <h1 style="font-family:'Fredoka One',cursive;font-size:1.7rem;
+                   color:var(--secondary);">👤 My Profile</h1>
+    </div>
+
+    <div class="card" style="max-width:560px;">
+        <div style="display:flex;align-items:center;gap:1rem;
+                    margin-bottom:1.5rem;padding-bottom:1rem;
+                    border-bottom:1px solid var(--border);">
+            <div style="width:60px;height:60px;border-radius:50%;
+                        background:linear-gradient(135deg,#667eea,#764ba2);
+                        display:flex;align-items:center;justify-content:center;
+                        color:#fff;font-weight:800;font-size:1.4rem;">
+                <span th:text="${#strings.substring(user.username,0,1).toUpperCase()}">
+                </span>
+            </div>
+            <div>
+                <h2 style="font-weight:800;font-size:1.1rem;
+                           color:var(--secondary);margin:0;"
+                    th:text="${user.username}"></h2>
+                <span th:text="${user.role}"
+                      style="font-size:0.75rem;font-weight:700;padding:3px 10px;
+                             border-radius:20px;"
+                      th:style="${user.role=='ADMIN'} ?
+                                'background:#E3F2FD;color:#1565C0;' :
+                                'background:#E8F5E9;color:#2E7D32;'">
+                </span>
+            </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:0.85rem;
+                    margin-bottom:1.5rem;">
+            <div style="display:flex;gap:0.75rem;">
+                <span style="width:90px;font-size:0.78rem;font-weight:700;
+                             color:var(--muted);text-transform:uppercase;">
+                    Email
+                </span>
+                <span style="font-weight:600;"
+                      th:text="${user.email}"></span>
+            </div>
+            <div style="display:flex;gap:0.75rem;">
+                <span style="width:90px;font-size:0.78rem;font-weight:700;
+                             color:var(--muted);text-transform:uppercase;">
+                    Phone
+                </span>
+                <span style="font-weight:600;"
+                      th:text="${user.phone!=null and !user.phone.isEmpty()}?${user.phone}:'—'">
+                </span>
+            </div>
+            <div style="display:flex;gap:0.75rem;">
+                <span style="width:90px;font-size:0.78rem;font-weight:700;
+                             color:var(--muted);text-transform:uppercase;">
+                    Address
+                </span>
+                <span style="font-weight:600;"
+                      th:text="${user.address!=null and !user.address.isEmpty()}?${user.address}:'—'">
+                </span>
+            </div>
+        </div>
+
+        <div style="display:flex;gap:0.75rem;">
+            <a th:href="@{/users/edit/{id}(id=${user.userId})}"
+               class="btn btn-primary">✏️ Edit Profile</a>
+            <a href="/orders/history" class="btn btn-outline">
+                📦 My Orders
+            </a>
+        </div>
+    </div>
+</div>
+</body>
+</html>

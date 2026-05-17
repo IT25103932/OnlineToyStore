@@ -1,5 +1,5 @@
-TOY-21C3BA23|RcCar|ELECTRONIC|Remote Control Car |3500.0|8
-TOY-471BBF36|Spongebob Squarepants Plush|SOFT|Spongebob Squarepants Plush Soft Toy- 12 Inches|1390.0|5
-TOY-EED22A9D|Wodden puzzel block |EDUCATIONAL||2399.0|4
-TOY-14786A89|plastic kitchen kit|GENERAL||2899.0|7
-TOY-1677BE0C|Leser Gun|SOFT|Can shoot within 5 meters|549.99|100
+TOY-21C3BA23|RC Racing Car|ELECTRONIC|Remote controlled car with full steering and speed control|3500.0|6
+TOY-471BBF36|Spongebob Squarepants Plush|SOFT|Spongebob Squarepants Plush Soft Toy - 12 Inches|1390.0|5
+TOY-EED22A9D|Wooden Puzzle Blocks|EDUCATIONAL|Colorful wooden building blocks for ages 3-6 years|2399.0|4
+TOY-14786A89|Plastic Kitchen Kit|GENERAL|Complete toy kitchen set with utensils and food pieces|2899.0|7
+TOY-1677BE0C|Laser Blaster Gun|GENERAL|Toy laser gun with light and sound effects - shoots up to 5 meters|549.99|100

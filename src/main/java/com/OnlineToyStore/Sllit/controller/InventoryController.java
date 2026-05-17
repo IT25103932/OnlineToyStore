@@ -3,6 +3,8 @@ package com.OnlineToyStore.Sllit.controller;
 import com.OnlineToyStore.Sllit.model.Supplier;
 import com.OnlineToyStore.Sllit.service.InventoryService;
 import com.OnlineToyStore.Sllit.service.SupplierService;
+import com.OnlineToyStore.Sllit.util.SessionHelper;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -12,102 +14,130 @@ import org.springframework.web.bind.annotation.*;
 public class InventoryController {
 
     @Autowired
-    private InventoryService inventoryService; // handles stock logic
+    private InventoryService inventoryService;
 
     @Autowired
-    private SupplierService supplierService;   // handles supplier CRUD
+    private SupplierService supplierService;
 
-    // ── GET /inventory — main inventory overview page ─────────────────────────
-    // optional ?filter=low / ?filter=out / ?filter=healthy
+    // ── Inventory overview — ADMIN ONLY ────────────────
     @GetMapping("/inventory")
     public String inventoryOverview(
             @RequestParam(required = false) String filter,
-            Model model) {
+            HttpSession session, Model model) {
 
-        // Send summary stats to the HTML page
-        model.addAttribute("totalToys",      inventoryService.getTotalToyCount());
-        model.addAttribute("lowStockCount",  inventoryService.getLowStockCount());
-        model.addAttribute("outOfStockCount",inventoryService.getOutOfStockCount());
-        model.addAttribute("totalUnits",     inventoryService.getTotalStockUnits());
+        if (!SessionHelper.isAdmin(session)) {
+            return "redirect:/access-denied";
+        }
 
-        // Send the correct filtered list based on the ?filter= value
+        model.addAttribute("totalToys",       inventoryService.getTotalToyCount());
+        model.addAttribute("lowStockCount",   inventoryService.getLowStockCount());
+        model.addAttribute("outOfStockCount", inventoryService.getOutOfStockCount());
+        model.addAttribute("totalUnits",      inventoryService.getTotalStockUnits());
+
         if ("low".equals(filter)) {
             model.addAttribute("toys", inventoryService.getLowStockToys());
             model.addAttribute("filterLabel", "Low Stock");
-
         } else if ("out".equals(filter)) {
             model.addAttribute("toys", inventoryService.getOutOfStockToys());
             model.addAttribute("filterLabel", "Out of Stock");
-
         } else if ("healthy".equals(filter)) {
             model.addAttribute("toys", inventoryService.getHealthyStockToys());
             model.addAttribute("filterLabel", "Healthy Stock");
-
         } else {
             model.addAttribute("toys", inventoryService.getAllInventory());
             model.addAttribute("filterLabel", "All Toys");
         }
 
         model.addAttribute("currentFilter", filter);
-        return "inventory/list"; // loads templates/inventory/list.html
+        return "inventory/list";
     }
 
-    // ── POST /inventory/restock — increase a toy's stock quantity ─────────────
+    // ── Restock — ADMIN ONLY ───────────────────────────
     @PostMapping("/inventory/restock")
     public String restockToy(
             @RequestParam String toyId,
-            @RequestParam int addQuantity) {
+            @RequestParam int addQuantity,
+            HttpSession session) {
 
+        if (!SessionHelper.isAdmin(session)) {
+            return "redirect:/access-denied";
+        }
         inventoryService.restockToy(toyId, addQuantity);
-        return "redirect:/inventory"; // go back to inventory page after restocking
+        return "redirect:/inventory";
     }
 
-    // ── GET /suppliers — show all suppliers ───────────────────────────────────
+    // ── Supplier list — ADMIN ONLY ─────────────────────
     @GetMapping("/suppliers")
-    public String listSuppliers(Model model) {
+    public String listSuppliers(HttpSession session, Model model) {
+        if (!SessionHelper.isAdmin(session)) {
+            return "redirect:/access-denied";
+        }
         model.addAttribute("suppliers",  supplierService.getAllSuppliers());
         model.addAttribute("totalCount", supplierService.getAllSuppliers().size());
-        return "inventory/suppliers"; // loads templates/inventory/suppliers.html
+        return "inventory/suppliers";
     }
 
-    // ── GET /suppliers/add — show the add supplier form ───────────────────────
+    // ── Add Supplier form — ADMIN ONLY ─────────────────
     @GetMapping("/suppliers/add")
-    public String showAddSupplierForm(Model model) {
-        model.addAttribute("supplier", new Supplier()); // empty object for the form
+    public String showAddSupplierForm(HttpSession session, Model model) {
+        if (!SessionHelper.isAdmin(session)) {
+            return "redirect:/access-denied";
+        }
+        model.addAttribute("supplier", new Supplier());
         return "inventory/add-supplier";
     }
 
-    // ── POST /suppliers/add — save the new supplier ───────────────────────────
+    // ── Save new supplier — ADMIN ONLY ─────────────────
     @PostMapping("/suppliers/add")
-    public String addSupplier(@ModelAttribute Supplier supplier) {
-        supplierService.addSupplier(supplier); // saves to suppliers.txt
+    public String addSupplier(
+            @ModelAttribute Supplier supplier,
+            HttpSession session) {
+
+        if (!SessionHelper.isAdmin(session)) {
+            return "redirect:/access-denied";
+        }
+        supplierService.addSupplier(supplier);
         return "redirect:/suppliers";
     }
 
-    // ── GET /suppliers/edit/{id} — show the edit form pre-filled ─────────────
+    // ── Edit Supplier form — ADMIN ONLY ────────────────
     @GetMapping("/suppliers/edit/{supplierId}")
     public String showEditSupplierForm(
             @PathVariable String supplierId,
-            Model model) {
+            HttpSession session, Model model) {
 
-        model.addAttribute("supplier", supplierService.getSupplierById(supplierId));
+        if (!SessionHelper.isAdmin(session)) {
+            return "redirect:/access-denied";
+        }
+        model.addAttribute("supplier",
+                supplierService.getSupplierById(supplierId));
         return "inventory/edit-supplier";
     }
 
-    // ── POST /suppliers/edit/{id} — save updated supplier data ───────────────
+    // ── Save edited supplier — ADMIN ONLY ──────────────
     @PostMapping("/suppliers/edit/{supplierId}")
     public String updateSupplier(
             @PathVariable String supplierId,
-            @ModelAttribute Supplier supplier) {
+            @ModelAttribute Supplier supplier,
+            HttpSession session) {
 
-        supplier.setSupplierId(supplierId); // make sure ID stays the same
+        if (!SessionHelper.isAdmin(session)) {
+            return "redirect:/access-denied";
+        }
+        supplier.setSupplierId(supplierId);
         supplierService.updateSupplier(supplier);
         return "redirect:/suppliers";
     }
 
-    // ── GET /suppliers/delete/{id} — delete a supplier ───────────────────────
+    // ── Delete supplier — ADMIN ONLY ───────────────────
     @GetMapping("/suppliers/delete/{supplierId}")
-    public String deleteSupplier(@PathVariable String supplierId) {
+    public String deleteSupplier(
+            @PathVariable String supplierId,
+            HttpSession session) {
+
+        if (!SessionHelper.isAdmin(session)) {
+            return "redirect:/access-denied";
+        }
         supplierService.deleteSupplier(supplierId);
         return "redirect:/suppliers";
     }
