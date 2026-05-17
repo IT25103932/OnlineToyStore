@@ -10,7 +10,6 @@ import lombok.AllArgsConstructor;
 public class Toy {
     private String toyId;
     private String name;
-    private String category;
     private String description;
     private double price;
     private int stockQuantity;

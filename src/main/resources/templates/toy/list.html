@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Toy Management — Online Toy Store</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar">
+    <a href="/" class="navbar-brand">🧸 <span>ToyStore</span></a>
+    <ul class="navbar-nav">
+        <li><a href="/">Dashboard</a></li>
+        <li><a href="/users">Users</a></li>
+        <li><a href="/toys" class="active">Toys</a></li>
+        <li><a href="/cart">Cart</a></li>
+        <li><a href="/orders">Orders</a></li>
+        <li><a href="/reviews">Reviews</a></li>
+        <li><a href="/inventory">Inventory</a></li>
+    </ul>
+</nav>
+
+<div class="page">
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <h1>
+            <span class="icon">🧸</span>
+            Toy Management
+        </h1>
+        <div style="display:flex; gap:0.75rem;">
+            <a href="/toys/search" class="btn btn-outline">🔍 Search</a>
+            <a href="/toys/add" class="btn btn-primary">+ Add New Toy</a>
+        </div>
+    </div>
+
+    <!-- Table -->
+    <div class="table-wrap">
+        <table>
+            <thead>
+            <tr>
+                <th>Toy ID</th>
+                <th>Name</th>
+                <th>Category</th>
+                <th>Description</th>
+                <th>Price</th>
+                <th>Stock</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <!-- If toys list is not empty -->
+            <th:block th:if="${toys != null and !toys.isEmpty()}">
+                <tr th:each="toy : ${toys}">
+                    <td style="font-size:0.8rem; color:var(--text-muted); font-weight:700;"
+                        th:text="${toy.toyId}"></td>
+                    <td>
+                        <span style="font-weight:700;" th:text="${toy.name}"></span>
+                    </td>
+                    <td>
+                            <span th:text="${toy.category}"
+                                  th:classappend="${toy.category == 'EDUCATIONAL'} ? 'badge badge-educational' :
+                                                  (${toy.category == 'ELECTRONIC'} ? 'badge badge-electronic' :
+                                                  (${toy.category == 'SOFT'} ? 'badge badge-soft' :
+                                                  'badge badge-general'))">
+                            </span>
+                    </td>
+                    <td style="max-width:200px; color:var(--text-muted); font-size:0.88rem;"
+                        th:text="${toy.description}"></td>
+                    <td style="font-weight:700;">
+                        Rs. <span th:text="${toy.price}"></span>
+                    </td>
+                    <td>
+                            <span th:text="${toy.stockQuantity}"
+                                  th:class="${toy.stockQuantity < 5} ? 'stock-low' : 'stock-ok'">
+                            </span>
+                    </td>
+                    <td>
+                        <div style="display:flex; gap:0.5rem;">
+                            <a th:href="@{/toys/edit/{id}(id=${toy.toyId})}"
+                               class="btn btn-outline btn-sm">✏️ Edit</a>
+                            <a th:href="@{/toys/delete/{id}(id=${toy.toyId})}"
+                               class="btn btn-danger btn-sm"
+                               onclick="return confirm('Delete this toy?')">🗑️ Delete</a>
+                        </div>
+                    </td>
+                </tr>
+            </th:block>
+
+            <!-- Empty state inside table -->
+            <tr th:if="${toys == null or toys.isEmpty()}">
+                <td colspan="7">
+                    <div class="empty-state">
+                        <span class="empty-icon">🧸</span>
+                        <h3>No toys found</h3>
+                        <p>Start by adding your first toy to the store.</p>
+                        <br/>
+                        <a href="/toys/add" class="btn btn-primary">+ Add First Toy</a>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Submit Review — Online Toy Store</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+    <style>
+        .star-selector { display:flex; flex-direction:row-reverse; justify-content:flex-end; gap:4px; margin-top:4px; }
+        .star-selector input { display:none; }
+        .star-selector label { font-size:2rem; color:#ddd; cursor:pointer; transition:color 0.15s; }
+        .star-selector label:hover,
+        .star-selector label:hover ~ label,
+        .star-selector input:checked ~ label { color:#FFB300; }
+    </style>
+</head>
+<body>
+<nav class="navbar">
+    <a href="/" class="navbar-brand"><span>ToyStore</span></a>
+    <ul class="navbar-nav">
+        <li><a href="/">Dashboard</a></li>
+        <li><a href="/users">Users</a></li>
+        <li><a href="/toys">Toys</a></li>
+        <li><a href="/cart">Cart</a></li>
+        <li><a href="/orders">Orders</a></li>
+        <li><a href="/reviews" class="active">Reviews</a></li>
+        <li><a href="/inventory">Inventory</a></li>
+    </ul>
+</nav>
+
+<div class="page">
+    <div class="page-header">
+        <h1 style="font-size:1.7rem; color:var(--secondary);">
+            ✏️ Write a Review
+        </h1>
+        <a href="/reviews" class="btn btn-outline">← Back to Reviews</a>
+    </div>
+
+    <div class="card" style="max-width:640px;">
+        <form th:action="@{/reviews/submit}" method="post">
+
+            <!-- Select Toy -->
+            <div class="form-group" style="margin-bottom:1.1rem;">
+                <label>Select Toy</label>
+                <select name="toyId" required>
+                    <option value="">-- Choose a toy --</option>
+                    <option th:each="toy : ${toys}"
+                            th:value="${toy.toyId}"
+                            th:text="${toy.name}"
+                            th:selected="${toy.toyId == review.toyId}">
+                    </option>
+                </select>
+            </div>
+
+            <!-- Star Rating -->
+            <div class="form-group" style="margin-bottom:1.1rem;">
+                <label>Your Rating</label>
+                <div class="star-selector">
+                    <input type="radio" id="s5" name="rating" value="5"/>
+                    <label for="s5" title="5 stars">★</label>
+                    <input type="radio" id="s4" name="rating" value="4"/>
+                    <label for="s4" title="4 stars">★</label>
+                    <input type="radio" id="s3" name="rating" value="3" checked/>
+                    <label for="s3" title="3 stars">★</label>
+                    <input type="radio" id="s2" name="rating" value="2"/>
+                    <label for="s2" title="2 stars">★</label>
+                    <input type="radio" id="s1" name="rating" value="1"/>
+                    <label for="s1" title="1 star">★</label>
+                </div>
+            </div>
+
+            <!-- Comment -->
+            <div class="form-group" style="margin-bottom:1.5rem;">
+                <label>Your Comment</label>
+                <textarea name="comment" rows="4"
+                          placeholder="Share your experience with this toy..."
+                          required></textarea>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    Submit Review
+                </button>
+                <a href="/reviews" class="btn btn-outline">Cancel</a>
+            </div>
+
+        </form>
+    </div>
+</div>
+</body>
+</html>
