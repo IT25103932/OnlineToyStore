@@ -1,55 +1,309 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
-    <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Cart Admin — ToyVault</title>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Admin — Cart Management</title>
     <link rel="stylesheet" th:href="@{/css/style.css}"/>
+    <style>
+        .admin-layout {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 2rem 1.25rem;
+        }
+        .admin-card {
+            background: #fff;
+            border: 1px solid #E0E6F0;
+            border-radius: 14px;
+            padding: 1.75rem;
+            box-shadow: 0 2px 16px rgba(27,42,74,0.09);
+            margin-bottom: 1.5rem;
+        }
+        .admin-card h2 {
+            font-family: 'Fredoka One', cursive;
+            font-size: 1.2rem;
+            color: #1B2A4A;
+            margin-bottom: 1.2rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid #E0E6F0;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .stat-box {
+            background: #fff;
+            border: 1px solid #E0E6F0;
+            border-radius: 12px;
+            padding: 1.25rem;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(27,42,74,0.07);
+        }
+        .stat-box .stat-icon {
+            font-size: 2rem;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+        .stat-box .stat-number {
+            font-family: 'Fredoka One', cursive;
+            font-size: 1.8rem;
+            color: #FF6B6B;
+            display: block;
+        }
+        .stat-box .stat-label {
+            font-size: 0.8rem;
+            color: #8A95A8;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.88rem;
+        }
+        .admin-table th {
+            background: #F7F9FC;
+            color: #8A95A8;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            padding: 0.75rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid #E0E6F0;
+        }
+        .admin-table td {
+            padding: 0.85rem 1rem;
+            border-bottom: 1px solid #F0F3FA;
+            color: #1B2A4A;
+            vertical-align: middle;
+        }
+        .admin-table tr:last-child td { border-bottom: none; }
+        .admin-table tr:hover td { background: #FAFBFF; }
+        .user-badge {
+            background: #EEF2FF;
+            color: #3730A3;
+            border-radius: 6px;
+            padding: 3px 10px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            font-family: 'Courier New', monospace;
+        }
+        .cart-id-badge {
+            background: #FFF3E0;
+            color: #E65100;
+            border-radius: 6px;
+            padding: 3px 10px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            font-family: 'Courier New', monospace;
+        }
+        .price-text {
+            font-family: 'Fredoka One', cursive;
+            color: #1B2A4A;
+            font-size: 0.95rem;
+        }
+        .toy-img-small {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            object-fit: cover;
+            background: #F0F3FA;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            vertical-align: middle;
+            margin-right: 8px;
+            overflow: hidden;
+        }
+        .toy-img-small img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+        .empty-admin {
+            text-align: center;
+            padding: 3rem;
+            color: #8A95A8;
+        }
+        .empty-admin span {
+            font-size: 3rem;
+            display: block;
+            margin-bottom: 1rem;
+        }
+        @media (max-width: 700px) {
+            .stats-grid { grid-template-columns: 1fr 1fr; }
+            .admin-table { font-size: 0.78rem; }
+        }
+    </style>
 </head>
 <body>
-<aside class="sidebar">
-    <div class="sidebar-brand"><div class="brand-icon">🧸</div><div class="brand-text">ToyVault<small>Admin Panel</small></div></div>
-    <span class="nav-label">Overview</span>
-    <a href="/" class="nav-item"><span class="nav-icon">◈</span> Dashboard</a>
-    <span class="nav-label">Catalogue</span>
-    <a href="/toys" class="nav-item"><span class="nav-icon">⊡</span> Toys</a>
-    <a href="/inventory" class="nav-item"><span class="nav-icon">⊞</span> Inventory</a>
-    <span class="nav-label">Commerce</span>
-    <a href="/cart" class="nav-item active"><span class="nav-icon">⊟</span> Cart</a>
-    <a href="/orders" class="nav-item"><span class="nav-icon">⊕</span> Orders</a>
-    <span class="nav-label">Community</span>
-    <a href="/reviews" class="nav-item"><span class="nav-icon">⊙</span> Reviews</a>
-    <span class="nav-label">Accounts</span>
-    <a href="/users" class="nav-item"><span class="nav-icon">⊚</span> Users</a>
-    <div class="sidebar-footer"><a href="/logout" class="nav-item"><span class="nav-icon">↩</span> Logout</a></div>
-</aside>
 
-<main class="main">
-    <div class="page-header">
-        <div><div class="eyebrow">Commerce</div><h1>All Cart Sessions</h1><p>Admin view of all active cart sessions.</p></div>
+<!-- Navbar -->
+<!-- PASTE THIS NAVBAR into EVERY .html template -->
+<nav class="navbar">
+    <a href="/" class="navbar-brand">🧸 <span>ToyStore</span></a>
+    <ul class="navbar-nav">
+
+        <li><a href="/toys">Toys</a></li>
+
+        <!-- Admin only links -->
+        <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
+            <a href="/dashboard">Dashboard</a>
+        </li>
+        <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
+            <a href="/users">Users</a>
+        </li>
+        <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
+            <a href="/orders">All Orders</a>
+        </li>
+        <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
+            <a href="/inventory">Inventory</a>
+        </li>
+
+        <!-- Any logged-in user -->
+        <li th:if="${session.loggedInUser != null}">
+            <a href="/cart">🛒 Cart</a>
+        </li>
+        <li th:if="${session.loggedInUser != null}">
+            <a href="/orders/history">My Orders</a>
+        </li>
+        <li th:if="${session.loggedInUser != null}">
+            <a href="/reviews">Reviews</a>
+        </li>
+        <li th:if="${session.loggedInUser != null}">
+            <a href="/users/profile"
+               style="color:var(--accent);">
+                👤 <span th:text="${session.loggedInUser?.username}">
+                </span>
+            </a>
+        </li>
+
+        <!-- Guest only -->
+        <li th:if="${session.loggedInUser == null}">
+            <a href="/users/login">Login</a>
+        </li>
+        <li th:if="${session.loggedInUser == null}">
+            <a href="/users/register">Register</a>
+        </li>
+
+        <!-- Logout -->
+        <li th:if="${session.loggedInUser != null}">
+            <a href="/users/logout"
+               style="color:rgba(255,150,150,0.85);">
+                Logout
+            </a>
+        </li>
+    </ul>
+</nav>
+
+<div class="admin-layout">
+
+    <!-- Page Header -->
+    <div class="page-header" style="margin-bottom:1.5rem;">
+        <h1 style="font-family:'Fredoka One',cursive; font-size:1.6rem; color:#1B2A4A;">
+            🛠 Admin — Cart Overview
+        </h1>
+        <a href="/cart" class="btn btn-outline">← Back to My Cart</a>
     </div>
-    <div class="table-wrap">
-        <div class="table-header"><h2>Cart Records</h2></div>
-        <table>
-            <thead><tr><th>Cart ID</th><th>User</th><th>Toy</th><th>Qty</th><th>Unit Price</th><th>Total</th><th>Actions</th></tr></thead>
-            <tbody>
-                <tr th:each="item : ${allCartItems}">
-                    <td class="td-mono" th:text="${item.cartItemId}"></td>
-                    <td class="td-name" th:text="${item.userId}"></td>
-                    <td th:text="${item.toyName}"></td>
-                    <td class="font-mono" th:text="${item.quantity}"></td>
-                    <td class="font-mono" style="color:var(--text-muted);" th:text="'Rs.' + ${item.unitPrice}"></td>
-                    <td class="font-mono" style="color:var(--accent); font-weight:700;" th:text="'Rs.' + ${#numbers.formatDecimal(item.totalPrice,1,'COMMA',2,'POINT')}"></td>
+
+    <!-- Stats -->
+    <div class="stats-grid">
+        <div class="stat-box">
+            <span class="stat-icon">🛒</span>
+            <span class="stat-number"
+                  th:text="${allItems != null ? allItems.size() : 0}"></span>
+            <span class="stat-label">Total Cart Items</span>
+        </div>
+        <div class="stat-box">
+            <span class="stat-icon">👤</span>
+            <span class="stat-number"
+                  th:text="${allItems != null ? allItems.size() : 0}"></span>
+            <span class="stat-label">Active Users</span>
+        </div>
+        <div class="stat-box">
+            <span class="stat-icon">💰</span>
+            <span class="stat-number"
+                  th:text="${allItems != null ? allItems.size() : 0}"></span>
+            <span class="stat-label">Total Cart Value</span>
+        </div>
+    </div>
+
+    <!-- All Cart Items Table -->
+    <div class="admin-card">
+        <h2>📋 All Cart Items</h2>
+
+        <!-- Empty state -->
+        <div class="empty-admin" th:if="${allItems == null or allItems.isEmpty()}">
+            <span>🛒</span>
+            <p>No items in any cart yet.</p>
+        </div>
+
+        <!-- Table -->
+        <div th:if="${allItems != null and !allItems.isEmpty()}"
+             style="overflow-x:auto;">
+            <table class="admin-table">
+                <thead>
+                <tr>
+                    <th>Cart ID</th>
+                    <th>User ID</th>
+                    <th>Toy</th>
+                    <th>Unit Price</th>
+                    <th>Qty</th>
+                    <th>Total</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="item : ${allItems}">
                     <td>
-                        <a th:href="@{/cart/admin/remove/{id}(id=${item.cartItemId})}" class="btn btn-danger btn-sm"
-                           onclick="return confirm('Remove?')">✕ Remove</a>
+                            <span class="cart-id-badge"
+                                  th:text="${item.cartItemId}"></span>
+                    </td>
+                    <td>
+                            <span class="user-badge"
+                                  th:text="${item.userId}"></span>
+                    </td>
+                    <td>
+                        <div style="display:flex; align-items:center;">
+                            <div class="toy-img-small">
+                                <img th:if="${item.toyImageUrl != null and !#strings.isEmpty(item.toyImageUrl)}"
+                                     th:src="${item.toyImageUrl}"
+                                     th:alt="${item.toyName}"
+                                     onerror="this.style.display='none'"/>
+                                <span th:if="${item.toyImageUrl == null or #strings.isEmpty(item.toyImageUrl)}">
+                                        🧸
+                                    </span>
+                            </div>
+                            <span th:text="${item.toyName}"
+                                  style="font-weight:700;"></span>
+                        </div>
+                    </td>
+                    <td class="price-text">
+                        Rs.<span th:text="${item.unitPrice}"></span>
+                    </td>
+                    <td style="font-weight:700; text-align:center;">
+                        <span th:text="${item.quantity}"></span>
+                    </td>
+                    <td class="price-text">
+                        Rs.<span th:text="${#numbers.formatDecimal(item.totalPrice, 1, 'COMMA', 2, 'POINT')}"></span>
                     </td>
                 </tr>
-                <tr th:if="${allCartItems == null or allCartItems.isEmpty()}">
-                    <td colspan="7"><div class="empty-state"><span class="empty-icon">🛒</span><h3>No active cart sessions</h3></div></td>
-                </tr>
-            </tbody>
-        </table>
+                </tbody>
+            </table>
+        </div>
     </div>
-</main>
+
+    <!-- Bottom buttons -->
+    <div style="display:flex; gap:1rem; flex-wrap:wrap;">
+        <a href="/cart" class="btn btn-primary">← My Cart</a>
+        <a href="/cart/checkout" class="btn btn-outline">Checkout →</a>
+    </div>
+
+</div>
 </body>
 </html>

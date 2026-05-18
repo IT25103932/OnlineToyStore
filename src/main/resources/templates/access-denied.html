@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Access Denied — Online Toy Store</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<nav class="navbar">
+    <a href="/" class="navbar-brand">🧸 <span>ToyStore</span></a>
+    <ul class="navbar-nav">
+
+        <li><a href="/toys">Toys</a></li>
+
+        <!-- Admin only links -->
+        <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
+            <a href="/dashboard">Dashboard</a>
+        </li>
+        <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
+            <a href="/users">Users</a>
+        </li>
+        <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
+            <a href="/orders">All Orders</a>
+        </li>
+        <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
+            <a href="/inventory">Inventory</a>
+        </li>
+
+        <!-- Any logged-in user -->
+        <li th:if="${session.loggedInUser != null}">
+            <a href="/cart">🛒 Cart</a>
+        </li>
+        <li th:if="${session.loggedInUser != null}">
+            <a href="/orders/history">My Orders</a>
+        </li>
+        <li th:if="${session.loggedInUser != null}">
+            <a href="/reviews">Reviews</a>
+        </li>
+        <li th:if="${session.loggedInUser != null}">
+            <a href="/users/profile"
+               style="color:var(--accent);">
+                👤 <span th:text="${session.loggedInUser?.username}">
+                </span>
+            </a>
+        </li>
+
+        <!-- Guest only -->
+        <li th:if="${session.loggedInUser == null}">
+            <a href="/users/login">Login</a>
+        </li>
+        <li th:if="${session.loggedInUser == null}">
+            <a href="/users/register">Register</a>
+        </li>
+
+        <!-- Logout -->
+        <li th:if="${session.loggedInUser != null}">
+            <a href="/users/logout"
+               style="color:rgba(255,150,150,0.85);">
+                Logout
+            </a>
+        </li>
+    </ul>
+</nav>
+
+<div style="max-width:500px;margin:6rem auto;text-align:center;padding:2rem;">
+    <div style="font-size:5rem;margin-bottom:1rem;">🔒</div>
+    <h1 style="font-family:'Fredoka One',cursive;font-size:2rem;
+               color:var(--secondary);margin-bottom:0.5rem;">
+        Access Denied
+    </h1>
+    <p style="color:var(--muted);margin-bottom:2rem;line-height:1.6;">
+        You do not have permission to view this page.
+        This area is restricted to administrators only.
+    </p>
+    <div style="display:flex;gap:0.75rem;justify-content:center;">
+        <a href="/"            class="btn btn-primary">🏠 Go Home</a>
+        <a href="/users/login" class="btn btn-outline">🔐 Login</a>
+    </div>
+</div>
+</body>
+</html>

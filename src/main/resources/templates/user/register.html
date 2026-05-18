@@ -1,77 +1,195 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head>
-    <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Register — ToyVault</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}"/>
-    <style>
-        body { align-items: center; justify-content: center; background: var(--bg); }
-        body::before { content:''; position:fixed; top:-20%; right:-15%; width:500px; height:500px;
-            border-radius:50%; background:radial-gradient(circle, rgba(245,166,35,0.08) 0%, transparent 70%); pointer-events:none; }
-        .auth-box { width: 100%; max-width: 520px; }
-        .auth-brand { text-align: center; margin-bottom: 30px; }
-        .auth-brand .icon { width:52px; height:52px; background:var(--accent); border-radius:14px;
-            display:inline-flex; align-items:center; justify-content:center; font-size:1.5rem;
-            margin-bottom:14px; box-shadow: 0 0 40px var(--accent-glow); }
-        .auth-brand h1 { font-family:'DM Serif Display',serif; font-size:1.6rem; color:var(--text); }
-        .auth-footer { text-align:center; margin-top:20px; font-size:0.82rem; color:var(--text-muted); }
-        .auth-footer a { color:var(--accent); font-weight:600; }
-        .sidebar { display: none; }
-        .main { margin-left: 0; display:flex; align-items:center; justify-content:center; width:100%; padding: 40px 20px; }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Register — Online Toy Store</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}" />
+  <style>
+    .auth-wrapper {
+      min-height: calc(100vh - 60px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+
+    .auth-card {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 4px 32px rgba(27, 42, 74, 0.13);
+      padding: 2.5rem;
+      width: 100%;
+      max-width: 480px;
+      border: 1px solid var(--border);
+    }
+
+    .auth-card h1 {
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.8rem;
+      color: var(--secondary);
+      margin-bottom: 0.3rem;
+    }
+
+    .auth-card p {
+      color: var(--muted);
+      font-size: 0.88rem;
+      margin-bottom: 1.75rem;
+    }
+
+    .alert-error {
+      background: #FFE0E0;
+      color: #C62828;
+      border: 1px solid #FFCDD2;
+      border-radius: 9px;
+      padding: 0.75rem 1rem;
+      font-size: 0.88rem;
+      font-weight: 600;
+      margin-bottom: 1.25rem;
+    }
+
+    .alert-success {
+      background: #E8F5E9;
+      color: #2E7D32;
+      border: 1px solid #A5D6A7;
+      border-radius: 9px;
+      padding: 0.75rem 1rem;
+      font-size: 0.88rem;
+      font-weight: 600;
+      margin-bottom: 1.25rem;
+    }
+
+    .auth-footer {
+      text-align: center;
+      margin-top: 1.25rem;
+      font-size: 0.88rem;
+      color: var(--muted);
+    }
+
+    .auth-footer a {
+      color: var(--primary);
+      font-weight: 700;
+      text-decoration: none;
+    }
+  </style>
 </head>
+
 <body>
-<main class="main">
-    <div class="auth-box">
-        <div class="auth-brand">
-            <div class="icon">🧸</div>
-            <h1>Create Account</h1>
-            <p style="color:var(--text-muted); font-size:0.875rem; margin-top:4px;">Join ToyVault today</p>
+
+<!-- PASTE THIS NAVBAR into EVERY .html template -->
+<nav class="navbar">
+  <a href="/" class="navbar-brand">🧸 <span>ToyStore</span></a>
+  <ul class="navbar-nav">
+
+    <li><a href="/toys">Toys</a></li>
+
+    <!-- Admin only links -->
+    <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
+      <a href="/dashboard">Dashboard</a>
+    </li>
+    <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
+      <a href="/users">Users</a>
+    </li>
+    <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
+      <a href="/orders">All Orders</a>
+    </li>
+    <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
+      <a href="/inventory">Inventory</a>
+    </li>
+
+    <!-- Any logged-in user -->
+    <li th:if="${session.loggedInUser != null}">
+      <a href="/cart">🛒 Cart</a>
+    </li>
+    <li th:if="${session.loggedInUser != null}">
+      <a href="/orders/history">My Orders</a>
+    </li>
+    <li th:if="${session.loggedInUser != null}">
+      <a href="/reviews">Reviews</a>
+    </li>
+    <li th:if="${session.loggedInUser != null}">
+      <a href="/users/profile"
+         style="color:var(--accent);">
+        👤 <span th:text="${session.loggedInUser?.username}">
+                </span>
+      </a>
+    </li>
+
+    <!-- Guest only -->
+    <li th:if="${session.loggedInUser == null}">
+      <a href="/users/login">Login</a>
+    </li>
+    <li th:if="${session.loggedInUser == null}">
+      <a href="/users/register">Register</a>
+    </li>
+
+    <!-- Logout -->
+    <li th:if="${session.loggedInUser != null}">
+      <a href="/users/logout"
+         style="color:rgba(255,150,150,0.85);">
+        Logout
+      </a>
+    </li>
+  </ul>
+</nav>
+
+  <div class="auth-wrapper">
+    <div class="auth-card">
+      <h1> Create Account</h1>
+      <p>Register to start shopping at ToyStore</p>
+
+      <!-- Error message -->
+      <div class="alert-error" th:if="${error}" th:text="${error}"></div>
+
+      <form th:action="@{/users/register}" method="post">
+        <div class="form-group" style="margin-bottom:1rem;">
+          <label>Username</label>
+          <input type="text" name="username" th:value="${user?.username}" placeholder="e.g. john123" required />
         </div>
 
-        <div class="form-wrap" style="max-width:100%;">
-            <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+        <div class="form-group" style="margin-bottom:1rem;">
+          <label>Email Address</label>
+          <input type="text" name="email" th:value="${user?.email}" placeholder="john@email.com" required />
+        </div>
 
-            <form th:action="@{/register}" method="post">
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label class="form-label">First Name *</label>
-                        <input class="form-input" type="text" name="firstName" required placeholder="John" autofocus/>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Last Name *</label>
-                        <input class="form-input" type="text" name="lastName" required placeholder="Doe"/>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Username *</label>
-                        <input class="form-input" type="text" name="username" required placeholder="johndoe"/>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Email *</label>
-                        <input class="form-input" type="email" name="email" required placeholder="john@example.com"/>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Password *</label>
-                        <input class="form-input" type="password" name="password" required placeholder="Min. 8 characters"/>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Confirm Password *</label>
-                        <input class="form-input" type="password" name="confirmPassword" required placeholder="Repeat password"/>
-                    </div>
-                    <div class="form-group span-2">
-                        <label class="form-label">Delivery Address</label>
-                        <textarea class="form-textarea" name="address" placeholder="Your shipping address…" style="min-height:70px;"></textarea>
-                    </div>
-                </div>
-                <div class="form-actions">
-                    <button type="submit" class="btn btn-primary" style="flex:1; justify-content:center; padding:11px;">Create Account →</button>
-                </div>
-            </form>
+        <div class="form-group" style="margin-bottom:1rem;">
+          <label>Password</label>
+          <input type="password" name="password" placeholder="Min. 6 characters" required />
         </div>
-        <div class="auth-footer">
-            Already have an account? <a href="/login">Sign in</a>
+
+        <div class="form-group" style="margin-bottom:1rem;">
+          <label>Phone Number</label>
+          <input type="text" name="phone" th:value="${user?.phone}" placeholder="07XXXXXXXX" />
         </div>
+
+        <div class="form-group" style="margin-bottom:1rem;">
+          <label>Address</label>
+          <textarea name="address" style="min-height:70px;" th:text="${user?.address}"
+            placeholder="No. 12, Main Street, Colombo"></textarea>
+        </div>
+
+        <div class="form-group" style="margin-bottom:1.5rem;">
+          <label>Role</label>
+          <select name="role">
+            <option value="CUSTOMER">Customer</option>
+            <option value="ADMIN">Admin</option>
+          </select>
+        </div>
+
+        <button type="submit" class="btn btn-primary"
+          style="width:100%;justify-content:center; font-size:1rem;padding:0.75rem;">
+          Create Account
+        </button>
+      </form>
+
+      <div class="auth-footer">
+        Already have an account?
+        <a href="/users/login">Log in</a>
+      </div>
     </div>
-</main>
+  </div>
+
 </body>
+
 </html>

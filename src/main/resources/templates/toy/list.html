@@ -1,41 +1,212 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head>
-    <title>Toy List</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Toys — Online Toy Store</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
+    <style>
+        .toy-page {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 2rem 1.25rem;
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            box-shadow: 0 2px 12px rgba(27, 42, 74, 0.07);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+            font-size: 0.88rem;
+            font-family: 'Nunito', sans-serif;
+        }
+
+        thead {
+            background: var(--secondary);
+            color: #fff;
+        }
+
+        thead th {
+            padding: 11px 14px;
+            text-align: left;
+            font-weight: 700;
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid var(--border);
+            transition: background 0.12s;
+        }
+
+        tbody tr:hover {
+            background: rgba(255, 107, 53, 0.04);
+        }
+
+        tbody td {
+            padding: 11px 14px;
+            vertical-align: middle;
+        }
+
+        .price-tag {
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        .stock-badge {
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 700;
+        }
+
+        .in-stock { background: #E8F5E9; color: #2E7D32; }
+        .out-stock { background: #FFEBEE; color: #C62828; }
+    </style>
 </head>
+
 <body>
+<!-- PASTE THIS NAVBAR into EVERY .html template -->
+<nav class="navbar">
+    <a href="/" class="navbar-brand">🧸 <span>ToyStore</span></a>
+    <ul class="navbar-nav">
 
-<h1>All Toys</h1>
+        <li><a href="/toys">Toys</a></li>
 
-<a href="/toys/add">+ Add New Toy</a> |
-<a href="/toys/search">Search Toys</a>
+        <!-- Admin only links -->
+        <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
+            <a href="/dashboard">Dashboard</a>
+        </li>
+        <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
+            <a href="/users">Users</a>
+        </li>
+        <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
+            <a href="/orders">All Orders</a>
+        </li>
+        <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
+            <a href="/inventory">Inventory</a>
+        </li>
 
-<br/><br/>
+        <!-- Any logged-in user -->
+        <li th:if="${session.loggedInUser != null}">
+            <a href="/cart">🛒 Cart</a>
+        </li>
+        <li th:if="${session.loggedInUser != null}">
+            <a href="/orders/history">My Orders</a>
+        </li>
+        <li th:if="${session.loggedInUser != null}">
+            <a href="/reviews">Reviews</a>
+        </li>
+        <li th:if="${session.loggedInUser != null}">
+            <a href="/users/profile"
+               style="color:var(--accent);">
+                👤 <span th:text="${session.loggedInUser?.username}">
+                </span>
+            </a>
+        </li>
 
-<table border="1">
-    <tr>
-        <th>ID</th>
-        <th>Name</th>
-        <th>Category</th>
-        <th>Description</th>
-        <th>Price (Rs.)</th>
-        <th>Stock</th>
-        <th>Actions</th>
-    </tr>
-    <tr th:each="toy : ${toys}">
-        <td th:text="${toy.toyId}"></td>
-        <td th:text="${toy.name}"></td>
-        <td th:text="${toy.category}"></td>
-        <td th:text="${toy.description}"></td>
-        <td th:text="${toy.price}"></td>
-        <td th:text="${toy.stockQuantity}"></td>
-        <td>
-            <a th:href="@{/toys/edit/{id}(id=${toy.toyId})}">Edit</a> |
-            <a th:href="@{/toys/delete/{id}(id=${toy.toyId})}"
-               onclick="return confirm('Are you sure?')">Delete</a>
-        </td>
-    </tr>
-</table>
+        <!-- Guest only -->
+        <li th:if="${session.loggedInUser == null}">
+            <a href="/users/login">Login</a>
+        </li>
+        <li th:if="${session.loggedInUser == null}">
+            <a href="/users/register">Register</a>
+        </li>
 
+        <!-- Logout -->
+        <li th:if="${session.loggedInUser != null}">
+            <a href="/users/logout"
+               style="color:rgba(255,150,150,0.85);">
+                Logout
+            </a>
+        </li>
+    </ul>
+</nav>
+
+<div class="toy-page">
+    <!-- Header: Role-Aware Title and Buttons -->
+    <div class="page-header">
+        <h1 style="font-family:'Fredoka One',cursive; font-size:1.7rem; color:var(--secondary); display:flex; align-items:center; gap:8px;">
+            <span class="icon">🧸</span>
+            <span th:text="${session.loggedInUser?.role == 'ADMIN'} ? 'Toy Management' : 'Browse Toys'">Toys</span>
+        </h1>
+
+        <div style="display:flex; gap:0.75rem;">
+            <a href="/toys/search" class="btn btn-outline">🔍 Search</a>
+            <!-- Only show Add button to admins -->
+            <a th:if="${session.loggedInUser?.role == 'ADMIN'}"
+               href="/toys/add" class="btn btn-primary">+ Add New Toy</a>
+        </div>
+    </div>
+
+    <!-- Table -->
+    <div class="table-wrap">
+        <table>
+            <thead>
+            <tr>
+                <th>Toy Name</th>
+                <th>Category</th>
+                <th>Price</th>
+                <th>Stock</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <!-- Empty State -->
+            <tr th:if="${toys == null or toys.isEmpty()}">
+                <td colspan="5" style="text-align:center; padding:3rem; color:var(--muted);">
+                    No toys available in the catalog.
+                </td>
+            </tr>
+
+            <!-- Toy List Row -->
+            <tr th:each="toy : ${toys}">
+                <td><strong th:text="${toy.name}"></strong></td>
+                <td th:text="${toy.category}"></td>
+                <td><span class="price-tag" th:text="'$' + ${toy.price}"></span></td>
+                <td>
+              <span th:class="${toy.stockQuantity > 0} ? 'stock-badge in-stock' : 'stock-badge out-stock'"
+                    th:text="${toy.stockQuantity > 0} ? 'In Stock (' + ${toy.stockQuantity} + ')' : 'Out of Stock'">
+              </span>
+                </td>
+                <td>
+                    <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+                        <!-- Admin View: Edit and Delete -->
+                        <th:block th:if="${session.loggedInUser?.role == 'ADMIN'}">
+                            <a th:href="@{/toys/edit/{id}(id=${toy.toyId})}"
+                               class="btn btn-outline btn-sm">✏️ Edit</a>
+                            <a th:href="@{/toys/delete/{id}(id=${toy.toyId})}"
+                               class="btn btn-danger btn-sm"
+                               onclick="return confirm('Delete this toy?')">🗑️ Delete</a>
+                        </th:block>
+
+                        <!-- Customer View: Buy Now -->
+                        <th:block th:if="${session.loggedInUser?.role == 'CUSTOMER'}">
+                            <a th:href="@{/orders/checkout(toyId=${toy.toyId})}"
+                               class="btn btn-primary btn-sm"
+                               th:if="${toy.stockQuantity > 0}">🛒 Buy Now</a>
+                            <button class="btn btn-disabled btn-sm" th:unless="${toy.stockQuantity > 0}" disabled>Sold Out</button>
+                        </th:block>
+
+                        <!-- Guest View: Redirect to Login -->
+                        <th:block th:if="${session.loggedInUser == null}">
+                            <a href="/users/login" class="btn btn-outline btn-sm">Login to Buy</a>
+                        </th:block>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
 </body>
+
 </html>

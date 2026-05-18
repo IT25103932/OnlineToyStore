@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Edit Supplier — Online Toy Store</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}"/>
+  <style>
+    .page { max-width: 780px; margin: 0 auto; padding: 2rem 1.25rem; }
+
+    .card { background: #fff; border-radius: 14px; border: 1px solid var(--border);
+            box-shadow: 0 2px 14px rgba(27,42,74,0.08); padding: 2rem; }
+
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+    .form-group.full { grid-column: 1 / -1; }
+    .form-group { display: flex; flex-direction: column; gap: 0.4rem; }
+
+    .form-group label { font-size: 0.8rem; font-weight: 700;
+                        color: var(--muted); text-transform: uppercase; letter-spacing: 0.4px; }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea { padding: 10px 13px; border: 1.5px solid var(--border);
+                            border-radius: 9px; font-family: 'Nunito', sans-serif;
+                            font-size: 0.92rem; color: var(--text);
+                            transition: border-color 0.15s; width: 100%; box-sizing: border-box; }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus { outline: none; border-color: var(--primary); }
+
+    .form-group textarea { resize: vertical; min-height: 70px; }
+
+    .form-actions { display: flex; gap: 0.75rem; margin-top: 1.75rem;
+                    padding-top: 1.25rem; border-top: 1px solid var(--border);
+                    align-items: center; }
+
+    @media(max-width: 600px) { .form-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+
+<!-- PASTE THIS NAVBAR into EVERY .html template -->
+<nav class="navbar">
+  <a href="/" class="navbar-brand">🧸 <span>ToyStore</span></a>
+  <ul class="navbar-nav">
+
+    <li><a href="/toys">Toys</a></li>
+
+    <!-- Admin only links -->
+    <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
+      <a href="/dashboard">Dashboard</a>
+    </li>
+    <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
+      <a href="/users">Users</a>
+    </li>
+    <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
+      <a href="/orders">All Orders</a>
+    </li>
+    <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
+      <a href="/inventory">Inventory</a>
+    </li>
+
+    <!-- Any logged-in user -->
+    <li th:if="${session.loggedInUser != null}">
+      <a href="/cart">🛒 Cart</a>
+    </li>
+    <li th:if="${session.loggedInUser != null}">
+      <a href="/orders/history">My Orders</a>
+    </li>
+    <li th:if="${session.loggedInUser != null}">
+      <a href="/reviews">Reviews</a>
+    </li>
+    <li th:if="${session.loggedInUser != null}">
+      <a href="/users/profile"
+         style="color:var(--accent);">
+        👤 <span th:text="${session.loggedInUser?.username}">
+                </span>
+      </a>
+    </li>
+
+    <!-- Guest only -->
+    <li th:if="${session.loggedInUser == null}">
+      <a href="/users/login">Login</a>
+    </li>
+    <li th:if="${session.loggedInUser == null}">
+      <a href="/users/register">Register</a>
+    </li>
+
+    <!-- Logout -->
+    <li th:if="${session.loggedInUser != null}">
+      <a href="/users/logout"
+         style="color:rgba(255,150,150,0.85);">
+        Logout
+      </a>
+    </li>
+  </ul>
+</nav>
+
+<div class="page">
+
+  <!-- Page header -->
+  <div class="page-header">
+    <h1 style="font-family:'Fredoka One',cursive; font-size:1.7rem;
+                   color:var(--secondary); display:flex; align-items:center; gap:8px;">
+      ✏️ Edit Supplier
+    </h1>
+    <a href="/suppliers" class="btn btn-outline">← Back to Suppliers</a>
+  </div>
+
+  <!-- Shows which supplier ID is being edited -->
+  <p style="color:var(--muted); font-size:0.8rem; margin-bottom:1.25rem; font-weight:600;">
+    Editing: <strong style="color:var(--secondary);"
+                     th:text="${supplier.supplierId}"></strong>
+  </p>
+
+  <div class="card">
+    <!--
+        th:action builds the URL with the supplierId path variable
+        e.g. POST /suppliers/edit/SUP-A1B2C3D4
+        th:value and th:text pre-fill every field with the existing supplier data
+    -->
+    <form th:action="@{/suppliers/edit/{id}(id=${supplier.supplierId})}" method="post">
+
+      <div class="form-grid">
+
+        <!-- Company name — pre-filled with th:value -->
+        <div class="form-group">
+          <label>Company Name</label>
+          <input type="text" name="name"
+                 th:value="${supplier.name}" required/>
+        </div>
+
+        <!-- Supply category — th:selected highlights the current value -->
+        <div class="form-group">
+          <label>Supply Category</label>
+          <select name="supplyCategory">
+            <option value="ALL"
+                    th:selected="${supplier.supplyCategory == 'ALL'}">
+              All Categories
+            </option>
+            <option value="EDUCATIONAL"
+                    th:selected="${supplier.supplyCategory == 'EDUCATIONAL'}">
+              🎓 Educational
+            </option>
+            <option value="ELECTRONIC"
+                    th:selected="${supplier.supplyCategory == 'ELECTRONIC'}">
+              🔌 Electronic
+            </option>
+            <option value="SOFT"
+                    th:selected="${supplier.supplyCategory == 'SOFT'}">
+              🧸 Soft Toys
+            </option>
+            <option value="GENERAL"
+                    th:selected="${supplier.supplyCategory == 'GENERAL'}">
+              🎁 General
+            </option>
+          </select>
+        </div>
+
+        <!-- Contact person -->
+        <div class="form-group">
+          <label>Contact Person</label>
+          <input type="text" name="contactPerson"
+                 th:value="${supplier.contactPerson}"/>
+        </div>
+
+        <!-- Email -->
+        <div class="form-group">
+          <label>Email Address</label>
+          <input type="text" name="email"
+                 th:value="${supplier.email}"/>
+        </div>
+
+        <!-- Phone -->
+        <div class="form-group">
+          <label>Phone Number</label>
+          <input type="text" name="phone"
+                 th:value="${supplier.phone}"/>
+        </div>
+
+        <!-- Spacer -->
+        <div class="form-group">
+          <label>&nbsp;</label>
+        </div>
+
+        <!-- Address — full width, th:text fills textarea content -->
+        <div class="form-group full">
+          <label>Address</label>
+          <textarea name="address"
+                    style="min-height:70px;"
+                    th:text="${supplier.address}">
+                    </textarea>
+        </div>
+
+      </div>
+
+      <!-- Form action buttons -->
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">
+          💾 Save Changes
+        </button>
+        <a href="/suppliers" class="btn btn-outline">Cancel</a>
+
+        <!-- Delete button pushed to the right with margin-left:auto -->
+        <a th:href="@{/suppliers/delete/{id}(id=${supplier.supplierId})}"
+           class="btn btn-danger"
+           style="margin-left:auto;"
+           onclick="return confirm('Delete this supplier permanently?')">
+          🗑️ Delete Supplier
+        </a>
+      </div>
+
+    </form>
+  </div>
+
+</div>
+</body>
+</html>

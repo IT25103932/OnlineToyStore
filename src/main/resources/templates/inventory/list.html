@@ -1,105 +1,296 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Inventory — ToyVault</title>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Inventory — Online Toy Store</title>
     <link rel="stylesheet" th:href="@{/css/style.css}"/>
+    <style>
+        .inv-page { max-width: 1150px; margin: 0 auto; padding: 2rem 1.25rem; }
+
+        /* Stats row — 4 boxes across the top */
+        .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.75rem; }
+        .stat-box { background: #fff; border-radius: 12px; padding: 1.1rem 1.25rem; border: 1px solid var(--border);
+                    box-shadow: 0 2px 12px rgba(27,42,74,0.07); display: flex; align-items: center; gap: 0.8rem; transition: transform 0.2s; }
+        .stat-box:hover { transform: translateY(-3px); }
+        .stat-box .si { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center;
+                        justify-content: center; font-size: 1.25rem; flex-shrink: 0; }
+        .stat-box h3 { font-size: 0.7rem; color: var(--muted); text-transform: uppercase;
+                       letter-spacing: 0.5px; font-weight: 700; margin-bottom: 2px; }
+        .stat-box p  { font-family: 'Fredoka One', cursive; font-size: 1.65rem; color: var(--secondary); line-height: 1; }
+
+        /* Filter buttons */
+        .filter-bar { display: flex; gap: 0.5rem; margin-bottom: 1.25rem; flex-wrap: wrap; }
+        .filter-btn { padding: 6px 16px; border-radius: 20px; font-family: 'Nunito', sans-serif;
+                      font-weight: 700; font-size: 0.82rem; text-decoration: none; border: 1.5px solid var(--border);
+                      color: var(--text); background: #fff; transition: all 0.15s; }
+        .filter-btn:hover  { border-color: var(--primary); color: var(--primary); }
+        .filter-btn.active { background: var(--secondary); color: #fff; border-color: var(--secondary); }
+        .filter-btn.danger         { border-color: rgba(230,57,70,0.4); color: var(--danger); }
+        .filter-btn.danger.active  { background: var(--danger); color: #fff; border-color: var(--danger); }
+        .filter-btn.warn           { border-color: rgba(255,160,0,0.5); color: #E65100; }
+        .filter-btn.warn.active    { background: #FF6D00; color: #fff; border-color: #FF6D00; }
+        .filter-btn.success        { border-color: rgba(45,198,83,0.4); color: var(--success); }
+        .filter-btn.success.active { background: var(--success); color: #fff; border-color: var(--success); }
+
+        /* Table */
+        .table-wrap { overflow-x: auto; border-radius: 12px; border: 1px solid var(--border);
+                      box-shadow: 0 2px 12px rgba(27,42,74,0.07); }
+        table { width: 100%; border-collapse: collapse; background: #fff;
+                font-size: 0.87rem; font-family: 'Nunito', sans-serif; }
+        thead { background: var(--secondary); color: #fff; }
+        thead th { padding: 11px 14px; text-align: left; font-weight: 700;
+                   font-size: 0.74rem; letter-spacing: 0.5px; text-transform: uppercase; }
+        tbody tr { border-bottom: 1px solid var(--border); transition: background 0.12s; }
+        tbody tr:last-child { border-bottom: none; }
+        tbody tr:hover { background: rgba(255,107,53,0.04); }
+        tbody td { padding: 11px 14px; vertical-align: middle; }
+
+        /* Stock status colours */
+        .stock-healthy { color: var(--success); font-weight: 800; }
+        .stock-low     { color: #FF6D00;        font-weight: 800; }
+        .stock-out     { color: var(--danger);  font-weight: 800; }
+
+        /* Category badges */
+        .cat-badge       { display: inline-block; padding: 3px 9px; border-radius: 20px; font-size: 0.71rem; font-weight: 800; }
+        .cat-educational { background: #E8F5E9; color: #2E7D32; }
+        .cat-electronic  { background: #E3F2FD; color: #1565C0; }
+        .cat-soft        { background: #FCE4EC; color: #AD1457; }
+        .cat-general     { background: #FFF3E0; color: #E65100; }
+
+        /* Restock form inside table cell */
+        .restock-form { display: flex; align-items: center; gap: 6px; }
+        .restock-form input { width: 65px; padding: 5px 8px; border: 1.5px solid var(--border);
+                              border-radius: 7px; font-family: 'Nunito', sans-serif;
+                              font-size: 0.85rem; text-align: center; }
+        .restock-form input:focus { outline: none; border-color: var(--primary); }
+
+        @media(max-width: 768px) { .stats-row { grid-template-columns: 1fr 1fr; } }
+    </style>
 </head>
 <body>
-<aside class="sidebar">
-    <div class="sidebar-brand"><div class="brand-icon">🧸</div><div class="brand-text">ToyVault<small>Admin Panel</small></div></div>
-    <span class="nav-label">Overview</span>
-    <a href="/" class="nav-item"><span class="nav-icon">◈</span> Dashboard</a>
-    <span class="nav-label">Catalogue</span>
-    <a href="/toys" class="nav-item"><span class="nav-icon">⊡</span> Toys</a>
-    <a href="/inventory" class="nav-item active"><span class="nav-icon">⊞</span> Inventory</a>
-    <span class="nav-label">Commerce</span>
-    <a href="/cart" class="nav-item"><span class="nav-icon">⊟</span> Cart</a>
-    <a href="/orders" class="nav-item"><span class="nav-icon">⊕</span> Orders</a>
-    <span class="nav-label">Community</span>
-    <a href="/reviews" class="nav-item"><span class="nav-icon">⊙</span> Reviews</a>
-    <span class="nav-label">Accounts</span>
-    <a href="/users" class="nav-item"><span class="nav-icon">⊚</span> Users</a>
-    <div class="sidebar-footer"><a href="/logout" class="nav-item"><span class="nav-icon">↩</span> Logout</a></div>
-</aside>
 
-<main class="main">
+<!-- PASTE THIS NAVBAR into EVERY .html template -->
+<nav class="navbar">
+    <a href="/" class="navbar-brand">🧸 <span>ToyStore</span></a>
+    <ul class="navbar-nav">
+
+        <li><a href="/toys">Toys</a></li>
+
+        <!-- Admin only links -->
+        <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
+            <a href="/dashboard">Dashboard</a>
+        </li>
+        <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
+            <a href="/users">Users</a>
+        </li>
+        <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
+            <a href="/orders">All Orders</a>
+        </li>
+        <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
+            <a href="/inventory">Inventory</a>
+        </li>
+
+        <!-- Any logged-in user -->
+        <li th:if="${session.loggedInUser != null}">
+            <a href="/cart">🛒 Cart</a>
+        </li>
+        <li th:if="${session.loggedInUser != null}">
+            <a href="/orders/history">My Orders</a>
+        </li>
+        <li th:if="${session.loggedInUser != null}">
+            <a href="/reviews">Reviews</a>
+        </li>
+        <li th:if="${session.loggedInUser != null}">
+            <a href="/users/profile"
+               style="color:var(--accent);">
+                👤 <span th:text="${session.loggedInUser?.username}">
+                </span>
+            </a>
+        </li>
+
+        <!-- Guest only -->
+        <li th:if="${session.loggedInUser == null}">
+            <a href="/users/login">Login</a>
+        </li>
+        <li th:if="${session.loggedInUser == null}">
+            <a href="/users/register">Register</a>
+        </li>
+
+        <!-- Logout -->
+        <li th:if="${session.loggedInUser != null}">
+            <a href="/users/logout"
+               style="color:rgba(255,150,150,0.85);">
+                Logout
+            </a>
+        </li>
+    </ul>
+</nav>
+
+<div class="inv-page">
+
+    <!-- Page header -->
     <div class="page-header">
-        <div><div class="eyebrow">Inventory</div><h1>Inventory Management</h1><p>Monitor stock levels and manage suppliers.</p></div>
-        <div class="page-actions">
-            <a href="/inventory/suppliers/add" class="btn btn-ghost">+ Add Supplier</a>
-            <a href="/inventory/restock" class="btn btn-primary">↑ Restock</a>
+        <h1 style="font-family:'Fredoka One',cursive; font-size:1.7rem;
+                   color:var(--secondary); display:flex; align-items:center; gap:8px;">
+            📦 Inventory Management
+        </h1>
+        <div style="display:flex; gap:0.6rem;">
+            <a href="/suppliers" class="btn btn-outline">🏭 Suppliers</a>
+            <a href="/toys/add"  class="btn btn-primary">+ Add Toy</a>
         </div>
     </div>
 
-    <!-- Low stock alert -->
-    <div class="alert alert-danger" th:if="${lowStockCount > 0}"
-         th:text="'⚠ ' + ${lowStockCount} + ' product(s) are running low on stock.'"></div>
+    <!-- Stats boxes — data comes from InventoryController via model.addAttribute -->
+    <div class="stats-row">
+        <div class="stat-box">
+            <div class="si" style="background:#E3F2FD;">🧸</div>
+            <div>
+                <h3>Total Toys</h3>
+                <p th:text="${totalToys}">0</p>
+            </div>
+        </div>
+        <div class="stat-box">
+            <div class="si" style="background:#E8F5E9;">📦</div>
+            <div>
+                <h3>Total Units</h3>
+                <p th:text="${totalUnits}">0</p>
+            </div>
+        </div>
+        <div class="stat-box">
+            <div class="si" style="background:#FFF3E0;">⚠️</div>
+            <div>
+                <h3>Low Stock</h3>
+                <p th:text="${lowStockCount}" style="color:#FF6D00;">0</p>
+            </div>
+        </div>
+        <div class="stat-box">
+            <div class="si" style="background:#FFE0E0;">❌</div>
+            <div>
+                <h3>Out of Stock</h3>
+                <p th:text="${outOfStockCount}" style="color:var(--danger);">0</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter buttons — clicking adds ?filter=xxx to the URL -->
+    <div class="filter-bar">
+        <a th:href="@{/inventory}"
+           th:class="${currentFilter == null} ? 'filter-btn active' : 'filter-btn'">
+            All Toys
+        </a>
+        <a th:href="@{/inventory(filter='healthy')}"
+           th:class="${currentFilter == 'healthy'} ? 'filter-btn success active' : 'filter-btn success'">
+            ✅ Healthy Stock
+        </a>
+        <a th:href="@{/inventory(filter='low')}"
+           th:class="${currentFilter == 'low'} ? 'filter-btn warn active' : 'filter-btn warn'">
+            ⚠️ Low Stock
+        </a>
+        <a th:href="@{/inventory(filter='out')}"
+           th:class="${currentFilter == 'out'} ? 'filter-btn danger active' : 'filter-btn danger'">
+            ❌ Out of Stock
+        </a>
+    </div>
+
+    <!-- Results count label -->
+    <p style="font-size:0.82rem; color:var(--muted); font-weight:600; margin-bottom:1rem;">
+        Showing <strong style="color:var(--secondary);"
+                        th:text="${toys != null ? toys.size() : 0}"></strong> toys —
+        <strong th:text="${filterLabel}"></strong>
+    </p>
 
     <!-- Inventory table -->
-    <div class="table-wrap" style="margin-bottom:24px;">
-        <div class="table-header"><h2>Stock Levels</h2></div>
+    <div class="table-wrap">
         <table>
-            <thead><tr><th>Toy</th><th>Category</th><th>Stock</th><th>Status</th><th>Last Updated</th><th>Actions</th></tr></thead>
+            <thead>
+            <tr>
+                <th>Toy Name</th>
+                <th>Toy ID</th>
+                <th>Category</th>
+                <th>Price</th>
+                <th>Stock Level</th>
+                <th>Status</th>
+                <th>Restock</th>
+            </tr>
+            </thead>
             <tbody>
-                <tr th:each="item : ${inventory}">
-                    <td class="td-name" th:text="${item.toyName}"></td>
-                    <td><span th:text="${item.category}"
-                              th:classappend="${item.category == 'EDUCATIONAL'} ? 'badge badge-educational' :
-                                              (${item.category == 'ELECTRONIC'} ? 'badge badge-electronic' :
-                                              (${item.category == 'SOFT'} ? 'badge badge-soft' : 'badge badge-general'))"></span></td>
-                    <td>
-                        <span th:text="${item.stockQuantity}" th:class="${item.stockQuantity < 5} ? 'stock-low' : 'stock-ok'"></span>
-                        <div class="progress" style="width:80px;">
-                            <div class="progress-bar" th:class="${item.stockQuantity < 5} ? 'progress-bar red' : 'progress-bar green'"
-                                 th:style="'width:' + ${T(java.lang.Math).min(item.stockQuantity * 5, 100)} + '%'"></div>
-                        </div>
-                    </td>
-                    <td>
-                        <span th:text="${item.stockQuantity < 5} ? 'Low Stock' : 'In Stock'"
-                              th:classappend="${item.stockQuantity < 5} ? 'badge badge-danger' : 'badge badge-success'"></span>
-                    </td>
-                    <td class="td-muted" th:text="${item.lastUpdated}"></td>
-                    <td>
-                        <a th:href="@{/toys/edit/{id}(id=${item.toyId})}" class="btn btn-ghost btn-sm">✏ Edit Stock</a>
-                    </td>
-                </tr>
-                <tr th:if="${inventory == null or inventory.isEmpty()}">
-                    <td colspan="6"><div class="empty-state"><span class="empty-icon">📦</span><h3>No inventory data</h3></div></td>
-                </tr>
+
+            <!-- Empty state -->
+            <tr th:if="${toys == null or toys.isEmpty()}">
+                <td colspan="7" style="text-align:center; padding:3rem; color:var(--muted);">
+                    <span style="font-size:2.5rem; display:block; margin-bottom:0.75rem;">📭</span>
+                    No toys match this filter.
+                </td>
+            </tr>
+
+            <!-- One row per toy — th:each loops over the toys list from the controller -->
+            <tr th:each="toy : ${toys}">
+
+                <td style="font-weight:700;" th:text="${toy.name}"></td>
+
+                <td style="font-size:0.76rem; color:var(--muted); font-weight:700;"
+                    th:text="${toy.toyId}"></td>
+
+                <!-- Category badge with colour based on category value -->
+                <td>
+                        <span th:text="${toy.category}"
+                              th:class="${toy.category == 'EDUCATIONAL'} ? 'cat-badge cat-educational' :
+                                        (toy.category == 'ELECTRONIC'   ? 'cat-badge cat-electronic'  :
+                                        (toy.category == 'SOFT'         ? 'cat-badge cat-soft'        :
+                                                                           'cat-badge cat-general'))">
+                        </span>
+                </td>
+
+                <td style="font-weight:700;">
+                    Rs. <span th:text="${toy.price}"></span>
+                </td>
+
+                <!-- Stock quantity coloured by level -->
+                <td>
+                        <span th:text="${toy.stockQuantity}"
+                              th:class="${toy.stockQuantity == 0}   ? 'stock-out'     :
+                                        (toy.stockQuantity <= 5     ? 'stock-low'     :
+                                                                       'stock-healthy')">
+                        </span> units
+                </td>
+
+                <!-- Status badge -->
+                <td>
+                        <span th:if="${toy.stockQuantity == 0}"
+                              style="background:#FFE0E0; color:#C62828; padding:3px 9px;
+                                     border-radius:20px; font-size:0.72rem; font-weight:800;">
+                            Out of Stock
+                        </span>
+                    <span th:if="${toy.stockQuantity > 0 and toy.stockQuantity <= 5}"
+                          style="background:#FFF3E0; color:#E65100; padding:3px 9px;
+                                     border-radius:20px; font-size:0.72rem; font-weight:800;">
+                            Low Stock
+                        </span>
+                    <span th:if="${toy.stockQuantity > 5}"
+                          style="background:#E8F5E9; color:#2E7D32; padding:3px 9px;
+                                     border-radius:20px; font-size:0.72rem; font-weight:800;">
+                            In Stock
+                        </span>
+                </td>
+
+                <!-- Restock form — posts toyId + addQuantity to /inventory/restock -->
+                <td>
+                    <form action="/inventory/restock" method="post" class="restock-form">
+                        <input type="hidden" name="toyId" th:value="${toy.toyId}"/>
+                        <input type="number" name="addQuantity" value="10" min="1" max="999"/>
+                        <button type="submit" class="btn btn-primary"
+                                style="padding:5px 12px; font-size:0.78rem;">
+                            + Restock
+                        </button>
+                    </form>
+                </td>
+
+            </tr>
             </tbody>
         </table>
     </div>
 
-    <!-- Suppliers table -->
-    <div class="table-wrap">
-        <div class="table-header">
-            <h2>Suppliers</h2>
-            <a href="/inventory/suppliers/add" class="btn btn-primary btn-sm">+ Add Supplier</a>
-        </div>
-        <table>
-            <thead><tr><th>Supplier ID</th><th>Company</th><th>Contact</th><th>Email</th><th>Category</th><th>Actions</th></tr></thead>
-            <tbody>
-                <tr th:each="sup : ${suppliers}">
-                    <td class="td-mono" th:text="${sup.supplierId}"></td>
-                    <td class="td-name" th:text="${sup.companyName}"></td>
-                    <td class="td-muted" th:text="${sup.contactName}"></td>
-                    <td class="td-muted" th:text="${sup.email}"></td>
-                    <td><span class="badge badge-muted" th:text="${sup.category}"></span></td>
-                    <td>
-                        <div class="td-actions">
-                            <a th:href="@{/inventory/suppliers/edit/{id}(id=${sup.supplierId})}" class="btn btn-ghost btn-sm">✏ Edit</a>
-                            <a th:href="@{/inventory/suppliers/delete/{id}(id=${sup.supplierId})}" class="btn btn-danger btn-sm"
-                               onclick="return confirm('Remove supplier?')">✕</a>
-                        </div>
-                    </td>
-                </tr>
-                <tr th:if="${suppliers == null or suppliers.isEmpty()}">
-                    <td colspan="6"><div class="empty-state"><span class="empty-icon">🏭</span><h3>No suppliers registered</h3><p>Add your first supplier.</p><a href="/inventory/suppliers/add" class="btn btn-primary">+ Add Supplier</a></div></td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-</main>
+</div>
 </body>
 </html>

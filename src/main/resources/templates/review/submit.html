@@ -1,74 +1,135 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Submit Review — ToyVault</title>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Submit Review — Online Toy Store</title>
     <link rel="stylesheet" th:href="@{/css/style.css}"/>
     <style>
-        .star-picker { display:flex; gap:6px; margin:4px 0; }
-        .star-picker input[type=radio] { display:none; }
-        .star-picker label { font-size:1.6rem; cursor:pointer; color:var(--text-faint); transition:color .15s; }
-        .star-picker label:hover, .star-picker label:hover ~ label { color:var(--accent); }
-        .star-picker input:checked ~ label { color:var(--text-faint); }
-        .star-picker input:checked + label, .star-picker label:hover { color:var(--accent); }
+        .star-selector { display:flex; flex-direction:row-reverse; justify-content:flex-end; gap:4px; margin-top:4px; }
+        .star-selector input { display:none; }
+        .star-selector label { font-size:2rem; color:#ddd; cursor:pointer; transition:color 0.15s; }
+        .star-selector label:hover,
+        .star-selector label:hover ~ label,
+        .star-selector input:checked ~ label { color:#FFB300; }
     </style>
 </head>
 <body>
-<aside class="sidebar">
-    <div class="sidebar-brand"><div class="brand-icon">🧸</div><div class="brand-text">ToyVault<small>Admin Panel</small></div></div>
-    <span class="nav-label">Overview</span>
-    <a href="/" class="nav-item"><span class="nav-icon">◈</span> Dashboard</a>
-    <span class="nav-label">Catalogue</span>
-    <a href="/toys" class="nav-item"><span class="nav-icon">⊡</span> Toys</a>
-    <a href="/inventory" class="nav-item"><span class="nav-icon">⊞</span> Inventory</a>
-    <span class="nav-label">Commerce</span>
-    <a href="/cart" class="nav-item"><span class="nav-icon">⊟</span> Cart</a>
-    <a href="/orders" class="nav-item"><span class="nav-icon">⊕</span> Orders</a>
-    <span class="nav-label">Community</span>
-    <a href="/reviews" class="nav-item active"><span class="nav-icon">⊙</span> Reviews</a>
-    <span class="nav-label">Accounts</span>
-    <a href="/users" class="nav-item"><span class="nav-icon">⊚</span> Users</a>
-    <div class="sidebar-footer"><a href="/logout" class="nav-item"><span class="nav-icon">↩</span> Logout</a></div>
-</aside>
+<!-- PASTE THIS NAVBAR into EVERY .html template -->
+<nav class="navbar">
+    <a href="/" class="navbar-brand">🧸 <span>ToyStore</span></a>
+    <ul class="navbar-nav">
 
-<main class="main">
+        <li><a href="/toys">Toys</a></li>
+
+        <!-- Admin only links -->
+        <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
+            <a href="/dashboard">Dashboard</a>
+        </li>
+        <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
+            <a href="/users">Users</a>
+        </li>
+        <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
+            <a href="/orders">All Orders</a>
+        </li>
+        <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
+            <a href="/inventory">Inventory</a>
+        </li>
+
+        <!-- Any logged-in user -->
+        <li th:if="${session.loggedInUser != null}">
+            <a href="/cart">🛒 Cart</a>
+        </li>
+        <li th:if="${session.loggedInUser != null}">
+            <a href="/orders/history">My Orders</a>
+        </li>
+        <li th:if="${session.loggedInUser != null}">
+            <a href="/reviews">Reviews</a>
+        </li>
+        <li th:if="${session.loggedInUser != null}">
+            <a href="/users/profile"
+               style="color:var(--accent);">
+                👤 <span th:text="${session.loggedInUser?.username}">
+                </span>
+            </a>
+        </li>
+
+        <!-- Guest only -->
+        <li th:if="${session.loggedInUser == null}">
+            <a href="/users/login">Login</a>
+        </li>
+        <li th:if="${session.loggedInUser == null}">
+            <a href="/users/register">Register</a>
+        </li>
+
+        <!-- Logout -->
+        <li th:if="${session.loggedInUser != null}">
+            <a href="/users/logout"
+               style="color:rgba(255,150,150,0.85);">
+                Logout
+            </a>
+        </li>
+    </ul>
+</nav>
+
+<div class="page">
     <div class="page-header">
-        <div><div class="eyebrow">Community</div><h1>Submit a Review</h1></div>
-        <div class="page-actions"><a href="/reviews" class="btn btn-ghost">← Reviews</a></div>
+        <h1 style="font-size:1.7rem; color:var(--secondary);">
+            ✏️ Write a Review
+        </h1>
+        <a href="/reviews" class="btn btn-outline">← Back to Reviews</a>
     </div>
 
-    <div class="form-wrap">
-        <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+    <div class="card" style="max-width:640px;">
         <form th:action="@{/reviews/submit}" method="post">
-            <div class="form-grid">
-                <div class="form-group span-2">
-                    <label class="form-label">Toy *</label>
-                    <select class="form-select" name="toyId" required>
-                        <option value="">— Select a toy —</option>
-                        <option th:each="toy : ${toys}" th:value="${toy.toyId}" th:text="${toy.name}"></option>
-                    </select>
-                </div>
-                <div class="form-group span-2">
-                    <label class="form-label">Your Rating *</label>
-                    <div class="star-picker" id="starPicker">
-                        <input type="radio" name="rating" id="s5" value="5"/><label for="s5">★</label>
-                        <input type="radio" name="rating" id="s4" value="4"/><label for="s4">★</label>
-                        <input type="radio" name="rating" id="s3" value="3"/><label for="s3">★</label>
-                        <input type="radio" name="rating" id="s2" value="2"/><label for="s2">★</label>
-                        <input type="radio" name="rating" id="s1" value="1"/><label for="s1">★</label>
-                    </div>
-                </div>
-                <div class="form-group span-2">
-                    <label class="form-label">Your Review *</label>
-                    <textarea class="form-textarea" name="comment" required placeholder="Share your experience with this toy…" style="min-height:120px;"></textarea>
+
+            <!-- Select Toy -->
+            <div class="form-group" style="margin-bottom:1.1rem;">
+                <label>Select Toy</label>
+                <select name="toyId" required>
+                    <option value="">-- Choose a toy --</option>
+                    <option th:each="toy : ${toys}"
+                            th:value="${toy.toyId}"
+                            th:text="${toy.name}"
+                            th:selected="${toy.toyId == review.toyId}">
+                    </option>
+                </select>
+            </div>
+
+            <!-- Star Rating -->
+            <div class="form-group" style="margin-bottom:1.1rem;">
+                <label>Your Rating</label>
+                <div class="star-selector">
+                    <input type="radio" id="s5" name="rating" value="5"/>
+                    <label for="s5" title="5 stars">★</label>
+                    <input type="radio" id="s4" name="rating" value="4"/>
+                    <label for="s4" title="4 stars">★</label>
+                    <input type="radio" id="s3" name="rating" value="3" checked/>
+                    <label for="s3" title="3 stars">★</label>
+                    <input type="radio" id="s2" name="rating" value="2"/>
+                    <label for="s2" title="2 stars">★</label>
+                    <input type="radio" id="s1" name="rating" value="1"/>
+                    <label for="s1" title="1 star">★</label>
                 </div>
             </div>
+
+            <!-- Comment -->
+            <div class="form-group" style="margin-bottom:1.5rem;">
+                <label>Your Comment</label>
+                <textarea name="comment" rows="4"
+                          placeholder="Share your experience with this toy..."
+                          required></textarea>
+            </div>
+
             <div class="form-actions">
-                <button type="submit" class="btn btn-primary">Submit Review</button>
-                <a href="/reviews" class="btn btn-ghost">Cancel</a>
+                <button type="submit" class="btn btn-primary">
+                    Submit Review
+                </button>
+                <a href="/reviews" class="btn btn-outline">Cancel</a>
             </div>
+
         </form>
     </div>
-</main>
+</div>
 </body>
 </html>

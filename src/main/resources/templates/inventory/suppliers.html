@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Suppliers — Online Toy Store</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+    <style>
+        .sup-page { max-width: 1100px; margin: 0 auto; padding: 2rem 1.25rem; }
+
+        /* Card grid — auto-fills columns, minimum 290px each */
+        .supplier-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 1rem; }
+
+        /* Individual supplier card */
+        .supplier-card { background: #fff; border-radius: 14px; border: 1px solid var(--border);
+                         box-shadow: 0 2px 14px rgba(27,42,74,0.08); padding: 1.4rem;
+                         display: flex; flex-direction: column; gap: 0.6rem;
+                         transition: transform 0.2s, box-shadow 0.2s;
+                         position: relative; overflow: hidden; }
+
+        /* Coloured top accent line on each card */
+        .supplier-card::before { content: ''; position: absolute; top: 0; left: 0;
+                                  right: 0; height: 3px; background: var(--primary); }
+
+        .supplier-card:hover { transform: translateY(-3px); box-shadow: 0 6px 24px rgba(27,42,74,0.13); }
+
+        .sup-name { font-weight: 800; font-size: 1.05rem; color: var(--secondary); }
+
+        .sup-row { display: flex; align-items: flex-start; gap: 7px;
+                   font-size: 0.84rem; color: var(--muted); }
+        .sup-row span:first-child { font-size: 1rem; flex-shrink: 0; }
+
+        /* Category badge at top of card */
+        .sup-cat { display: inline-block; padding: 3px 10px; border-radius: 20px;
+                   font-size: 0.72rem; font-weight: 800;
+                   background: #FFF3E0; color: #E65100; margin-bottom: 4px; }
+
+        /* Edit / Delete buttons at bottom of card */
+        .sup-footer { display: flex; gap: 7px; margin-top: auto;
+                      padding-top: 0.75rem; border-top: 1px solid var(--border); }
+
+        /* Empty state when no suppliers exist yet */
+        .empty-sup { background: #fff; border-radius: 14px; padding: 4rem 2rem;
+                     text-align: center; border: 1px solid var(--border); }
+        .empty-sup .ei { font-size: 3.5rem; display: block; margin-bottom: 1rem; }
+    </style>
+</head>
+<body>
+
+<!-- PASTE THIS NAVBAR into EVERY .html template -->
+<nav class="navbar">
+    <a href="/" class="navbar-brand">🧸 <span>ToyStore</span></a>
+    <ul class="navbar-nav">
+
+        <li><a href="/toys">Toys</a></li>
+
+        <!-- Admin only links -->
+        <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
+            <a href="/dashboard">Dashboard</a>
+        </li>
+        <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
+            <a href="/users">Users</a>
+        </li>
+        <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
+            <a href="/orders">All Orders</a>
+        </li>
+        <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
+            <a href="/inventory">Inventory</a>
+        </li>
+
+        <!-- Any logged-in user -->
+        <li th:if="${session.loggedInUser != null}">
+            <a href="/cart">🛒 Cart</a>
+        </li>
+        <li th:if="${session.loggedInUser != null}">
+            <a href="/orders/history">My Orders</a>
+        </li>
+        <li th:if="${session.loggedInUser != null}">
+            <a href="/reviews">Reviews</a>
+        </li>
+        <li th:if="${session.loggedInUser != null}">
+            <a href="/users/profile"
+               style="color:var(--accent);">
+                👤 <span th:text="${session.loggedInUser?.username}">
+                </span>
+            </a>
+        </li>
+
+        <!-- Guest only -->
+        <li th:if="${session.loggedInUser == null}">
+            <a href="/users/login">Login</a>
+        </li>
+        <li th:if="${session.loggedInUser == null}">
+            <a href="/users/register">Register</a>
+        </li>
+
+        <!-- Logout -->
+        <li th:if="${session.loggedInUser != null}">
+            <a href="/users/logout"
+               style="color:rgba(255,150,150,0.85);">
+                Logout
+            </a>
+        </li>
+    </ul>
+</nav>
+
+<div class="sup-page">
+
+    <!-- Page header with total supplier count badge -->
+    <div class="page-header">
+        <h1 style="font-family:'Fredoka One',cursive; font-size:1.7rem;
+                   color:var(--secondary); display:flex; align-items:center; gap:8px;">
+            🏭 Supplier Management
+            <span style="background:var(--secondary); color:#fff; font-size:0.9rem;
+                         padding:2px 12px; border-radius:20px;
+                         font-family:'Nunito',sans-serif; font-weight:800;"
+                  th:text="${totalCount}"></span>
+        </h1>
+        <div style="display:flex; gap:0.6rem;">
+            <a href="/inventory"   class="btn btn-outline">📦 Inventory</a>
+            <a href="/suppliers/add" class="btn btn-primary">+ Add Supplier</a>
+        </div>
+    </div>
+
+    <!-- Empty state — shown when suppliers list is empty -->
+    <div class="empty-sup" th:if="${suppliers == null or suppliers.isEmpty()}">
+        <span class="ei">🏭</span>
+        <h3 style="font-weight:800; margin-bottom:4px;">No suppliers yet</h3>
+        <p style="color:var(--muted); margin-bottom:1.25rem;">
+            Add your first supplier to get started.
+        </p>
+        <a href="/suppliers/add" class="btn btn-primary">+ Add Supplier</a>
+    </div>
+
+    <!-- Supplier cards grid — th:each loops over suppliers from the controller -->
+    <div class="supplier-grid" th:if="${suppliers != null and !suppliers.isEmpty()}">
+
+        <div class="supplier-card" th:each="sup : ${suppliers}">
+
+            <!-- Supply category badge -->
+            <div class="sup-cat" th:text="'Supplies: ' + ${sup.supplyCategory}"></div>
+
+            <!-- Company name -->
+            <div class="sup-name" th:text="${sup.name}"></div>
+
+            <!-- Contact person — shows — if empty -->
+            <div class="sup-row">
+                <span>👤</span>
+                <span th:text="${sup.contactPerson != null and !sup.contactPerson.isEmpty()}
+                               ? sup.contactPerson : '—'">
+                </span>
+            </div>
+
+            <!-- Email -->
+            <div class="sup-row">
+                <span>✉️</span>
+                <span th:text="${sup.email != null and !sup.email.isEmpty()}
+                               ? sup.email : '—'">
+                </span>
+            </div>
+
+            <!-- Phone -->
+            <div class="sup-row">
+                <span>📞</span>
+                <span th:text="${sup.phone != null and !sup.phone.isEmpty()}
+                               ? sup.phone : '—'">
+                </span>
+            </div>
+
+            <!-- Address -->
+            <div class="sup-row">
+                <span>📍</span>
+                <span th:text="${sup.address != null and !sup.address.isEmpty()}
+                               ? sup.address : '—'">
+                </span>
+            </div>
+
+            <!-- Edit and Delete buttons -->
+            <div class="sup-footer">
+                <a th:href="@{/suppliers/edit/{id}(id=${sup.supplierId})}"
+                   class="btn btn-outline"
+                   style="flex:1; justify-content:center; padding:6px 0; font-size:0.82rem;">
+                    ✏️ Edit
+                </a>
+                <a th:href="@{/suppliers/delete/{id}(id=${sup.supplierId})}"
+                   class="btn btn-danger"
+                   style="flex:1; justify-content:center; padding:6px 0; font-size:0.82rem;"
+                   onclick="return confirm('Delete this supplier?')">
+                    🗑️ Delete
+                </a>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+</body>
+</html>

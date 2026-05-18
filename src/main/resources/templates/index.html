@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Online Toy Store — Dashboard</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar">
+    <a href="/" class="navbar-brand">🧸 <span>ToyStore</span></a>
+    <ul class="navbar-nav">
+
+        <!-- Always visible -->
+        <li><a href="/toys">Toys</a></li>
+
+        <!-- Admin only -->
+        <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
+            <a href="/dashboard">Dashboard</a>
+        </li>
+        <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
+            <a href="/users">Users</a>
+        </li>
+        <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
+            <a href="/orders">Orders</a>
+        </li>
+        <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
+            <a href="/inventory">Inventory</a>
+        </li>
+
+        <!-- Logged in (any role) -->
+        <li th:if="${session.loggedInUser != null}">
+            <a href="/cart">Cart</a>
+        </li>
+        <li th:if="${session.loggedInUser != null}">
+            <a href="/orders/history">My Orders</a>
+        </li>
+        <li th:if="${session.loggedInUser != null}">
+            <a href="/reviews">Reviews</a>
+        </li>
+        <li th:if="${session.loggedInUser != null}">
+            <a href="/users/profile">
+                👤 <span th:text="${session.loggedInUser?.username}">
+                </span>
+            </a>
+        </li>
+
+        <!-- Guest only -->
+        <li th:if="${session.loggedInUser == null}">
+            <a href="/users/login">Login</a>
+        </li>
+        <li th:if="${session.loggedInUser == null}">
+            <a href="/users/register">Register</a>
+        </li>
+
+        <!-- Logout -->
+        <li th:if="${session.loggedInUser != null}">
+            <a href="/users/logout"
+               style="color:rgba(255,150,150,0.9);">Logout</a>
+        </li>
+    </ul>
+</nav>
+
+<div class="page">
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <h1>
+            <span class="icon">📊</span>
+            Dashboard
+        </h1>
+        <span style="color: var(--text-muted); font-size:0.9rem; font-weight:600;">
+            Online Toy Store Management System
+        </span>
+    </div>
+
+    <!-- Stats Row -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#FFF3E0;">👥</div>
+            <div>
+                <h3>Total Users</h3>
+                <p th:text="${totalUsers}">—</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#E8F5E9;">🧸</div>
+            <div>
+                <h3>Total Toys</h3>
+                <p th:text="${totalToys}">—</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#E3F2FD;">📦</div>
+            <div>
+                <h3>Orders</h3>
+                <p th:text="${totalOrders}">—</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#FCE4EC;">⭐</div>
+            <div>
+                <h3>Reviews</h3>
+                <p th:text="${totalReviews}">—</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Module Cards -->
+    <h2 style="font-family:'Fredoka One',cursive; color:var(--secondary);
+               font-size:1.3rem; margin-bottom:1.25rem;">
+        Manage Your Store
+    </h2>
+
+    <!-- Replace the entire module-grid div in index.html -->
+    <div class="module-grid">
+
+        <!-- Admin only cards -->
+        <a th:if="${session.loggedInUser?.role == 'ADMIN'}"
+           href="/users" class="module-card"
+           style="--module-color:#4CC9F0;">
+            <div class="module-icon">👤</div>
+            <h3>User Management</h3>
+            <p>Register customers, manage accounts and admin controls.</p>
+            <span class="module-arrow">Go to Users →</span>
+        </a>
+
+        <!-- All users see Toys -->
+        <a href="/toys" class="module-card"
+           style="--module-color:#FF6B35;">
+            <div class="module-icon">🧸</div>
+            <h3>Toy Catalog</h3>
+            <p>Browse, search and filter toys by category.</p>
+            <span class="module-arrow">Browse Toys →</span>
+        </a>
+
+        <!-- Logged-in users -->
+        <a th:if="${session.loggedInUser != null}"
+           href="/cart" class="module-card"
+           style="--module-color:#FFD23F;">
+            <div class="module-icon">🛒</div>
+            <h3>Shopping Cart</h3>
+            <p>View your cart items, update quantities and checkout.</p>
+            <span class="module-arrow">Go to Cart →</span>
+        </a>
+
+        <a th:if="${session.loggedInUser != null}"
+           href="/orders/history" class="module-card"
+           style="--module-color:#2DC653;">
+            <div class="module-icon">📦</div>
+            <h3>My Orders</h3>
+            <p>Track your orders and view order history.</p>
+            <span class="module-arrow">My Orders →</span>
+        </a>
+
+        <a th:if="${session.loggedInUser != null}"
+           href="/reviews" class="module-card"
+           style="--module-color:#C77DFF;">
+            <div class="module-icon">⭐</div>
+            <h3>Reviews</h3>
+            <p>Read and write reviews for toys you have purchased.</p>
+            <span class="module-arrow">Go to Reviews →</span>
+        </a>
+
+        <a th:if="${session.loggedInUser?.role == 'ADMIN'}"
+           href="/inventory" class="module-card"
+           style="--module-color:#F72585;">
+            <div class="module-icon">🏭</div>
+            <h3>Inventory & Supplier</h3>
+            <p>Manage suppliers, monitor stock and handle restocking.</p>
+            <span class="module-arrow">Go to Inventory →</span>
+        </a>
+
+        <!-- Guest call-to-action cards -->
+        <a th:if="${session.loggedInUser == null}"
+           href="/users/login" class="module-card"
+           style="--module-color:#4CC9F0;">
+            <div class="module-icon">🔐</div>
+            <h3>Login</h3>
+            <p>Log in to your account to start shopping.</p>
+            <span class="module-arrow">Login →</span>
+        </a>
+
+        <a th:if="${session.loggedInUser == null}"
+           href="/users/register" class="module-card"
+           style="--module-color:#2DC653;">
+            <div class="module-icon">📝</div>
+            <h3>Register</h3>
+            <p>Create a new account and start shopping today.</p>
+            <span class="module-arrow">Register →</span>
+        </a>
+
+    </div>
+</div>
+
+</body>
+</html>
