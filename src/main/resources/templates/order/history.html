@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Order History — ToyVault</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<aside class="sidebar">
+    <div class="sidebar-brand"><div class="brand-icon">🧸</div><div class="brand-text">ToyVault<small>Admin Panel</small></div></div>
+    <span class="nav-label">Overview</span>
+    <a href="/" class="nav-item"><span class="nav-icon">◈</span> Dashboard</a>
+    <span class="nav-label">Catalogue</span>
+    <a href="/toys" class="nav-item"><span class="nav-icon">⊡</span> Toys</a>
+    <a href="/inventory" class="nav-item"><span class="nav-icon">⊞</span> Inventory</a>
+    <span class="nav-label">Commerce</span>
+    <a href="/cart" class="nav-item"><span class="nav-icon">⊟</span> Cart</a>
+    <a href="/orders" class="nav-item active"><span class="nav-icon">⊕</span> Orders</a>
+    <span class="nav-label">Community</span>
+    <a href="/reviews" class="nav-item"><span class="nav-icon">⊙</span> Reviews</a>
+    <span class="nav-label">Accounts</span>
+    <a href="/users" class="nav-item"><span class="nav-icon">⊚</span> Users</a>
+    <div class="sidebar-footer"><a href="/logout" class="nav-item"><span class="nav-icon">↩</span> Logout</a></div>
+</aside>
+
+<main class="main">
+    <div class="page-header">
+        <div><div class="eyebrow">Commerce</div><h1>Order History</h1><p>Your past purchases and their statuses.</p></div>
+    </div>
+
+    <div class="table-wrap">
+        <div class="table-header"><h2>My Orders</h2></div>
+        <table>
+            <thead><tr><th>Order ID</th><th>Date</th><th>Items</th><th>Total</th><th>Payment</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody>
+                <tr th:each="order : ${orders}">
+                    <td class="td-mono" th:text="'#' + ${order.orderId}"></td>
+                    <td class="td-muted" th:text="${order.orderDate}"></td>
+                    <td class="td-muted" th:text="${order.itemCount} + ' item(s)'"></td>
+                    <td style="font-family:'JetBrains Mono',monospace; font-weight:700; color:var(--accent);"
+                        th:text="'Rs.' + ${#numbers.formatDecimal(order.totalAmount,1,'COMMA',2,'POINT')}"></td>
+                    <td><span class="badge badge-muted" th:text="${order.paymentMethod}"></span></td>
+                    <td>
+                        <span th:text="${order.status}"
+                              th:classappend="${order.status == 'DELIVERED'} ? 'badge badge-success' :
+                                              (${order.status == 'SHIPPED'} ? 'badge badge-info' :
+                                              (${order.status == 'PENDING'} ? 'badge badge-accent' : 'badge badge-danger'))">
+                        </span>
+                    </td>
+                    <td>
+                        <a th:href="@{/orders/cancel/{id}(id=${order.orderId})}" class="btn btn-danger btn-sm"
+                           th:if="${order.status == 'PENDING'}"
+                           onclick="return confirm('Cancel this order?')">✕ Cancel</a>
+                    </td>
+                </tr>
+                <tr th:if="${orders == null or orders.isEmpty()}">
+                    <td colspan="7"><div class="empty-state"><span class="empty-icon">📦</span><h3>No orders yet</h3><p>Add items to your cart and place an order.</p><a href="/toys" class="btn btn-primary">Shop Now</a></div></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+</body>
+</html>

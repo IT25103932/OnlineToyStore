@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Reviews — ToyVault</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+    <style>
+        .reviews-grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(320px,1fr)); gap:16px; }
+        .review-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:20px; transition: border-color .2s; }
+        .review-card:hover { border-color:var(--border-hover); }
+        .review-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px; }
+        .reviewer { font-weight:600; font-size:0.9rem; }
+        .review-toy { font-size:0.75rem; color:var(--text-muted); margin-top:2px; }
+        .star-row { color:var(--accent); font-size:1rem; letter-spacing:2px; margin-bottom:10px; }
+        .review-body { font-size:0.875rem; color:var(--text-muted); line-height:1.6; }
+        .review-date { font-size:0.72rem; color:var(--text-faint); margin-top:10px; }
+    </style>
+</head>
+<body>
+<aside class="sidebar">
+    <div class="sidebar-brand"><div class="brand-icon">🧸</div><div class="brand-text">ToyVault<small>Admin Panel</small></div></div>
+    <span class="nav-label">Overview</span>
+    <a href="/" class="nav-item"><span class="nav-icon">◈</span> Dashboard</a>
+    <span class="nav-label">Catalogue</span>
+    <a href="/toys" class="nav-item"><span class="nav-icon">⊡</span> Toys</a>
+    <a href="/inventory" class="nav-item"><span class="nav-icon">⊞</span> Inventory</a>
+    <span class="nav-label">Commerce</span>
+    <a href="/cart" class="nav-item"><span class="nav-icon">⊟</span> Cart</a>
+    <a href="/orders" class="nav-item"><span class="nav-icon">⊕</span> Orders</a>
+    <span class="nav-label">Community</span>
+    <a href="/reviews" class="nav-item active"><span class="nav-icon">⊙</span> Reviews</a>
+    <span class="nav-label">Accounts</span>
+    <a href="/users" class="nav-item"><span class="nav-icon">⊚</span> Users</a>
+    <div class="sidebar-footer"><a href="/logout" class="nav-item"><span class="nav-icon">↩</span> Logout</a></div>
+</aside>
+
+<main class="main">
+    <div class="page-header">
+        <div><div class="eyebrow">Community</div><h1>Reviews &amp; Ratings</h1><p>Customer feedback on toy products.</p></div>
+        <div class="page-actions">
+            <a href="/reviews/submit" class="btn btn-primary">+ Write Review</a>
+        </div>
+    </div>
+
+    <div class="reviews-grid" th:if="${reviews != null and !reviews.isEmpty()}">
+        <div class="review-card" th:each="rev : ${reviews}">
+            <div class="review-header">
+                <div>
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <div class="avatar" th:text="${#strings.toUpperCase(#strings.substring(rev.username,0,1))}">U</div>
+                        <div>
+                            <div class="reviewer" th:text="${rev.username}"></div>
+                            <div class="review-toy" th:text="'on ' + ${rev.toyName}"></div>
+                        </div>
+                    </div>
+                </div>
+                <span class="badge badge-accent" th:if="${rev.verified}">Verified</span>
+            </div>
+            <div class="star-row">
+                <span th:each="i : ${#numbers.sequence(1,rev.rating)}">★</span>
+                <span th:each="i : ${#numbers.sequence(rev.rating+1,5)}" style="opacity:0.2;">★</span>
+            </div>
+            <div class="review-body" th:text="${rev.comment}"></div>
+            <div class="review-date" th:text="${rev.reviewDate}"></div>
+            <div style="margin-top:12px; display:flex; gap:8px;">
+                <a th:href="@{/reviews/edit/{id}(id=${rev.reviewId})}" class="btn btn-ghost btn-sm">✏ Edit</a>
+                <a th:href="@{/reviews/delete/{id}(id=${rev.reviewId})}" class="btn btn-danger btn-sm"
+                   onclick="return confirm('Delete this review?')">✕ Delete</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="card" th:if="${reviews == null or reviews.isEmpty()}">
+        <div class="empty-state">
+            <span class="empty-icon">⭐</span>
+            <h3>No reviews yet</h3>
+            <p>Be the first to review a product.</p>
+            <a href="/reviews/submit" class="btn btn-primary">Write a Review</a>
+        </div>
+    </div>
+</main>
+</body>
+</html>

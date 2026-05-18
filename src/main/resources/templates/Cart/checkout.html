@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Checkout — ToyVault</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<aside class="sidebar">
+    <div class="sidebar-brand"><div class="brand-icon">🧸</div><div class="brand-text">ToyVault<small>Admin Panel</small></div></div>
+    <span class="nav-label">Overview</span>
+    <a href="/" class="nav-item"><span class="nav-icon">◈</span> Dashboard</a>
+    <span class="nav-label">Catalogue</span>
+    <a href="/toys" class="nav-item"><span class="nav-icon">⊡</span> Toys</a>
+    <a href="/inventory" class="nav-item"><span class="nav-icon">⊞</span> Inventory</a>
+    <span class="nav-label">Commerce</span>
+    <a href="/cart" class="nav-item active"><span class="nav-icon">⊟</span> Cart</a>
+    <a href="/orders" class="nav-item"><span class="nav-icon">⊕</span> Orders</a>
+    <span class="nav-label">Community</span>
+    <a href="/reviews" class="nav-item"><span class="nav-icon">⊙</span> Reviews</a>
+    <span class="nav-label">Accounts</span>
+    <a href="/users" class="nav-item"><span class="nav-icon">⊚</span> Users</a>
+    <div class="sidebar-footer"><a href="/logout" class="nav-item"><span class="nav-icon">↩</span> Logout</a></div>
+</aside>
+
+<main class="main">
+    <div class="page-header">
+        <div>
+            <div class="eyebrow">Commerce</div>
+            <h1>Checkout</h1>
+            <p>Review your order and complete payment.</p>
+        </div>
+        <div class="page-actions">
+            <a href="/cart" class="btn btn-ghost">← Back to Cart</a>
+        </div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:1fr 320px; gap:20px; align-items:start; max-width:900px;">
+        <div class="form-wrap" style="max-width:100%;">
+            <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+            <div style="font-size:0.8rem; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--text-muted); margin-bottom:18px;">Delivery Details</div>
+
+            <form th:action="@{/orders/place}" method="post">
+                <div class="form-grid">
+                    <div class="form-group span-2">
+                        <label class="form-label">Delivery Address *</label>
+                        <textarea class="form-textarea" name="deliveryAddress" required th:text="${user?.address}"></textarea>
+                    </div>
+                    <div class="form-group span-2">
+                        <label class="form-label">Payment Method *</label>
+                        <select class="form-select" name="paymentMethod" required>
+                            <option value="ONLINE">Online Payment (Card / Bank)</option>
+                            <option value="COD">Cash on Delivery</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary" style="flex:1; justify-content:center; padding:12px;">Place Order →</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="summary-card">
+            <div style="font-weight:600; font-size:0.9rem; margin-bottom:16px;">Your Order</div>
+            <div class="summary-row" th:each="item : ${cartItems}">
+                <span th:text="${item.toyName} + ' ×' + ${item.quantity}"></span>
+                <span th:text="'Rs.' + ${#numbers.formatDecimal(item.totalPrice,1,'COMMA',2,'POINT')}"></span>
+            </div>
+            <div class="summary-row">
+                <span>Delivery</span><span style="color:var(--success);">Free</span>
+            </div>
+            <div class="summary-row total">
+                <span>Total</span>
+                <span th:text="'Rs.' + ${#numbers.formatDecimal(cartTotal,1,'COMMA',2,'POINT')}"></span>
+            </div>
+        </div>
+    </div>
+</main>
+</body>
+</html>

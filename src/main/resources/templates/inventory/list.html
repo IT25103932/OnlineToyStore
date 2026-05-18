@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Inventory — ToyVault</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<aside class="sidebar">
+    <div class="sidebar-brand"><div class="brand-icon">🧸</div><div class="brand-text">ToyVault<small>Admin Panel</small></div></div>
+    <span class="nav-label">Overview</span>
+    <a href="/" class="nav-item"><span class="nav-icon">◈</span> Dashboard</a>
+    <span class="nav-label">Catalogue</span>
+    <a href="/toys" class="nav-item"><span class="nav-icon">⊡</span> Toys</a>
+    <a href="/inventory" class="nav-item active"><span class="nav-icon">⊞</span> Inventory</a>
+    <span class="nav-label">Commerce</span>
+    <a href="/cart" class="nav-item"><span class="nav-icon">⊟</span> Cart</a>
+    <a href="/orders" class="nav-item"><span class="nav-icon">⊕</span> Orders</a>
+    <span class="nav-label">Community</span>
+    <a href="/reviews" class="nav-item"><span class="nav-icon">⊙</span> Reviews</a>
+    <span class="nav-label">Accounts</span>
+    <a href="/users" class="nav-item"><span class="nav-icon">⊚</span> Users</a>
+    <div class="sidebar-footer"><a href="/logout" class="nav-item"><span class="nav-icon">↩</span> Logout</a></div>
+</aside>
+
+<main class="main">
+    <div class="page-header">
+        <div><div class="eyebrow">Inventory</div><h1>Inventory Management</h1><p>Monitor stock levels and manage suppliers.</p></div>
+        <div class="page-actions">
+            <a href="/inventory/suppliers/add" class="btn btn-ghost">+ Add Supplier</a>
+            <a href="/inventory/restock" class="btn btn-primary">↑ Restock</a>
+        </div>
+    </div>
+
+    <!-- Low stock alert -->
+    <div class="alert alert-danger" th:if="${lowStockCount > 0}"
+         th:text="'⚠ ' + ${lowStockCount} + ' product(s) are running low on stock.'"></div>
+
+    <!-- Inventory table -->
+    <div class="table-wrap" style="margin-bottom:24px;">
+        <div class="table-header"><h2>Stock Levels</h2></div>
+        <table>
+            <thead><tr><th>Toy</th><th>Category</th><th>Stock</th><th>Status</th><th>Last Updated</th><th>Actions</th></tr></thead>
+            <tbody>
+                <tr th:each="item : ${inventory}">
+                    <td class="td-name" th:text="${item.toyName}"></td>
+                    <td><span th:text="${item.category}"
+                              th:classappend="${item.category == 'EDUCATIONAL'} ? 'badge badge-educational' :
+                                              (${item.category == 'ELECTRONIC'} ? 'badge badge-electronic' :
+                                              (${item.category == 'SOFT'} ? 'badge badge-soft' : 'badge badge-general'))"></span></td>
+                    <td>
+                        <span th:text="${item.stockQuantity}" th:class="${item.stockQuantity < 5} ? 'stock-low' : 'stock-ok'"></span>
+                        <div class="progress" style="width:80px;">
+                            <div class="progress-bar" th:class="${item.stockQuantity < 5} ? 'progress-bar red' : 'progress-bar green'"
+                                 th:style="'width:' + ${T(java.lang.Math).min(item.stockQuantity * 5, 100)} + '%'"></div>
+                        </div>
+                    </td>
+                    <td>
+                        <span th:text="${item.stockQuantity < 5} ? 'Low Stock' : 'In Stock'"
+                              th:classappend="${item.stockQuantity < 5} ? 'badge badge-danger' : 'badge badge-success'"></span>
+                    </td>
+                    <td class="td-muted" th:text="${item.lastUpdated}"></td>
+                    <td>
+                        <a th:href="@{/toys/edit/{id}(id=${item.toyId})}" class="btn btn-ghost btn-sm">✏ Edit Stock</a>
+                    </td>
+                </tr>
+                <tr th:if="${inventory == null or inventory.isEmpty()}">
+                    <td colspan="6"><div class="empty-state"><span class="empty-icon">📦</span><h3>No inventory data</h3></div></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Suppliers table -->
+    <div class="table-wrap">
+        <div class="table-header">
+            <h2>Suppliers</h2>
+            <a href="/inventory/suppliers/add" class="btn btn-primary btn-sm">+ Add Supplier</a>
+        </div>
+        <table>
+            <thead><tr><th>Supplier ID</th><th>Company</th><th>Contact</th><th>Email</th><th>Category</th><th>Actions</th></tr></thead>
+            <tbody>
+                <tr th:each="sup : ${suppliers}">
+                    <td class="td-mono" th:text="${sup.supplierId}"></td>
+                    <td class="td-name" th:text="${sup.companyName}"></td>
+                    <td class="td-muted" th:text="${sup.contactName}"></td>
+                    <td class="td-muted" th:text="${sup.email}"></td>
+                    <td><span class="badge badge-muted" th:text="${sup.category}"></span></td>
+                    <td>
+                        <div class="td-actions">
+                            <a th:href="@{/inventory/suppliers/edit/{id}(id=${sup.supplierId})}" class="btn btn-ghost btn-sm">✏ Edit</a>
+                            <a th:href="@{/inventory/suppliers/delete/{id}(id=${sup.supplierId})}" class="btn btn-danger btn-sm"
+                               onclick="return confirm('Remove supplier?')">✕</a>
+                        </div>
+                    </td>
+                </tr>
+                <tr th:if="${suppliers == null or suppliers.isEmpty()}">
+                    <td colspan="6"><div class="empty-state"><span class="empty-icon">🏭</span><h3>No suppliers registered</h3><p>Add your first supplier.</p><a href="/inventory/suppliers/add" class="btn btn-primary">+ Add Supplier</a></div></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+</body>
+</html>

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Register — ToyVault</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+    <style>
+        body { align-items: center; justify-content: center; background: var(--bg); }
+        body::before { content:''; position:fixed; top:-20%; right:-15%; width:500px; height:500px;
+            border-radius:50%; background:radial-gradient(circle, rgba(245,166,35,0.08) 0%, transparent 70%); pointer-events:none; }
+        .auth-box { width: 100%; max-width: 520px; }
+        .auth-brand { text-align: center; margin-bottom: 30px; }
+        .auth-brand .icon { width:52px; height:52px; background:var(--accent); border-radius:14px;
+            display:inline-flex; align-items:center; justify-content:center; font-size:1.5rem;
+            margin-bottom:14px; box-shadow: 0 0 40px var(--accent-glow); }
+        .auth-brand h1 { font-family:'DM Serif Display',serif; font-size:1.6rem; color:var(--text); }
+        .auth-footer { text-align:center; margin-top:20px; font-size:0.82rem; color:var(--text-muted); }
+        .auth-footer a { color:var(--accent); font-weight:600; }
+        .sidebar { display: none; }
+        .main { margin-left: 0; display:flex; align-items:center; justify-content:center; width:100%; padding: 40px 20px; }
+    </style>
+</head>
+<body>
+<main class="main">
+    <div class="auth-box">
+        <div class="auth-brand">
+            <div class="icon">🧸</div>
+            <h1>Create Account</h1>
+            <p style="color:var(--text-muted); font-size:0.875rem; margin-top:4px;">Join ToyVault today</p>
+        </div>
+
+        <div class="form-wrap" style="max-width:100%;">
+            <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+            <form th:action="@{/register}" method="post">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">First Name *</label>
+                        <input class="form-input" type="text" name="firstName" required placeholder="John" autofocus/>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Last Name *</label>
+                        <input class="form-input" type="text" name="lastName" required placeholder="Doe"/>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Username *</label>
+                        <input class="form-input" type="text" name="username" required placeholder="johndoe"/>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Email *</label>
+                        <input class="form-input" type="email" name="email" required placeholder="john@example.com"/>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Password *</label>
+                        <input class="form-input" type="password" name="password" required placeholder="Min. 8 characters"/>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Confirm Password *</label>
+                        <input class="form-input" type="password" name="confirmPassword" required placeholder="Repeat password"/>
+                    </div>
+                    <div class="form-group span-2">
+                        <label class="form-label">Delivery Address</label>
+                        <textarea class="form-textarea" name="address" placeholder="Your shipping address…" style="min-height:70px;"></textarea>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary" style="flex:1; justify-content:center; padding:11px;">Create Account →</button>
+                </div>
+            </form>
+        </div>
+        <div class="auth-footer">
+            Already have an account? <a href="/login">Sign in</a>
+        </div>
+    </div>
+</main>
+</body>
+</html>

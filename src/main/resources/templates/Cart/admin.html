@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Cart Admin — ToyVault</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<aside class="sidebar">
+    <div class="sidebar-brand"><div class="brand-icon">🧸</div><div class="brand-text">ToyVault<small>Admin Panel</small></div></div>
+    <span class="nav-label">Overview</span>
+    <a href="/" class="nav-item"><span class="nav-icon">◈</span> Dashboard</a>
+    <span class="nav-label">Catalogue</span>
+    <a href="/toys" class="nav-item"><span class="nav-icon">⊡</span> Toys</a>
+    <a href="/inventory" class="nav-item"><span class="nav-icon">⊞</span> Inventory</a>
+    <span class="nav-label">Commerce</span>
+    <a href="/cart" class="nav-item active"><span class="nav-icon">⊟</span> Cart</a>
+    <a href="/orders" class="nav-item"><span class="nav-icon">⊕</span> Orders</a>
+    <span class="nav-label">Community</span>
+    <a href="/reviews" class="nav-item"><span class="nav-icon">⊙</span> Reviews</a>
+    <span class="nav-label">Accounts</span>
+    <a href="/users" class="nav-item"><span class="nav-icon">⊚</span> Users</a>
+    <div class="sidebar-footer"><a href="/logout" class="nav-item"><span class="nav-icon">↩</span> Logout</a></div>
+</aside>
+
+<main class="main">
+    <div class="page-header">
+        <div><div class="eyebrow">Commerce</div><h1>All Cart Sessions</h1><p>Admin view of all active cart sessions.</p></div>
+    </div>
+    <div class="table-wrap">
+        <div class="table-header"><h2>Cart Records</h2></div>
+        <table>
+            <thead><tr><th>Cart ID</th><th>User</th><th>Toy</th><th>Qty</th><th>Unit Price</th><th>Total</th><th>Actions</th></tr></thead>
+            <tbody>
+                <tr th:each="item : ${allCartItems}">
+                    <td class="td-mono" th:text="${item.cartItemId}"></td>
+                    <td class="td-name" th:text="${item.userId}"></td>
+                    <td th:text="${item.toyName}"></td>
+                    <td class="font-mono" th:text="${item.quantity}"></td>
+                    <td class="font-mono" style="color:var(--text-muted);" th:text="'Rs.' + ${item.unitPrice}"></td>
+                    <td class="font-mono" style="color:var(--accent); font-weight:700;" th:text="'Rs.' + ${#numbers.formatDecimal(item.totalPrice,1,'COMMA',2,'POINT')}"></td>
+                    <td>
+                        <a th:href="@{/cart/admin/remove/{id}(id=${item.cartItemId})}" class="btn btn-danger btn-sm"
+                           onclick="return confirm('Remove?')">✕ Remove</a>
+                    </td>
+                </tr>
+                <tr th:if="${allCartItems == null or allCartItems.isEmpty()}">
+                    <td colspan="7"><div class="empty-state"><span class="empty-icon">🛒</span><h3>No active cart sessions</h3></div></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+</body>
+</html>

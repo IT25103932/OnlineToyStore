@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Review Moderation — ToyVault Admin</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<aside class="sidebar">
+    <div class="sidebar-brand"><div class="brand-icon">🧸</div><div class="brand-text">ToyVault<small>Admin Panel</small></div></div>
+    <span class="nav-label">Overview</span>
+    <a href="/" class="nav-item"><span class="nav-icon">◈</span> Dashboard</a>
+    <span class="nav-label">Catalogue</span>
+    <a href="/toys" class="nav-item"><span class="nav-icon">⊡</span> Toys</a>
+    <a href="/inventory" class="nav-item"><span class="nav-icon">⊞</span> Inventory</a>
+    <span class="nav-label">Commerce</span>
+    <a href="/cart" class="nav-item"><span class="nav-icon">⊟</span> Cart</a>
+    <a href="/orders" class="nav-item"><span class="nav-icon">⊕</span> Orders</a>
+    <span class="nav-label">Community</span>
+    <a href="/reviews" class="nav-item active"><span class="nav-icon">⊙</span> Reviews</a>
+    <span class="nav-label">Accounts</span>
+    <a href="/users" class="nav-item"><span class="nav-icon">⊚</span> Users</a>
+    <div class="sidebar-footer"><a href="/logout" class="nav-item"><span class="nav-icon">↩</span> Logout</a></div>
+</aside>
+
+<main class="main">
+    <div class="page-header">
+        <div><div class="eyebrow">Community</div><h1>Review Moderation</h1><p>Admin moderation queue for all reviews.</p></div>
+    </div>
+
+    <div class="table-wrap">
+        <div class="table-header"><h2>All Reviews</h2></div>
+        <table>
+            <thead><tr><th>ID</th><th>User</th><th>Toy</th><th>Rating</th><th>Comment</th><th>Type</th><th>Actions</th></tr></thead>
+            <tbody>
+                <tr th:each="rev : ${reviews}">
+                    <td class="td-mono" th:text="${rev.reviewId}"></td>
+                    <td class="td-name" th:text="${rev.username}"></td>
+                    <td class="td-muted" th:text="${rev.toyName}"></td>
+                    <td style="color:var(--accent); font-size:0.85rem;" th:text="${rev.rating} + ' / 5'"></td>
+                    <td class="td-muted" style="max-width:220px;" th:text="${rev.comment}"></td>
+                    <td>
+                        <span th:text="${rev.verified} ? 'Verified' : 'Public'"
+                              th:classappend="${rev.verified} ? 'badge badge-success' : 'badge badge-muted'"></span>
+                    </td>
+                    <td>
+                        <div class="td-actions">
+                            <a th:href="@{/reviews/delete/{id}(id=${rev.reviewId})}" class="btn btn-danger btn-sm"
+                               onclick="return confirm('Delete this review?')">✕ Remove</a>
+                        </div>
+                    </td>
+                </tr>
+                <tr th:if="${reviews == null or reviews.isEmpty()}">
+                    <td colspan="7"><div class="empty-state"><span class="empty-icon">⭐</span><h3>No reviews to moderate</h3></div></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+</body>
+</html>
