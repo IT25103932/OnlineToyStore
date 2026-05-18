@@ -11,7 +11,7 @@
 <!-- Navbar -->
 <!-- PASTE THIS NAVBAR into EVERY .html template -->
 <nav class="navbar">
-    <a href="/" class="navbar-brand">🧸 <span>ToyStore</span></a>
+    <a href="/" class="navbar-brand">🧸 <span>ToyMart</span></a>
     <ul class="navbar-nav">
 
         <li><a href="/toys">Toys</a></li>
@@ -80,7 +80,9 @@
     <!-- Form Card -->
     <div class="card" style="max-width: 760px;">
 
-        <form action="/toys/add" method="post">
+        <div class="alert alert-danger" th:if="${error}" th:text="${error}"></div>
+
+        <form action="/toys/add" method="post" enctype="multipart/form-data">
 
             <div class="form-grid">
 
@@ -116,6 +118,12 @@
                     <label for="description">Description</label>
                     <textarea id="description" name="description"
                               placeholder="Describe the toy — age range, features, materials..."></textarea>
+                </div>
+
+                <div class="form-group full">
+                    <label for="imageFile">Toy Photo</label>
+                    <input type="file" id="imageFile" name="imageFile"
+                           accept="image/jpeg,image/png,image/gif,image/webp" required/>
                 </div>
 
             </div>
