@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Users — ToyVault Admin</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<aside class="sidebar">
+    <div class="sidebar-brand"><div class="brand-icon">🧸</div><div class="brand-text">ToyVault<small>Admin Panel</small></div></div>
+    <span class="nav-label">Overview</span>
+    <a href="/" class="nav-item"><span class="nav-icon">◈</span> Dashboard</a>
+    <span class="nav-label">Catalogue</span>
+    <a href="/toys" class="nav-item"><span class="nav-icon">⊡</span> Toys</a>
+    <a href="/inventory" class="nav-item"><span class="nav-icon">⊞</span> Inventory</a>
+    <span class="nav-label">Commerce</span>
+    <a href="/cart" class="nav-item"><span class="nav-icon">⊟</span> Cart</a>
+    <a href="/orders" class="nav-item"><span class="nav-icon">⊕</span> Orders</a>
+    <span class="nav-label">Community</span>
+    <a href="/reviews" class="nav-item"><span class="nav-icon">⊙</span> Reviews</a>
+    <span class="nav-label">Accounts</span>
+    <a href="/users" class="nav-item active"><span class="nav-icon">⊚</span> Users</a>
+    <div class="sidebar-footer"><a href="/logout" class="nav-item"><span class="nav-icon">↩</span> Logout</a></div>
+</aside>
+
+<main class="main">
+    <div class="page-header">
+        <div>
+            <div class="eyebrow">Accounts</div>
+            <h1>User Management</h1>
+            <p>View and manage all registered users.</p>
+        </div>
+    </div>
+
+    <div class="table-wrap">
+        <div class="table-header">
+            <h2>All Users</h2>
+            <div class="search-bar">
+                <span class="search-icon">🔍</span>
+                <input type="text" placeholder="Search users..." id="filterInput" onkeyup="filterTable()"/>
+            </div>
+        </div>
+        <table id="userTable">
+            <thead>
+                <tr><th>Avatar</th><th>Username</th><th>Email</th><th>Role</th><th>Address</th><th>Actions</th></tr>
+            </thead>
+            <tbody>
+                <th:block th:if="${users != null and !users.isEmpty()}">
+                    <tr th:each="u : ${users}">
+                        <td>
+                            <div class="avatar" th:text="${#strings.toUpperCase(#strings.substring(u.username,0,1))}">U</div>
+                        </td>
+                        <td class="td-name" th:text="${u.username}"></td>
+                        <td class="td-muted" th:text="${u.email}"></td>
+                        <td>
+                            <span th:text="${u.role}"
+                                  th:classappend="${u.role == 'ADMIN'} ? 'badge badge-accent' : 'badge badge-muted'">
+                            </span>
+                        </td>
+                        <td class="td-muted" th:text="${u.address}"></td>
+                        <td>
+                            <div class="td-actions">
+                                <a th:href="@{/users/delete/{id}(id=${u.userId})}" class="btn btn-danger btn-sm"
+                                   onclick="return confirm('Delete this user?')">✕ Delete</a>
+                            </div>
+                        </td>
+                    </tr>
+                </th:block>
+                <tr th:if="${users == null or users.isEmpty()}">
+                    <td colspan="6"><div class="empty-state"><span class="empty-icon">👤</span><h3>No users found</h3></div></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+<script>
+function filterTable() {
+    const q = document.getElementById('filterInput').value.toLowerCase();
+    document.querySelectorAll('#userTable tbody tr').forEach(r => { r.style.display = r.textContent.toLowerCase().includes(q) ? '' : 'none'; });
+}
+</script>
+</body>
+</html>

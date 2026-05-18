@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Supplier Form — ToyVault</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<aside class="sidebar">
+    <div class="sidebar-brand"><div class="brand-icon">🧸</div><div class="brand-text">ToyVault<small>Admin Panel</small></div></div>
+    <span class="nav-label">Overview</span>
+    <a href="/" class="nav-item"><span class="nav-icon">◈</span> Dashboard</a>
+    <span class="nav-label">Catalogue</span>
+    <a href="/toys" class="nav-item"><span class="nav-icon">⊡</span> Toys</a>
+    <a href="/inventory" class="nav-item active"><span class="nav-icon">⊞</span> Inventory</a>
+    <span class="nav-label">Commerce</span>
+    <a href="/cart" class="nav-item"><span class="nav-icon">⊟</span> Cart</a>
+    <a href="/orders" class="nav-item"><span class="nav-icon">⊕</span> Orders</a>
+    <span class="nav-label">Community</span>
+    <a href="/reviews" class="nav-item"><span class="nav-icon">⊙</span> Reviews</a>
+    <span class="nav-label">Accounts</span>
+    <a href="/users" class="nav-item"><span class="nav-icon">⊚</span> Users</a>
+    <div class="sidebar-footer"><a href="/logout" class="nav-item"><span class="nav-icon">↩</span> Logout</a></div>
+</aside>
+
+<main class="main">
+    <div class="page-header">
+        <div>
+            <div class="eyebrow">Inventory</div>
+            <h1 th:text="${supplier != null} ? 'Edit Supplier' : 'Add Supplier'">Supplier</h1>
+        </div>
+        <div class="page-actions"><a href="/inventory" class="btn btn-ghost">← Inventory</a></div>
+    </div>
+
+    <div class="form-wrap">
+        <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+        <form th:action="${supplier != null} ? @{/inventory/suppliers/edit/{id}(id=${supplier.supplierId})} : @{/inventory/suppliers/add}" method="post">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label class="form-label">Company Name *</label>
+                    <input class="form-input" type="text" name="companyName" required th:value="${supplier?.companyName}" placeholder="Acme Toys Ltd."/>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Contact Person</label>
+                    <input class="form-input" type="text" name="contactName" th:value="${supplier?.contactName}" placeholder="Jane Smith"/>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input class="form-input" type="email" name="email" th:value="${supplier?.email}" placeholder="contact@supplier.com"/>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Phone</label>
+                    <input class="form-input" type="text" name="phone" th:value="${supplier?.phone}" placeholder="+94 77 000 0000"/>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Category Supplied</label>
+                    <select class="form-select" name="category">
+                        <option value="">— All Categories —</option>
+                        <option value="EDUCATIONAL" th:selected="${supplier?.category == 'EDUCATIONAL'}">Educational</option>
+                        <option value="ELECTRONIC"  th:selected="${supplier?.category == 'ELECTRONIC'}">Electronic</option>
+                        <option value="SOFT"        th:selected="${supplier?.category == 'SOFT'}">Soft</option>
+                        <option value="GENERAL"     th:selected="${supplier?.category == 'GENERAL'}">General</option>
+                    </select>
+                </div>
+                <div class="form-group span-2">
+                    <label class="form-label">Address</label>
+                    <textarea class="form-textarea" name="address" th:text="${supplier?.address}" placeholder="Supplier address…" style="min-height:70px;"></textarea>
+                </div>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary" th:text="${supplier != null} ? 'Save Changes' : '+ Add Supplier'">Submit</button>
+                <a href="/inventory" class="btn btn-ghost">Cancel</a>
+            </div>
+        </form>
+    </div>
+</main>
+</body>
+</html>
