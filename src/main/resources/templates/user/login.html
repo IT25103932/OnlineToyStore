@@ -134,33 +134,33 @@
   </ul>
 </nav>
 
-  <div class="auth-wrapper">
-    <div class="auth-card">
-      <h1> Welcome Back</h1>
-      <p>Log in to your ToyStore account</p>
+<div class="auth-wrapper">
+  <div class="auth-card">
+    <h1> Welcome Back</h1>
+    <p>Log in to your ToyStore account</p>
 
-      <div class="alert-error" th:if="${error}" th:text="${error}"></div>
-      <div class="alert-success" th:if="${success}" th:text="${success}"></div>
-      <form th:action="@{/users/login}" method="post">
-        <div class="form-group" style="margin-bottom:1rem;">
-          <label>Username</label>
-          <input type="text" name="username" placeholder="Enter your username" required autofocus />
-        </div>
-        <div class="form-group" style="margin-bottom:1.5rem;">
-          <label>Password</label>
-          <input type="password" name="password" placeholder="Enter your password" required />
-        </div>
-        <button type="submit" class="btn btn-primary"
-          style="width:100%;justify-content:center; font-size:1rem;padding:0.75rem;">
-          Log In
-        </button>
-      </form>
-      <div class="auth-footer">
-        Don't have an account?
-        <a href="/users/register">Register here</a>
+    <div class="alert-error" th:if="${error}" th:text="${error}"></div>
+    <div class="alert-success" th:if="${success}" th:text="${success}"></div>
+    <form th:action="@{/users/login}" method="post">
+      <div class="form-group" style="margin-bottom:1rem;">
+        <label>Username</label>
+        <input type="text" name="username" placeholder="Enter your username" required autofocus />
       </div>
+      <div class="form-group" style="margin-bottom:1.5rem;">
+        <label>Password</label>
+        <input type="password" name="password" placeholder="Enter your password" required />
+      </div>
+      <button type="submit" class="btn btn-primary"
+              style="width:100%;justify-content:center; font-size:1rem;padding:0.75rem;">
+        Log In
+      </button>
+    </form>
+    <div class="auth-footer">
+      Don't have an account?
+      <a href="/users/register">Register here</a>
     </div>
   </div>
+</div>
 </body>
 
 </html>
