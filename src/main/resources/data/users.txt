@@ -1,0 +1,3 @@
+USR-ADMIN-0001|admin|admin@toystore.lk|admin123|ToyStore HQ|0112345678|ADMIN
+USR-6C39A637|kalana|kalana132@gmail|kalana123|||CUSTOMER
+USR-E4A4AE11|disna|disna@gmail.com|12345|no:12 matara|0768331405|CUSTOMER

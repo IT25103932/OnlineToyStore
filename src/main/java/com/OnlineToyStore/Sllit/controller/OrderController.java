@@ -1,26 +1,34 @@
 package com.OnlineToyStore.Sllit.controller;
+
 import com.OnlineToyStore.Sllit.model.Order;
+import com.OnlineToyStore.Sllit.model.User;
 import com.OnlineToyStore.Sllit.service.OrderService;
 import com.OnlineToyStore.Sllit.service.ToyService;
+import com.OnlineToyStore.Sllit.util.SessionHelper;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+
 @Controller
 @RequestMapping("/orders")
 public class OrderController {
-    @Autowired
-    private OrderService orderService;
-    @Autowired
-    private ToyService toyService;
-    // Demo user — replace with session user later
-    private static final String DEMO_USER_ID = "USER-001";
-    private static final String DEMO_USERNAME = "DemoUser";
-    // ── All orders (Admin view) ───────────────────────
+
+    @Autowired private OrderService orderService;
+    @Autowired private ToyService toyService;
+
+    // ── Admin: View ALL orders ────────────────────────
     @GetMapping
     public String listOrders(
             @RequestParam(required = false) String status,
-            Model model) {
+            HttpSession session, Model model) {
+
+        // GUARD — admin only
+        if (!SessionHelper.isAdmin(session)) {
+            return "redirect:/access-denied";
+        }
+
         if (status != null && !status.isEmpty()) {
             model.addAttribute("orders",
                     orderService.getOrdersByStatus(status));
@@ -30,6 +38,7 @@ public class OrderController {
                     orderService.getAllOrders());
             model.addAttribute("currentStatus", "ALL");
         }
+
         model.addAttribute("totalCount",
                 orderService.countTotal());
         model.addAttribute("pendingCount",
@@ -44,11 +53,18 @@ public class OrderController {
                 orderService.getTotalRevenue());
         return "order/list";
     }
-    // ── Checkout page ─────────────────────────────────
+
+    // ── Checkout page — login required ────────────────
     @GetMapping("/checkout")
     public String showCheckout(
             @RequestParam(required = false) String toyId,
-            Model model) {
+            HttpSession session, Model model) {
+
+        // Must be logged in to checkout
+        if (!SessionHelper.isLoggedIn(session)) {
+            return "redirect:/users/login";
+        }
+
         model.addAttribute("order", new Order());
         model.addAttribute("toys", toyService.getAllToys());
         if (toyId != null) {
@@ -57,12 +73,30 @@ public class OrderController {
         }
         return "order/checkout";
     }
-    // ── Handle place order ────────────────────────────
+
+    // ── Place order — login required ──────────────────
     @PostMapping("/place")
     public String placeOrder(
-            @ModelAttribute Order order, Model model) {
-        order.setUserId(DEMO_USER_ID);
-        order.setUsername(DEMO_USERNAME);
+            @ModelAttribute Order order,
+            HttpSession session, Model model) {
+
+        if (!SessionHelper.isLoggedIn(session)) {
+            return "redirect:/users/login";
+        }
+
+        // Get real user from session
+        User loggedIn = SessionHelper.getUser(session);
+        order.setUserId(loggedIn.getUserId());
+        order.setUsername(loggedIn.getUsername());
+
+        // Validate quantity
+        if (order.getQuantity() <= 0) {
+            model.addAttribute("error",
+                    "Quantity must be at least 1.");
+            model.addAttribute("toys", toyService.getAllToys());
+            return "order/checkout";
+        }
+
         String result = orderService.placeOrder(order);
         if (!result.equals("success")) {
             model.addAttribute("error", result);
@@ -72,44 +106,79 @@ public class OrderController {
         }
         return "redirect:/orders/history?placed=true";
     }
-    // ── Order history (user view) ─────────────────────
+
+    // ── My order history — login required ─────────────
     @GetMapping("/history")
     public String orderHistory(
             @RequestParam(required = false) String placed,
-            Model model) {
+            HttpSession session, Model model) {
+
+        if (!SessionHelper.isLoggedIn(session)) {
+            return "redirect:/users/login";
+        }
+
+        // Get real user's orders only
+        User loggedIn = SessionHelper.getUser(session);
         model.addAttribute("orders",
-                orderService.getOrdersByUser(DEMO_USER_ID));
+                orderService.getOrdersByUser(
+                        loggedIn.getUserId()));
         if (placed != null) {
             model.addAttribute("success",
-                    "Order placed successfully!");
+                    "Order placed successfully! 🎉");
         }
         return "order/history";
     }
-    // ── Order detail page ─────────────────────────────
+
+    // ── Order detail — login required ─────────────────
     @GetMapping("/detail/{orderId}")
     public String orderDetail(
-            @PathVariable String orderId, Model model) {
+            @PathVariable String orderId,
+            HttpSession session, Model model) {
+
+        if (!SessionHelper.isLoggedIn(session)) {
+            return "redirect:/users/login";
+        }
         model.addAttribute("order",
                 orderService.getOrderById(orderId));
         return "order/detail";
     }
+
     // ── Admin: Update status ──────────────────────────
     @PostMapping("/status")
     public String updateStatus(
             @RequestParam String orderId,
-            @RequestParam String status) {
+            @RequestParam String status,
+            HttpSession session) {
+
+        if (!SessionHelper.isAdmin(session)) {
+            return "redirect:/access-denied";
+        }
         orderService.updateStatus(orderId, status);
         return "redirect:/orders";
     }
-    // ── Cancel order ──────────────────────────────────
+
+    // ── Customer: Cancel own order ────────────────────
     @GetMapping("/cancel/{orderId}")
-    public String cancelOrder(@PathVariable String orderId) {
+    public String cancelOrder(
+            @PathVariable String orderId,
+            HttpSession session) {
+
+        if (!SessionHelper.isLoggedIn(session)) {
+            return "redirect:/users/login";
+        }
         orderService.cancelOrder(orderId);
         return "redirect:/orders/history";
     }
+
     // ── Admin: Delete order ───────────────────────────
     @GetMapping("/delete/{orderId}")
-    public String deleteOrder(@PathVariable String orderId) {
+    public String deleteOrder(
+            @PathVariable String orderId,
+            HttpSession session) {
+
+        if (!SessionHelper.isAdmin(session)) {
+            return "redirect:/access-denied";
+        }
         orderService.deleteOrder(orderId);
         return "redirect:/orders";
     }
