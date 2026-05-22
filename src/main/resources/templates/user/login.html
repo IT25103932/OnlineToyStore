@@ -1,166 +1,47 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Login — Online Toy Store</title>
-  <link rel="stylesheet" th:href="@{/css/style.css}" />
-  <style>
-    .auth-wrapper {
-      min-height: calc(100vh - 60px);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 2rem;
-    }
-
-    .auth-card {
-      background: #fff;
-      border-radius: 16px;
-      box-shadow: 0 4px 32px rgba(27, 42, 74, 0.13);
-      padding: 2.5rem;
-      width: 100%;
-      max-width: 420px;
-      border: 1px solid var(--border);
-    }
-
-    .auth-card h1 {
-      font-family: 'Fredoka One', cursive;
-      font-size: 1.8rem;
-      color: var(--secondary);
-      margin-bottom: 0.3rem;
-    }
-
-    .auth-card p {
-      color: var(--muted);
-      font-size: 0.88rem;
-      margin-bottom: 1.75rem;
-    }
-
-    .alert-error {
-      background: #FFE0E0;
-      color: #C62828;
-      border: 1px solid #FFCDD2;
-      border-radius: 9px;
-      padding: 0.75rem 1rem;
-      font-size: 0.88rem;
-      font-weight: 600;
-      margin-bottom: 1.25rem;
-    }
-
-    .alert-success {
-      background: #E8F5E9;
-      color: #2E7D32;
-      border: 1px solid #A5D6A7;
-      border-radius: 9px;
-      padding: 0.75rem 1rem;
-      font-size: 0.88rem;
-      font-weight: 600;
-      margin-bottom: 1.25rem;
-    }
-
-    .auth-footer {
-      text-align: center;
-      margin-top: 1.25rem;
-      font-size: 0.88rem;
-      color: var(--muted);
-    }
-
-    .auth-footer a {
-      color: var(--primary);
-      font-weight: 700;
-      text-decoration: none;
-    }
-  </style>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login - Online Toy Store</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}"/>
 </head>
-
 <body>
-
-<!-- PASTE THIS NAVBAR into EVERY .html template -->
 <nav class="navbar">
-  <a href="/" class="navbar-brand">🧸 <span>ToyStore</span></a>
+  <a href="/" class="navbar-brand">🧸 <span>ToyMart</span></a>
   <ul class="navbar-nav">
-
-    <li><a href="/toys">Toys</a></li>
-
-    <!-- Admin only links -->
-    <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
-      <a href="/dashboard">Dashboard</a>
-    </li>
-    <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
-      <a href="/users">Users</a>
-    </li>
-    <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
-      <a href="/orders">All Orders</a>
-    </li>
-    <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
-      <a href="/inventory">Inventory</a>
-    </li>
-
-    <!-- Any logged-in user -->
-    <li th:if="${session.loggedInUser != null}">
-      <a href="/cart">🛒 Cart</a>
-    </li>
-    <li th:if="${session.loggedInUser != null}">
-      <a href="/orders/history">My Orders</a>
-    </li>
-    <li th:if="${session.loggedInUser != null}">
-      <a href="/reviews">Reviews</a>
-    </li>
-    <li th:if="${session.loggedInUser != null}">
-      <a href="/users/profile"
-         style="color:var(--accent);">
-        👤 <span th:text="${session.loggedInUser?.username}">
-                </span>
-      </a>
-    </li>
-
-    <!-- Guest only -->
-    <li th:if="${session.loggedInUser == null}">
-      <a href="/users/login">Login</a>
-    </li>
-    <li th:if="${session.loggedInUser == null}">
-      <a href="/users/register">Register</a>
-    </li>
-
-    <!-- Logout -->
-    <li th:if="${session.loggedInUser != null}">
-      <a href="/users/logout"
-         style="color:rgba(255,150,150,0.85);">
-        Logout
-      </a>
-    </li>
+    <li><a href="/toys">Catalog</a></li>
+    <li th:if="${session.loggedInUser == null}"><a href="/users/login" class="active">Login</a></li>
+    <li th:if="${session.loggedInUser == null}"><a href="/users/register">Register</a></li>
   </ul>
 </nav>
 
-<div class="auth-wrapper">
-  <div class="auth-card">
-    <h1> Welcome Back</h1>
-    <p>Log in to your ToyStore account</p>
+<main class="auth-wrapper">
+  <section class="auth-card">
+    <p class="section-eyebrow">Secure access</p>
+    <h1>Welcome back</h1>
+    <p>Sign in to continue shopping or managing the store.</p>
 
     <div class="alert-error" th:if="${error}" th:text="${error}"></div>
     <div class="alert-success" th:if="${success}" th:text="${success}"></div>
+
     <form th:action="@{/users/login}" method="post">
       <div class="form-group" style="margin-bottom:1rem;">
-        <label>Username</label>
-        <input type="text" name="username" placeholder="Enter your username" required autofocus />
+        <label for="username">Username</label>
+        <input id="username" type="text" name="username" placeholder="Enter your username" required autofocus/>
       </div>
       <div class="form-group" style="margin-bottom:1.5rem;">
-        <label>Password</label>
-        <input type="password" name="password" placeholder="Enter your password" required />
+        <label for="password">Password</label>
+        <input id="password" type="password" name="password" placeholder="Enter your password" required/>
       </div>
-      <button type="submit" class="btn btn-primary"
-              style="width:100%;justify-content:center; font-size:1rem;padding:0.75rem;">
-        Log In
-      </button>
+      <button type="submit" class="btn btn-primary" style="width:100%;">Log In</button>
     </form>
-    <div class="auth-footer">
-      Don't have an account?
-      <a href="/users/register">Register here</a>
-    </div>
-  </div>
-</div>
-</body>
 
+    <div class="auth-footer">
+      New customer?
+      <a href="/users/register">Create an account</a>
+    </div>
+  </section>
+</main>
+</body>
 </html>
