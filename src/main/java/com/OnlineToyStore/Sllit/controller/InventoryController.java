@@ -1,6 +1,7 @@
 package com.OnlineToyStore.Sllit.controller;
 
 import com.OnlineToyStore.Sllit.model.Supplier;
+import com.OnlineToyStore.Sllit.service.EmailService;
 import com.OnlineToyStore.Sllit.service.InventoryService;
 import com.OnlineToyStore.Sllit.service.SupplierService;
 import com.OnlineToyStore.Sllit.util.SessionHelper;
@@ -19,10 +20,15 @@ public class InventoryController {
     @Autowired
     private SupplierService supplierService;
 
+    @Autowired
+    private EmailService emailService;
+
     // ── Inventory overview — ADMIN ONLY ────────────────
     @GetMapping("/inventory")
     public String inventoryOverview(
             @RequestParam(required = false) String filter,
+            @RequestParam(required = false) String restocked,
+            @RequestParam(required = false) String error,
             HttpSession session, Model model) {
 
         if (!SessionHelper.isAdmin(session)) {
@@ -49,6 +55,12 @@ public class InventoryController {
         }
 
         model.addAttribute("currentFilter", filter);
+        if (restocked != null) {
+            model.addAttribute("successMessage", "Inventory updated successfully.");
+        }
+        if (error != null) {
+            model.addAttribute("errorMessage", error);
+        }
         return "inventory/list";
     }
 
@@ -62,8 +74,11 @@ public class InventoryController {
         if (!SessionHelper.isAdmin(session)) {
             return "redirect:/access-denied";
         }
+        if (addQuantity <= 0) {
+            return "redirect:/inventory?error=Restock%20quantity%20must%20be%20at%20least%201";
+        }
         inventoryService.restockToy(toyId, addQuantity);
-        return "redirect:/inventory";
+        return "redirect:/inventory?restocked=true";
     }
 
     // ── Supplier list — ADMIN ONLY ─────────────────────
@@ -97,6 +112,10 @@ public class InventoryController {
             return "redirect:/access-denied";
         }
         supplierService.addSupplier(supplier);
+        emailService.notifyAdminNewSupplier(
+                supplier.getName(),
+                supplier.getSupplyCategory(),
+                supplier.getEmail());
         return "redirect:/suppliers";
     }
 
