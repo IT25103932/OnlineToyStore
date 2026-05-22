@@ -1,5 +1,18 @@
-TOY-21C3BA23|RC Racing Car|ELECTRONIC|Remote controlled car with full steering and speed control|3500.0|6
-TOY-471BBF36|Spongebob Squarepants Plush|SOFT|Spongebob Squarepants Plush Soft Toy - 12 Inches|1390.0|5
-TOY-EED22A9D|Wooden Puzzle Blocks|EDUCATIONAL|Colorful wooden building blocks for ages 3-6 years|2399.0|4
-TOY-14786A89|Plastic Kitchen Kit|GENERAL|Complete toy kitchen set with utensils and food pieces|2899.0|7
-TOY-1677BE0C|Laser Blaster Gun|GENERAL|Toy laser gun with light and sound effects - shoots up to 5 meters|549.99|100
+TOY-21C3BA23|RC Racing Car|ELECTRONIC|Remote controlled car with full steering and speed control|3500.0|5|/uploads/toys/4a94f883-ca4b-467d-965b-c8d85a80b4c7.png
+TOY-471BBF36|Spongebob Squarepants Plush|SOFT|Spongebob Squarepants Plush Soft Toy - 12 Inches|1390.0|10|/uploads/toys/b086b59a-9f0a-43c0-9539-f94f11c65398.jpg
+TOY-EED22A9D|Wooden Puzzle Blocks|EDUCATIONAL|Colorful wooden building blocks for ages 3-6 years|2399.0|4|/uploads/toys/b2c6762c-2b03-40f3-a9db-b2c7dcbfc75c.webp
+TOY-14786A89|Plastic Kitchen Kit|GENERAL|Complete toy kitchen set with utensils and food pieces|2899.0|7|/uploads/toys/1d4865bf-fd9e-4671-8472-07a4a4164041.jpg
+TOY-1677BE0C|Laser Blaster Gun|GENERAL|Toy laser gun with light and sound effects - shoots up to 5 meters|549.99|100|/uploads/toys/0bff60ad-e6c9-42ba-b4b4-c408041f9a81.jpg
+TOY-A2B3C4D5|LEGO Classic Bricks|EDUCATIONAL|Classic LEGO brick set with 484 pieces for ages 4 and above|4599.0|12|/uploads/toys/d58821c8-4bf4-442c-8a71-a84d940825eb.jpg
+TOY-B3C4D5E6|Teddy Bear XL|SOFT|Super soft giant teddy bear - perfect gift for all ages|1850.0|8|/uploads/toys/90f427aa-6437-4676-a1d3-f871d1622281.jpg
+TOY-C4D5E6F7|Science Lab Kit|EDUCATIONAL|Fun science experiments kit for curious kids ages 8 and up|3200.0|6|/uploads/toys/51e76f9c-7aae-4e80-bafa-0cce7412e33d.jpg
+TOY-3D40D31C|Hot Wheels Track Set|GENERAL|Stunt action track set with dual loops and 2 die-cast cars|2450.0|8|/uploads/toys/750353f4-976b-4b1d-87b7-7ff953d0c96c.jpg
+TOY-DFA78E65|Barbie Dream Fashion Doll|GENERAL|Barbie doll with changeable outfits and accessories|1999.0|11|/uploads/toys/900101ce-1a77-4452-a5da-01c27d613bc6.jpg
+TOY-2EAF47EC|Rubiks Cube 3x3|EDUCATIONAL|Classic 3x3 twistable puzzle cube to challenge young minds|850.0|6|/uploads/toys/e842d649-133d-4b7c-80ab-f1e9befaa462.jpeg
+TOY-49446483|Mini Drone Quadcopter|ELECTRONIC|Pocket-sized drone with altitude hold and headless mode|4800.0|4|/uploads/toys/1e4005a3-7363-42c6-893b-7b24635ea10d.webp
+TOY-7FCB7660|Pikachu Soft Plush|SOFT|Authentic plush Pokemon toy - 10 Inches|1550.0|10|/uploads/toys/05f6e913-7a50-4bc5-96c3-ed352b7e7599.webp
+TOY-6A8E1030|Magnetic Tiles Set|EDUCATIONAL|3D magnetic building blocks clear colors for creative play|3950.0|3|/uploads/toys/98c6e4bc-6058-48c8-8963-5d8dfa7eb290.webp
+TOY-8774EAFA|Electronic Piano Keyboard|ELECTRONIC|37-key kids musical keyboard with microphone|3100.0|2|/uploads/toys/e4ec36b6-1b4c-448a-bceb-0b172fbe06e5.jpg
+TOY-BE83411E|Monopoly Board Game|GENERAL|Classic property trading board game for family game night|2150.0|6|/uploads/toys/36d6ae20-5be4-4d1d-93a8-d0106adce443.webp
+TOY-3B4ABEDE|Doctor Play Set Case|GENERAL|Portable medical kit with stethoscope and toy tools|1650.0|5|/uploads/toys/4fe772e6-da1e-4682-8555-df48b7677383.jpg
+TOY-771E81CD|DIY Slime Making Kit|EDUCATIONAL|Fluffy colorful slime kit with glitter and mixing tools|1200.0|7|/uploads/toys/4028ac3b-7403-4ff8-8901-0ca68b8ff5fd.jpg

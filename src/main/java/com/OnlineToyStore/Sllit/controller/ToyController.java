@@ -8,12 +8,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
+import java.util.Locale;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/toys")
 public class ToyController {
+
+    private static final Path TOY_UPLOAD_DIR = Paths.get("src/main/resources/static/uploads/toys");
+    private static final String TOY_UPLOAD_PATH = "/uploads/toys/";
 
     @Autowired
     private ToyService toyService;
@@ -61,6 +71,7 @@ public class ToyController {
     // ── Handle Add Toy — ADMIN ONLY ──────────────────
     @PostMapping("/add")
     public String addToy(@ModelAttribute Toy toy,
+                         @RequestParam("imageFile") MultipartFile imageFile,
                          HttpSession session,
                          Model model) {
         if (!SessionHelper.isAdmin(session)) {
@@ -73,6 +84,16 @@ public class ToyController {
         }
         if (toy.getPrice() <= 0) {
             model.addAttribute("error", "Price must be greater than 0.");
+            return "toy/add";
+        }
+        if (imageFile == null || imageFile.isEmpty()) {
+            model.addAttribute("error", "Toy photo is required.");
+            return "toy/add";
+        }
+        try {
+            toy.setImageUrl(saveToyImage(imageFile));
+        } catch (IllegalArgumentException | IOException e) {
+            model.addAttribute("error", e.getMessage());
             return "toy/add";
         }
         toyService.addToy(toy);
@@ -95,11 +116,32 @@ public class ToyController {
     @PostMapping("/edit/{toyId}")
     public String updateToy(@PathVariable String toyId,
                             @ModelAttribute Toy toy,
-                            HttpSession session) {
+                            @RequestParam("imageFile") MultipartFile imageFile,
+                            HttpSession session,
+                            Model model) {
         if (!SessionHelper.isAdmin(session)) {
             return "redirect:/access-denied";
         }
+        Toy existingToy = toyService.getToyById(toyId);
+        if (existingToy == null) {
+            return "redirect:/toys";
+        }
         toy.setToyId(toyId);
+        toy.setImageUrl(existingToy.getImageUrl());
+
+        if (imageFile != null && !imageFile.isEmpty()) {
+            try {
+                String oldImageUrl = existingToy.getImageUrl();
+                toy.setImageUrl(saveToyImage(imageFile));
+                deleteLocalToyImage(oldImageUrl);
+            } catch (IllegalArgumentException | IOException e) {
+                toy.setImageUrl(existingToy.getImageUrl());
+                model.addAttribute("toy", toy);
+                model.addAttribute("error", e.getMessage());
+                return "toy/edit";
+            }
+        }
+
         toyService.updateToy(toy);
         return "redirect:/toys";
     }
@@ -115,6 +157,7 @@ public class ToyController {
         return "redirect:/toys";
     }
 
+
     // ── Search — PUBLIC ───────────────────────────────
     @GetMapping("/search")
     public String searchToys(
@@ -127,5 +170,40 @@ public class ToyController {
             model.addAttribute("toys", toyService.getAllToys());
         }
         return "toy/search";
+    }
+
+    private String saveToyImage(MultipartFile imageFile) throws IOException {
+        String originalName = imageFile.getOriginalFilename();
+        String extension = getAllowedImageExtension(originalName);
+        Files.createDirectories(TOY_UPLOAD_DIR);
+
+        String fileName = UUID.randomUUID().toString() + "." + extension;
+        Path destination = TOY_UPLOAD_DIR.resolve(fileName).normalize();
+        imageFile.transferTo(destination);
+        return TOY_UPLOAD_PATH + fileName;
+    }
+
+    private String getAllowedImageExtension(String originalName) {
+        if (originalName == null || !originalName.contains(".")) {
+            throw new IllegalArgumentException("Please upload a JPG, PNG, GIF or WebP image.");
+        }
+
+        String extension = originalName.substring(originalName.lastIndexOf('.') + 1).toLowerCase(Locale.ROOT);
+        if (!List.of("jpg", "jpeg", "png", "gif", "webp").contains(extension)) {
+            throw new IllegalArgumentException("Only JPG, PNG, GIF and WebP images are allowed.");
+        }
+        return extension;
+    }
+
+    private void deleteLocalToyImage(String imageUrl) throws IOException {
+        if (imageUrl == null || !imageUrl.startsWith(TOY_UPLOAD_PATH)) {
+            return;
+        }
+
+        String fileName = imageUrl.substring(TOY_UPLOAD_PATH.length());
+        Path imagePath = TOY_UPLOAD_DIR.resolve(fileName).normalize();
+        if (imagePath.startsWith(TOY_UPLOAD_DIR)) {
+            Files.deleteIfExists(imagePath);
+        }
     }
 }

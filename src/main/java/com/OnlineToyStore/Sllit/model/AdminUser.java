@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 // Inheritance — AdminUser extends User
 public class AdminUser extends User {
   public AdminUser(String userId, String username, String email,
-      String password, String address, String phone) {
+                   String password, String address, String phone) {
     super(userId, username, email, password, address, phone, "ADMIN");
   }
 
