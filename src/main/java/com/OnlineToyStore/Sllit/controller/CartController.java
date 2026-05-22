@@ -1,8 +1,11 @@
 package com.OnlineToyStore.Sllit.controller;
 
 import com.OnlineToyStore.Sllit.model.CartItem;
+import com.OnlineToyStore.Sllit.model.User;
 import com.OnlineToyStore.Sllit.service.CartService;
 import com.OnlineToyStore.Sllit.service.ToyService;
+import com.OnlineToyStore.Sllit.util.SessionHelper;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -20,36 +23,47 @@ public class CartController {
     @Autowired
     private ToyService toyService;
 
-    // For now we use a fixed demo userId
-    // (when User Management is done this will come from the session)
-    private static final String DEMO_USER_ID = "USER-001";
-
-    // ── View Cart ─────────────────────────────────────
+    // ── View Cart — login required ─────────────────────
     @GetMapping
-    public String viewCart(Model model) {
-        List<CartItem> items = cartService.getCartItems(DEMO_USER_ID);
-        double total = cartService.getCartTotal(DEMO_USER_ID);
-        int itemCount = cartService.getCartItemCount(DEMO_USER_ID);
+    public String viewCart(HttpSession session, Model model) {
+        if (!SessionHelper.isLoggedIn(session)) {
+            return "redirect:/users/login";
+        }
+        User user = SessionHelper.getUser(session);
 
-        model.addAttribute("cartItems", items);
-        model.addAttribute("cartTotal", total);
-        model.addAttribute("itemCount", itemCount);
-        model.addAttribute("toys", toyService.getAllToys());
-        return "cart/view";
+        List<CartItem> items = cartService.getCartItems(user.getUserId());
+        model.addAttribute("cartItems",  items);
+        model.addAttribute("cartTotal",  cartService.getCartTotal(user.getUserId()));
+        model.addAttribute("itemCount",  cartService.getCartItemCount(user.getUserId()));
+        model.addAttribute("toys",       toyService.getAllToys());
+        return "Cart/view";
     }
 
-    // ── Add to Cart ───────────────────────────────────
+    // ── Add to Cart — login required ───────────────────
     @PostMapping("/add")
-    public String addToCart(@RequestParam String toyId,
-                            @RequestParam(defaultValue = "1") int quantity) {
-        cartService.addToCart(DEMO_USER_ID, toyId, quantity);
+    public String addToCart(
+            @RequestParam String toyId,
+            @RequestParam(defaultValue = "1") int quantity,
+            HttpSession session) {
+
+        if (!SessionHelper.isLoggedIn(session)) {
+            return "redirect:/users/login";
+        }
+        User user = SessionHelper.getUser(session);
+        cartService.addToCart(user.getUserId(), toyId, quantity);
         return "redirect:/cart";
     }
 
-    // ── Update quantity ───────────────────────────────
+    // ── Update quantity ────────────────────────────────
     @PostMapping("/update")
-    public String updateQuantity(@RequestParam String cartItemId,
-                                 @RequestParam int quantity) {
+    public String updateQuantity(
+            @RequestParam String cartItemId,
+            @RequestParam int quantity,
+            HttpSession session) {
+
+        if (!SessionHelper.isLoggedIn(session)) {
+            return "redirect:/users/login";
+        }
         if (quantity <= 0) {
             cartService.removeItem(cartItemId);
         } else {
@@ -58,38 +72,50 @@ public class CartController {
         return "redirect:/cart";
     }
 
-    // ─ Remove item
+    // ── Remove item ────────────────────────────────────
     @GetMapping("/remove/{cartItemId}")
-    public String removeItem(@PathVariable String cartItemId) {
+    public String removeItem(
+            @PathVariable String cartItemId,
+            HttpSession session) {
+
+        if (!SessionHelper.isLoggedIn(session)) {
+            return "redirect:/users/login";
+        }
         cartService.removeItem(cartItemId);
         return "redirect:/cart";
     }
 
-    // ── Clear entire cart ─────────────────────────────
+    // ── Clear entire cart ──────────────────────────────
     @GetMapping("/clear")
-    public String clearCart() {
-        cartService.clearCart(DEMO_USER_ID);
+    public String clearCart(HttpSession session) {
+        if (!SessionHelper.isLoggedIn(session)) {
+            return "redirect:/users/login";
+        }
+        User user = SessionHelper.getUser(session);
+        cartService.clearCart(user.getUserId());
         return "redirect:/cart";
     }
 
-    // ── Checkout page ─────────────────────────────────
+    // ── Checkout page — login required ─────────────────
     @GetMapping("/checkout")
-    public String checkout(Model model) {
-        List<CartItem> items = cartService.getCartItems(DEMO_USER_ID);
-        double total = cartService.getCartTotal(DEMO_USER_ID);
-        int itemCount = cartService.getCartItemCount(DEMO_USER_ID);
-
-        model.addAttribute("cartItems", items);
-        model.addAttribute("cartTotal", total);
-        model.addAttribute("itemCount", itemCount);
-        return "cart/checkout";
+    public String checkout(HttpSession session, Model model) {
+        if (!SessionHelper.isLoggedIn(session)) {
+            return "redirect:/users/login";
+        }
+        User user = SessionHelper.getUser(session);
+        model.addAttribute("cartItems", cartService.getCartItems(user.getUserId()));
+        model.addAttribute("cartTotal", cartService.getCartTotal(user.getUserId()));
+        model.addAttribute("itemCount", cartService.getCartItemCount(user.getUserId()));
+        return "Cart/checkout";
     }
 
-    // ── Admin: view all users' carts ──────────────────
+    // ── Admin: View ALL users' carts — ADMIN ONLY ──────
     @GetMapping("/admin")
-    public String adminView(Model model) {
-        List<CartItem> allItems = cartService.getAllCartItems();
-        model.addAttribute("allItems", allItems);
-        return "cart/admin";
+    public String adminView(HttpSession session, Model model) {
+        if (!SessionHelper.isAdmin(session)) {
+            return "redirect:/access-denied";
+        }
+        model.addAttribute("allItems", cartService.getAllCartItems());
+        return "Cart/admin";
     }
 }

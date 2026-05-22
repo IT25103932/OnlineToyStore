@@ -41,16 +41,60 @@
     </style>
 </head>
 <body>
+<!-- PASTE THIS NAVBAR into EVERY .html template -->
 <nav class="navbar">
-    <a href="/" class="navbar-brand"><span>ToyStore</span></a>
+    <a href="/" class="navbar-brand">🧸 <span>ToyMart</span></a>
     <ul class="navbar-nav">
-        <li><a href="/">Dashboard</a></li>
-        <li><a href="/users">Users</a></li>
+
         <li><a href="/toys">Toys</a></li>
-        <li><a href="/cart">Cart</a></li>
-        <li><a href="/orders">Orders</a></li>
-        <li><a href="/reviews" class="active">Reviews</a></li>
-        <li><a href="/inventory">Inventory</a></li>
+
+        <!-- Admin only links -->
+        <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
+            <a href="/dashboard">Dashboard</a>
+        </li>
+        <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
+            <a href="/users">Users</a>
+        </li>
+        <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
+            <a href="/orders">All Orders</a>
+        </li>
+        <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
+            <a href="/inventory">Inventory</a>
+        </li>
+
+        <!-- Any logged-in user -->
+        <li th:if="${session.loggedInUser != null}">
+            <a href="/cart">🛒 Cart</a>
+        </li>
+        <li th:if="${session.loggedInUser != null}">
+            <a href="/orders/history">My Orders</a>
+        </li>
+        <li th:if="${session.loggedInUser != null}">
+            <a href="/reviews">Reviews</a>
+        </li>
+        <li th:if="${session.loggedInUser != null}">
+            <a href="/users/profile"
+               style="color:var(--accent);">
+                👤 <span th:text="${session.loggedInUser?.username}">
+                </span>
+            </a>
+        </li>
+
+        <!-- Guest only -->
+        <li th:if="${session.loggedInUser == null}">
+            <a href="/users/login">Login</a>
+        </li>
+        <li th:if="${session.loggedInUser == null}">
+            <a href="/users/register">Register</a>
+        </li>
+
+        <!-- Logout -->
+        <li th:if="${session.loggedInUser != null}">
+            <a href="/users/logout"
+               style="color:rgba(255,150,150,0.85);">
+                Logout
+            </a>
+        </li>
     </ul>
 </nav>
 
@@ -158,19 +202,30 @@
                 <div class="rev-comment" th:text="${review.comment}"></div>
 
                 <div class="rev-actions">
-                    <a th:if="${review.status != 'APPROVED'}"
-                       th:href="@{/reviews/approve/{id}(id=${review.reviewId})}"
-                       class="btn-approve">✅ Approve</a>
-                    <a th:if="${review.status != 'REJECTED'}"
-                       th:href="@{/reviews/reject/{id}(id=${review.reviewId})}"
-                       class="btn-reject">❌ Reject</a>
-                    <a th:href="@{/reviews/edit/{id}(id=${review.reviewId})}"
-                       class="btn btn-outline"
-                       style="padding:5px 12px; font-size:0.8rem;">✏️ Edit</a>
-                    <a th:href="@{/reviews/delete/{id}(id=${review.reviewId})}"
-                       class="btn btn-danger"
-                       style="padding:5px 12px; font-size:0.8rem;"
-                       onclick="return confirm('Delete this review?')">🗑️ Delete</a>
+                    <!-- Admin only: Approve and Reject -->
+                    <th:block th:if="${isAdmin}">
+                        <a th:if="${review.status != 'APPROVED'}"
+                           th:href="@{/reviews/approve/{id}(id=${review.reviewId})}"
+                           class="btn-approve">✅ Approve</a>
+                        <a th:if="${review.status != 'REJECTED'}"
+                           th:href="@{/reviews/reject/{id}(id=${review.reviewId})}"
+                           class="btn-reject">❌ Reject</a>
+                        <a th:href="@{/reviews/edit/{id}(id=${review.reviewId})}"
+                           class="btn btn-outline"
+                           style="padding:5px 12px;font-size:0.8rem;">✏️ Edit</a>
+                        <a th:href="@{/reviews/delete/{id}(id=${review.reviewId})}"
+                           class="btn btn-danger"
+                           style="padding:5px 12px;font-size:0.8rem;"
+                           onclick="return confirm('Delete this review?')">🗑️ Delete</a>
+                    </th:block>
+                    <!-- Customer: can only write a review -->
+                    <th:block th:if="${!isAdmin and session.loggedInUser != null}">
+                        <a href="/reviews/submit"
+                           class="btn btn-outline"
+                           style="padding:5px 12px;font-size:0.8rem;">
+                            ✍️ Write a Review
+                        </a>
+                    </th:block>
                 </div>
             </div>
         </div>

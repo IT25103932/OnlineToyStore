@@ -2,20 +2,10 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Edit Review — Online Toy Store</title>
+    <title>Access Denied — Online Toy Store</title>
     <link rel="stylesheet" th:href="@{/css/style.css}"/>
-    <style>
-        .star-selector { display:flex; flex-direction:row-reverse; justify-content:flex-end; gap:4px; margin-top:4px; }
-        .star-selector input { display:none; }
-        .star-selector label { font-size:2rem; color:#ddd; cursor:pointer; transition:color 0.15s; }
-        .star-selector label:hover,
-        .star-selector label:hover ~ label,
-        .star-selector input:checked ~ label { color:#FFB300; }
-    </style>
 </head>
 <body>
-<!-- PASTE THIS NAVBAR into EVERY .html template -->
 <nav class="navbar">
     <a href="/" class="navbar-brand">🧸 <span>ToyMart</span></a>
     <ul class="navbar-nav">
@@ -72,20 +62,20 @@
     </ul>
 </nav>
 
-<div class="page">
-    <div class="page-header">
-        <h1 style="font-size:1.7rem; color:var(--secondary);">
-            ✏️ Edit Review
-        </h1>
-        <a href="/reviews" class="btn btn-outline">← Back to Reviews</a>
-    </div>
-
-    <p style="color:var(--muted); font-size:0.8rem;
-              margin-bottom:1.25rem; font-weight:600;">
-        Editing:
-        <strong style="color:var(--secondary);"
-                th:text="${review.reviewId}"></strong>
+<div style="max-width:500px;margin:6rem auto;text-align:center;padding:2rem;">
+    <div style="font-size:5rem;margin-bottom:1rem;">🔒</div>
+    <h1 style="font-family:'Fredoka One',cursive;font-size:2rem;
+               color:var(--secondary);margin-bottom:0.5rem;">
+        Access Denied
+    </h1>
+    <p style="color:var(--muted);margin-bottom:2rem;line-height:1.6;">
+        You do not have permission to view this page.
+        This area is restricted to administrators only.
     </p>
-
-    <div class="card" style="max-width:640px;">
-        <form th:action="@{/reviews/edit/{id}(id=${r
+    <div style="display:flex;gap:0.75rem;justify-content:center;">
+        <a href="/"            class="btn btn-primary">🏠 Go Home</a>
+        <a href="/users/login" class="btn btn-outline">🔐 Login</a>
+    </div>
+</div>
+</body>
+</html>

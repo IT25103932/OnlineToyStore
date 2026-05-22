@@ -9,16 +9,60 @@
 <body>
 
 <!-- Navbar -->
+<!-- PASTE THIS NAVBAR into EVERY .html template -->
 <nav class="navbar">
-    <a href="/" class="navbar-brand">🧸 <span>ToyStore</span></a>
+    <a href="/" class="navbar-brand">🧸 <span>ToyMart</span></a>
     <ul class="navbar-nav">
-        <li><a href="/">Dashboard</a></li>
-        <li><a href="/users">Users</a></li>
-        <li><a href="/toys" class="active">Toys</a></li>
-        <li><a href="/cart">Cart</a></li>
-        <li><a href="/orders">Orders</a></li>
-        <li><a href="/reviews">Reviews</a></li>
-        <li><a href="/inventory">Inventory</a></li>
+
+        <li><a href="/toys">Toys</a></li>
+
+        <!-- Admin only links -->
+        <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
+            <a href="/dashboard">Dashboard</a>
+        </li>
+        <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
+            <a href="/users">Users</a>
+        </li>
+        <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
+            <a href="/orders">All Orders</a>
+        </li>
+        <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
+            <a href="/inventory">Inventory</a>
+        </li>
+
+        <!-- Any logged-in user -->
+        <li th:if="${session.loggedInUser != null}">
+            <a href="/cart">🛒 Cart</a>
+        </li>
+        <li th:if="${session.loggedInUser != null}">
+            <a href="/orders/history">My Orders</a>
+        </li>
+        <li th:if="${session.loggedInUser != null}">
+            <a href="/reviews">Reviews</a>
+        </li>
+        <li th:if="${session.loggedInUser != null}">
+            <a href="/users/profile"
+               style="color:var(--accent);">
+                👤 <span th:text="${session.loggedInUser?.username}">
+                </span>
+            </a>
+        </li>
+
+        <!-- Guest only -->
+        <li th:if="${session.loggedInUser == null}">
+            <a href="/users/login">Login</a>
+        </li>
+        <li th:if="${session.loggedInUser == null}">
+            <a href="/users/register">Register</a>
+        </li>
+
+        <!-- Logout -->
+        <li th:if="${session.loggedInUser != null}">
+            <a href="/users/logout"
+               style="color:rgba(255,150,150,0.85);">
+                Logout
+            </a>
+        </li>
     </ul>
 </nav>
 
@@ -36,7 +80,9 @@
     <!-- Form Card -->
     <div class="card" style="max-width: 760px;">
 
-        <form action="/toys/add" method="post">
+        <div class="alert alert-danger" th:if="${error}" th:text="${error}"></div>
+
+        <form action="/toys/add" method="post" enctype="multipart/form-data">
 
             <div class="form-grid">
 
@@ -72,6 +118,12 @@
                     <label for="description">Description</label>
                     <textarea id="description" name="description"
                               placeholder="Describe the toy — age range, features, materials..."></textarea>
+                </div>
+
+                <div class="form-group full">
+                    <label for="imageFile">Toy Photo</label>
+                    <input type="file" id="imageFile" name="imageFile"
+                           accept="image/jpeg,image/png,image/gif,image/webp" required/>
                 </div>
 
             </div>
