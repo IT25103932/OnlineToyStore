@@ -78,47 +78,47 @@
         <li><a href="/toys">Toys</a></li>
 
         <!-- Admin only links -->
-        <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
+        <li th:if="${isAdmin}">
             <a href="/dashboard">Dashboard</a>
         </li>
-        <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
+        <li th:if="${isAdmin}">
             <a href="/users">Users</a>
         </li>
-        <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
+        <li th:if="${isAdmin}">
             <a href="/orders">All Orders</a>
         </li>
-        <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
+        <li th:if="${isAdmin}">
             <a href="/inventory">Inventory</a>
         </li>
 
         <!-- Any logged-in user -->
-        <li th:if="${session.loggedInUser != null}">
+        <li th:if="${isCustomer}">
             <a href="/cart">🛒 Cart</a>
         </li>
-        <li th:if="${session.loggedInUser != null}">
+        <li th:if="${isCustomer}">
             <a href="/orders/history">My Orders</a>
         </li>
-        <li th:if="${session.loggedInUser != null}">
+        <li th:if="${isLoggedIn}">
             <a href="/reviews">Reviews</a>
         </li>
-        <li th:if="${session.loggedInUser != null}">
+        <li th:if="${isLoggedIn}">
             <a href="/users/profile"
                style="color:var(--accent);">
-                👤 <span th:text="${session.loggedInUser?.username}">
+                👤 <span th:text="${loggedInUser?.username}">
                 </span>
             </a>
         </li>
 
         <!-- Guest only -->
-        <li th:if="${session.loggedInUser == null}">
+        <li th:if="${!isLoggedIn}">
             <a href="/users/login">Login</a>
         </li>
-        <li th:if="${session.loggedInUser == null}">
+        <li th:if="${!isLoggedIn}">
             <a href="/users/register">Register</a>
         </li>
 
         <!-- Logout -->
-        <li th:if="${session.loggedInUser != null}">
+        <li th:if="${isLoggedIn}">
             <a href="/users/logout"
                style="color:rgba(255,150,150,0.85);">
                 Logout
@@ -139,6 +139,13 @@
             <a href="/suppliers" class="btn btn-outline">🏭 Suppliers</a>
             <a href="/toys/add"  class="btn btn-primary">+ Add Toy</a>
         </div>
+    </div>
+
+    <div class="alert alert-success" th:if="${successMessage != null}" th:text="${successMessage}">
+        Inventory updated successfully.
+    </div>
+    <div class="alert alert-error" th:if="${errorMessage != null}" th:text="${errorMessage}">
+        Restock quantity must be at least 1.
     </div>
 
     <!-- Stats boxes — data comes from InventoryController via model.addAttribute -->
@@ -248,26 +255,24 @@
 
                 <!-- Stock quantity coloured by level -->
                 <td>
-                        <span th:text="${toy.stockQuantity}"
-                              th:class="${toy.stockQuantity == 0}   ? 'stock-out'     :
-                                        (toy.stockQuantity <= 5     ? 'stock-low'     :
-                                                                       'stock-healthy')">
+                        <span th:text="${toy.getStockQuantity()}"
+                              th:class="${toy.getStockQuantity() == 0 ? 'stock-out' : (toy.getStockQuantity() <= 5 ? 'stock-low' : 'stock-healthy')}">
                         </span> units
                 </td>
 
                 <!-- Status badge -->
                 <td>
-                        <span th:if="${toy.stockQuantity == 0}"
+                        <span th:if="${toy.getStockQuantity() == 0}"
                               style="background:#FFE0E0; color:#C62828; padding:3px 9px;
                                      border-radius:20px; font-size:0.72rem; font-weight:800;">
                             Out of Stock
                         </span>
-                    <span th:if="${toy.stockQuantity > 0 and toy.stockQuantity <= 5}"
+                    <span th:if="${toy.getStockQuantity() > 0 and toy.getStockQuantity() <= 5}"
                           style="background:#FFF3E0; color:#E65100; padding:3px 9px;
                                      border-radius:20px; font-size:0.72rem; font-weight:800;">
                             Low Stock
                         </span>
-                    <span th:if="${toy.stockQuantity > 5}"
+                    <span th:if="${toy.getStockQuantity() > 5}"
                           style="background:#E8F5E9; color:#2E7D32; padding:3px 9px;
                                      border-radius:20px; font-size:0.72rem; font-weight:800;">
                             In Stock
@@ -294,3 +299,5 @@
 </div>
 </body>
 </html>
+
+
