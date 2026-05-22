@@ -62,7 +62,7 @@ public class CartService {
         newItem.setUserId(userId);
         newItem.setToyId(toyId);
         newItem.setToyName(toy.getName());
-        //newItem.setToyImageUrl(toy.getImageUrl());
+        newItem.setToyImageUrl(toy.getImageUrl());
         newItem.setUnitPrice(toy.getPrice());
         newItem.setQuantity(quantity);
 
