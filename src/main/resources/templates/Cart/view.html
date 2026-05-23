@@ -111,47 +111,47 @@
     <li><a href="/toys">Toys</a></li>
 
     <!-- Admin only links -->
-    <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
+    <li th:if="${isAdmin}">
       <a href="/dashboard">Dashboard</a>
     </li>
-    <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
+    <li th:if="${isAdmin}">
       <a href="/users">Users</a>
     </li>
-    <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
+    <li th:if="${isAdmin}">
       <a href="/orders">All Orders</a>
     </li>
-    <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
+    <li th:if="${isAdmin}">
       <a href="/inventory">Inventory</a>
     </li>
 
     <!-- Any logged-in user -->
-    <li th:if="${session.loggedInUser != null}">
+    <li th:if="${isCustomer}">
       <a href="/cart">🛒 Cart</a>
     </li>
-    <li th:if="${session.loggedInUser != null}">
+    <li th:if="${isCustomer}">
       <a href="/orders/history">My Orders</a>
     </li>
-    <li th:if="${session.loggedInUser != null}">
+    <li th:if="${isLoggedIn}">
       <a href="/reviews">Reviews</a>
     </li>
-    <li th:if="${session.loggedInUser != null}">
+    <li th:if="${isLoggedIn}">
       <a href="/users/profile"
          style="color:var(--accent);">
-        👤 <span th:text="${session.loggedInUser?.username}">
+        👤 <span th:text="${loggedInUser?.username}">
                 </span>
       </a>
     </li>
 
     <!-- Guest only -->
-    <li th:if="${session.loggedInUser == null}">
+    <li th:if="${!isLoggedIn}">
       <a href="/users/login">Login</a>
     </li>
-    <li th:if="${session.loggedInUser == null}">
+    <li th:if="${!isLoggedIn}">
       <a href="/users/register">Register</a>
     </li>
 
     <!-- Logout -->
-    <li th:if="${session.loggedInUser != null}">
+    <li th:if="${isLoggedIn}">
       <a href="/users/logout"
          style="color:rgba(255,150,150,0.85);">
         Logout
@@ -234,16 +234,30 @@
 
           <!-- Quantity controls -->
           <form action="/cart/update" method="post" class="qty-control">
-            <input type="hidden" name="cartItemId" th:value="${item.cartItemId}"/>
-            <button type="submit" name="quantity"
+
+            <input type="hidden"
+                   name="cartItemId"
+                   th:value="${item.cartItemId}"/>
+
+            <button type="submit"
+                    name="quantity"
                     th:value="${item.quantity - 1}"
-                    class="qty-btn">−</button>
-            <input type="number" name="quantity" class="qty-input"
-                   th:value="${item.quantity}" min="1" max="99"
-                   onchange="this.form.submit()"/>
-            <button type="submit" name="quantity"
+                    class="qty-btn">
+              −
+            </button>
+
+            <div class="qty-display"
+                 th:text="${item.quantity}">
+              1
+            </div>
+
+            <button type="submit"
+                    name="quantity"
                     th:value="${item.quantity + 1}"
-                    class="qty-btn">+</button>
+                    class="qty-btn">
+              +
+            </button>
+
           </form>
         </div>
 
@@ -475,3 +489,4 @@
 </script>
 </body>
 </html>
+
