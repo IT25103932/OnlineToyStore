@@ -3,283 +3,133 @@
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Checkout — Online Toy Store</title>
+    <title>Cart Checkout - ToyMart</title>
     <link rel="stylesheet" th:href="@{/css/style.css}"/>
-    <style>
-        .checkout-layout {
-            max-width: 780px;
-            margin: 0 auto;
-            padding: 2rem 1.25rem;
-        }
-        .checkout-card {
-            background: #fff;
-            border: 1px solid #E0E6F0;
-            border-radius: 14px;
-            padding: 1.75rem;
-            box-shadow: 0 2px 16px rgba(27,42,74,0.09);
-            margin-bottom: 1.5rem;
-        }
-        .checkout-card h2 {
-            font-family: 'Fredoka One', cursive;
-            font-size: 1.2rem;
-            color: #1B2A4A;
-            margin-bottom: 1.2rem;
-            padding-bottom: 0.75rem;
-            border-bottom: 1px solid #E0E6F0;
-        }
-        .item-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0.65rem 0;
-            border-bottom: 1px solid #F0F3FA;
-            font-size: 0.92rem;
-        }
-        .item-row:last-child { border-bottom: none; }
-        .item-name { font-weight: 700; color: #1B2A4A; }
-        .item-qty { color: #8A95A8; font-size: 0.82rem; margin-top: 2px; }
-        .item-price { font-family: 'Fredoka One', cursive; color: #1B2A4A; font-size: 1rem; }
-        .total-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1rem 0 0;
-            margin-top: 0.5rem;
-            border-top: 2px solid #E0E6F0;
-        }
-        .total-label { font-weight: 800; font-size: 1rem; color: #1B2A4A; }
-        .total-amount { font-family: 'Fredoka One', cursive; font-size: 1.5rem; color: #FF6B6B; }
-        .info-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-        }
-        .info-field {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
-        .info-field label {
-            font-size: 0.75rem;
-            font-weight: 700;
-            color: #8A95A8;
-            text-transform: uppercase;
-            letter-spacing: 0.4px;
-        }
-        .info-field input, .info-field textarea {
-            border: 1.5px solid #E0E6F0;
-            border-radius: 8px;
-            padding: 0.6rem 0.75rem;
-            font-family: 'Nunito', sans-serif;
-            font-size: 0.9rem;
-            color: #1B2A4A;
-            transition: border 0.15s;
-        }
-        .info-field input:focus, .info-field textarea:focus {
-            outline: none;
-            border-color: #FF6B6B;
-        }
-        .info-field textarea { resize: vertical; min-height: 80px; }
-        .full-width { grid-column: 1 / -1; }
-        .empty-checkout {
-            text-align: center;
-            padding: 4rem 2rem;
-            background: #fff;
-            border-radius: 14px;
-            border: 1px solid #E0E6F0;
-        }
-        .btn-checkout {
-            width: 100%;
-            padding: 0.9rem;
-            background: #FF6B6B;
-            color: #fff;
-            border: none;
-            border-radius: 10px;
-            font-family: 'Fredoka One', cursive;
-            font-size: 1.1rem;
-            cursor: pointer;
-            transition: background 0.2s;
-            text-align: center;
-            display: block;
-            text-decoration: none;
-        }
-        .btn-checkout:hover { background: #e05555; }
-        .btn-back {
-            width: 100%;
-            padding: 0.75rem;
-            background: #fff;
-            color: #1B2A4A;
-            border: 1.5px solid #E0E6F0;
-            border-radius: 10px;
-            font-family: 'Nunito', sans-serif;
-            font-size: 0.95rem;
-            font-weight: 700;
-            cursor: pointer;
-            margin-top: 0.75rem;
-            text-align: center;
-            display: block;
-            text-decoration: none;
-        }
-        .btn-back:hover { background: #F7F9FC; }
-        .success-badge {
-            background: #E8F5E9;
-            color: #2E7D32;
-            border-radius: 8px;
-            padding: 0.75rem 1rem;
-            font-size: 0.88rem;
-            font-weight: 700;
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        @media (max-width: 600px) {
-            .info-grid { grid-template-columns: 1fr; }
-        }
-    </style>
 </head>
-<body>
-
-<!-- Navbar -->
-<!-- PASTE THIS NAVBAR into EVERY .html template -->
+<body class="checkout-modern-page">
 <nav class="navbar">
-    <a href="/" class="navbar-brand">🧸 <span>ToyStore</span></a>
+    <a href="/" class="navbar-brand">ToyMart</a>
     <ul class="navbar-nav">
-
         <li><a href="/toys">Toys</a></li>
-
-        <!-- Admin only links -->
-        <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
-            <a href="/dashboard">Dashboard</a>
-        </li>
-        <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
-            <a href="/users">Users</a>
-        </li>
-        <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
-            <a href="/orders">All Orders</a>
-        </li>
-        <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
-            <a href="/inventory">Inventory</a>
-        </li>
-
-        <!-- Any logged-in user -->
-        <li th:if="${session.loggedInUser != null}">
-            <a href="/cart">🛒 Cart</a>
-        </li>
-        <li th:if="${session.loggedInUser != null}">
-            <a href="/orders/history">My Orders</a>
-        </li>
-        <li th:if="${session.loggedInUser != null}">
-            <a href="/reviews">Reviews</a>
-        </li>
-        <li th:if="${session.loggedInUser != null}">
-            <a href="/users/profile"
-               style="color:var(--accent);">
-                👤 <span th:text="${session.loggedInUser?.username}">
-                </span>
-            </a>
-        </li>
-
-        <!-- Guest only -->
-        <li th:if="${session.loggedInUser == null}">
-            <a href="/users/login">Login</a>
-        </li>
-        <li th:if="${session.loggedInUser == null}">
-            <a href="/users/register">Register</a>
-        </li>
-
-        <!-- Logout -->
-        <li th:if="${session.loggedInUser != null}">
-            <a href="/users/logout"
-               style="color:rgba(255,150,150,0.85);">
-                Logout
-            </a>
-        </li>
+        <li th:if="${isCustomer}"><a href="/cart" class="nav-cart-link" data-cart-open>Cart <span class="nav-cart-badge" th:text="${cartItemCount}">0</span></a></li>
+        <li th:if="${isCustomer}"><a href="/orders/history">My Orders</a></li>
+        <li th:if="${isLoggedIn}"><a href="/reviews">Reviews</a></li>
+        <li th:if="${isLoggedIn}"><a href="/users/profile" th:text="${loggedInUser?.username}">Profile</a></li>
+        <li th:if="${isLoggedIn}"><a href="/users/logout">Logout</a></li>
     </ul>
 </nav>
 
-<div class="checkout-layout">
-
-    <!-- Page Header -->
-    <div class="page-header" style="margin-bottom:1.5rem;">
-        <h1 style="font-family:'Fredoka One',cursive; font-size:1.6rem; color:#1B2A4A;">
-            ✅ Checkout
-        </h1>
-        <a href="/cart" class="btn btn-outline">← Back to Cart</a>
+<main class="modern-checkout-shell">
+    <div class="empty-checkout modern-empty-checkout" th:if="${cartItems == null or cartItems.isEmpty()}">
+        <h3>Your cart is empty</h3>
+        <p>Add toys before checking out.</p>
+        <a href="/toys" class="btn btn-primary">Browse Toys</a>
     </div>
 
-    <!-- Empty cart check -->
-    <div class="empty-checkout" th:if="${cartItems == null or cartItems.isEmpty()}">
-        <span style="font-size:3rem;">🛒</span>
-        <h3 style="margin:1rem 0 0.4rem; font-size:1.2rem; font-weight:800;">Your cart is empty</h3>
-        <p style="color:#8A95A8;">Add some toys before checking out.</p>
-        <br/>
-        <a href="/toys" class="btn-checkout" style="max-width:200px; margin:0 auto;">Browse Toys</a>
-    </div>
+    <div class="modern-checkout-layout" th:if="${cartItems != null and !cartItems.isEmpty()}">
+        <section class="checkout-main-column">
+            <a href="/" class="checkout-logo">ToyMart</a>
 
-    <!-- Checkout content -->
-    <div th:if="${cartItems != null and !cartItems.isEmpty()}">
+            <div class="checkout-error" th:if="${error != null}" th:text="${error}"></div>
 
-        <!-- Order Items -->
-        <div class="checkout-card">
-            <h2>🧸 Your Items</h2>
-            <div th:each="item : ${cartItems}" class="item-row">
-                <div>
-                    <div class="item-name" th:text="${item.toyName}"></div>
-                    <div class="item-qty">Qty: <span th:text="${item.quantity}"></span>
-                        × Rs.<span th:text="${item.unitPrice}"></span>
+            <form action="/cart/checkout/place" method="post" id="cartCheckoutForm" class="modern-checkout-form">
+                <section class="checkout-section">
+                    <div class="section-title-row">
+                        <h2>Contact information</h2>
                     </div>
-                </div>
-                <div class="item-price">
-                    Rs.<span th:text="${#numbers.formatDecimal(item.totalPrice,1,'COMMA',2,'POINT')}"></span>
-                </div>
-            </div>
-            <div class="total-row">
-                <span class="total-label">Total Amount</span>
-                <span class="total-amount">
-                    Rs.<span th:text="${#numbers.formatDecimal(cartTotal,1,'COMMA',2,'POINT')}"></span>
-                </span>
-            </div>
-        </div>
+                    <input class="checkout-input full" type="email" name="email" placeholder="Email address" th:value="${loggedInUser?.email}" required/>
+                    <label class="checkout-checkbox">
+                        <input type="checkbox" checked/>
+                        <span>Email me order updates and offers</span>
+                    </label>
+                </section>
 
-        <!-- Delivery Info -->
-        <div class="checkout-card">
-            <h2>📦 Delivery Information</h2>
-            <div class="success-badge">
-                ℹ️ This is a demo checkout — no real order will be placed yet
-            </div>
-            <form action="/orders" method="get">
-                <div class="info-grid">
-                    <div class="info-field">
-                        <label>Full Name</label>
-                        <input type="text" placeholder="e.g. Kamal Perera" required/>
+                <section class="checkout-section">
+                    <h2>Shipping address</h2>
+                    <div class="checkout-field-grid">
+                        <input class="checkout-input half" type="text" name="fullName" placeholder="Full name" th:value="${loggedInUser?.username}" minlength="3" required/>
+                        <input class="checkout-input half" type="tel" name="phone" placeholder="07XXXXXXXX" th:value="${loggedInUser?.phone}" inputmode="numeric" pattern="[0-9]{10}" maxlength="10" title="Enter a 10 digit phone number" required/>
+                        <input class="checkout-input full" type="text" name="address" placeholder="House number, street, area" th:value="${loggedInUser?.address}" minlength="6" required/>
+                        <input class="checkout-input half" type="text" name="city" placeholder="City" pattern="[A-Za-z ]{2,}" title="Use letters and spaces only" required/>
+                        <input class="checkout-input half" type="text" name="postalCode" placeholder="Postal code" inputmode="numeric" pattern="[0-9]{5}" maxlength="5" title="Enter a 5 digit postal code"/>
                     </div>
-                    <div class="info-field">
-                        <label>Phone Number</label>
-                        <input type="text" placeholder="e.g. 077 123 4567" required/>
+                </section>
+
+                <section class="checkout-section">
+                    <h2>Payment method</h2>
+                    <div class="checkout-pay-options">
+                        <label class="checkout-pay-option">
+                            <input type="radio" name="paymentMethod" value="ONLINE" checked onchange="toggleCartCardDetails()"/>
+                            <span>
+                                <strong>Card payment</strong>
+                                <small>Pay securely before order confirmation</small>
+                            </span>
+                        </label>
+                        <label class="checkout-pay-option">
+                            <input type="radio" name="paymentMethod" value="COD" onchange="toggleCartCardDetails()"/>
+                            <span>
+                                <strong>Cash on delivery</strong>
+                                <small>Pay when your toys arrive</small>
+                            </span>
+                        </label>
                     </div>
-                    <div class="info-field full-width">
-                        <label>Delivery Address</label>
-                        <textarea placeholder="Enter your full address..."></textarea>
+
+                    <div id="cartCardDetails" class="modern-card-details">
+                        <input class="checkout-input full" type="text" name="cardHolder" data-cart-card-field placeholder="Name on card" minlength="3" pattern="[A-Za-z ]{3,}" title="Enter the card holder name"/>
+                        <input class="checkout-input full" type="text" name="cardNumber" data-cart-card-field inputmode="numeric" maxlength="19" placeholder="1234 5678 9012 3456" pattern="[0-9 ]{13,19}" title="Enter a valid card number"/>
+                        <input class="checkout-input half" type="text" name="cardExpiry" data-cart-card-field placeholder="MM/YY" maxlength="5" pattern="(0[1-9]|1[0-2])\/[0-9]{2}" title="Use MM/YY format"/>
+                        <input class="checkout-input half" type="password" name="cardCvv" data-cart-card-field inputmode="numeric" maxlength="4" pattern="[0-9]{3,4}" title="Enter 3 or 4 digit CVV" placeholder="CVV"/>
                     </div>
-                    <div class="info-field">
-                        <label>City</label>
-                        <input type="text" placeholder="e.g. Colombo" required/>
-                    </div>
-                    <div class="info-field">
-                        <label>Postal Code</label>
-                        <input type="text" placeholder="e.g. 10100"/>
-                    </div>
+                </section>
+
+                <div class="checkout-action-row">
+                    <a href="/cart">Return to cart</a>
+                    <button type="submit" class="modern-pay-button">Proceed Payment</button>
                 </div>
-                <br/>
-                <button type="submit" class="btn-checkout">
-                    Place Order →
-                </button>
             </form>
-            <a href="/cart" class="btn-back">← Back to Cart</a>
-        </div>
+        </section>
 
+        <aside class="checkout-summary-column">
+            <div class="checkout-summary-card">
+                <div class="summary-item" th:each="item : ${cartItems}">
+                    <div class="summary-product-image">
+                        <img th:if="${item.toyImageUrl != null and !#strings.isEmpty(item.toyImageUrl)}" th:src="${item.toyImageUrl}" th:alt="${item.toyName}"/>
+                        <span th:unless="${item.toyImageUrl != null and !#strings.isEmpty(item.toyImageUrl)}">Toy</span>
+                        <em th:text="${item.quantity}">1</em>
+                    </div>
+                    <div>
+                        <strong th:text="${item.toyName}">Toy name</strong>
+                        <small>Qty <span th:text="${item.quantity}">1</span> x Rs. <span th:text="${#numbers.formatDecimal(item.unitPrice,1,'COMMA',2,'POINT')}">0.00</span></small>
+                    </div>
+                    <b>Rs. <span th:text="${#numbers.formatDecimal(item.totalPrice,1,'COMMA',2,'POINT')}">0.00</span></b>
+                </div>
+
+                <div class="discount-row">
+                    <input type="text" placeholder="Gift card or discount code"/>
+                    <button type="button">Apply</button>
+                </div>
+
+                <div class="summary-lines">
+                    <div><span>Subtotal</span><strong>Rs. <span th:text="${#numbers.formatDecimal(cartTotal,1,'COMMA',2,'POINT')}">0.00</span></strong></div>
+                    <div><span>Shipping</span><small>Calculated after confirmation</small></div>
+                    <div class="summary-note">Delivery usually takes 2-5 working days depending on your city.</div>
+                    <div class="grand-total"><span>Total</span><strong>Rs. <span th:text="${#numbers.formatDecimal(cartTotal,1,'COMMA',2,'POINT')}">0.00</span></strong></div>
+                </div>
+            </div>
+        </aside>
     </div>
-</div>
+</main>
+
+<div th:if="${isCustomer}" th:replace="~{fragments/cart-drawer :: cartDrawer}"></div>
+<script th:if="${isCustomer}" th:src="@{/js/cart-drawer.js}"></script>
+<script>
+    function toggleCartCardDetails() {
+        const method = document.querySelector('input[name="paymentMethod"]:checked');
+        const needsCard = method && method.value === "ONLINE";
+        document.getElementById("cartCardDetails").classList.toggle("is-hidden", !needsCard);
+        document.querySelectorAll("[data-cart-card-field]").forEach(field => field.required = needsCard);
+    }
+    window.addEventListener("load", toggleCartCardDetails);
+</script>
 </body>
 </html>

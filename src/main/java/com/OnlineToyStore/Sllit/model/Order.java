@@ -49,9 +49,26 @@ public class Order {
         o.setTotalAmount(p.length > 6
                 ? Double.parseDouble(p[6]) : 0.0);
         o.setOrderDate(p.length > 7 ? p[7] : "");
-        o.setStatus(p.length > 8 ? p[8] : "PENDING");
-        o.setPaymentMethod(p.length > 9 ? p[9] : "COD");
-        o.setPaymentStatus(p.length > 10 ? p[10] : "UNPAID");
+        o.setStatus(normalizeStatus(p.length > 8 ? p[8] : "PENDING"));
+        o.setPaymentMethod(normalizePaymentMethod(p.length > 9 ? p[9] : "COD"));
+        o.setPaymentStatus(normalizePaymentStatus(p.length > 10 ? p[10] : "UNPAID"));
         return o;
+    }
+
+    private static String normalizeStatus(String status) {
+        if ("SHIPPED".equalsIgnoreCase(status)) return "SHIPPED";
+        if ("DELIVERED".equalsIgnoreCase(status)) return "DELIVERED";
+        if ("CANCELLED".equalsIgnoreCase(status)) return "CANCELLED";
+        return "PENDING";
+    }
+
+    private static String normalizePaymentMethod(String paymentMethod) {
+        return "ONLINE".equalsIgnoreCase(paymentMethod) ? "ONLINE" : "COD";
+    }
+
+    private static String normalizePaymentStatus(String paymentStatus) {
+        if ("PAID".equalsIgnoreCase(paymentStatus)) return "PAID";
+        if ("REFUNDED".equalsIgnoreCase(paymentStatus)) return "REFUNDED";
+        return "UNPAID";
     }
 }

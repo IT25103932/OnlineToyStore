@@ -1,195 +1,62 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Register — Online Toy Store</title>
-  <link rel="stylesheet" th:href="@{/css/style.css}" />
-  <style>
-    .auth-wrapper {
-      min-height: calc(100vh - 60px);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 2rem;
-    }
-
-    .auth-card {
-      background: #fff;
-      border-radius: 16px;
-      box-shadow: 0 4px 32px rgba(27, 42, 74, 0.13);
-      padding: 2.5rem;
-      width: 100%;
-      max-width: 480px;
-      border: 1px solid var(--border);
-    }
-
-    .auth-card h1 {
-      font-family: 'Fredoka One', cursive;
-      font-size: 1.8rem;
-      color: var(--secondary);
-      margin-bottom: 0.3rem;
-    }
-
-    .auth-card p {
-      color: var(--muted);
-      font-size: 0.88rem;
-      margin-bottom: 1.75rem;
-    }
-
-    .alert-error {
-      background: #FFE0E0;
-      color: #C62828;
-      border: 1px solid #FFCDD2;
-      border-radius: 9px;
-      padding: 0.75rem 1rem;
-      font-size: 0.88rem;
-      font-weight: 600;
-      margin-bottom: 1.25rem;
-    }
-
-    .alert-success {
-      background: #E8F5E9;
-      color: #2E7D32;
-      border: 1px solid #A5D6A7;
-      border-radius: 9px;
-      padding: 0.75rem 1rem;
-      font-size: 0.88rem;
-      font-weight: 600;
-      margin-bottom: 1.25rem;
-    }
-
-    .auth-footer {
-      text-align: center;
-      margin-top: 1.25rem;
-      font-size: 0.88rem;
-      color: var(--muted);
-    }
-
-    .auth-footer a {
-      color: var(--primary);
-      font-weight: 700;
-      text-decoration: none;
-    }
-  </style>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Register - Online Toy Store</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}"/>
 </head>
-
 <body>
-
-<!-- PASTE THIS NAVBAR into EVERY .html template -->
 <nav class="navbar">
-  <a href="/" class="navbar-brand">🧸 <span>ToyStore</span></a>
+  <a href="/" class="navbar-brand">🧸 <span>ToyMart</span></a>
   <ul class="navbar-nav">
-
-    <li><a href="/toys">Toys</a></li>
-
-    <!-- Admin only links -->
-    <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
-      <a href="/dashboard">Dashboard</a>
-    </li>
-    <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
-      <a href="/users">Users</a>
-    </li>
-    <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
-      <a href="/orders">All Orders</a>
-    </li>
-    <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
-      <a href="/inventory">Inventory</a>
-    </li>
-
-    <!-- Any logged-in user -->
-    <li th:if="${session.loggedInUser != null}">
-      <a href="/cart">🛒 Cart</a>
-    </li>
-    <li th:if="${session.loggedInUser != null}">
-      <a href="/orders/history">My Orders</a>
-    </li>
-    <li th:if="${session.loggedInUser != null}">
-      <a href="/reviews">Reviews</a>
-    </li>
-    <li th:if="${session.loggedInUser != null}">
-      <a href="/users/profile"
-         style="color:var(--accent);">
-        👤 <span th:text="${session.loggedInUser?.username}">
-                </span>
-      </a>
-    </li>
-
-    <!-- Guest only -->
-    <li th:if="${session.loggedInUser == null}">
-      <a href="/users/login">Login</a>
-    </li>
-    <li th:if="${session.loggedInUser == null}">
-      <a href="/users/register">Register</a>
-    </li>
-
-    <!-- Logout -->
-    <li th:if="${session.loggedInUser != null}">
-      <a href="/users/logout"
-         style="color:rgba(255,150,150,0.85);">
-        Logout
-      </a>
-    </li>
+    <li><a href="/toys">Catalog</a></li>
+    <li th:if="${session.loggedInUser == null}"><a href="/users/login">Login</a></li>
+    <li th:if="${session.loggedInUser == null}"><a href="/users/register" class="active">Register</a></li>
   </ul>
 </nav>
 
-  <div class="auth-wrapper">
-    <div class="auth-card">
-      <h1> Create Account</h1>
-      <p>Register to start shopping at ToyStore</p>
+<main class="auth-wrapper">
+  <section class="auth-card" style="max-width:520px;">
+    <p class="section-eyebrow">Customer account</p>
+    <h1>Create account</h1>
+    <p>Register as a customer to shop toys, place orders, and submit reviews.</p>
 
-      <!-- Error message -->
-      <div class="alert-error" th:if="${error}" th:text="${error}"></div>
+    <div class="alert-error" th:if="${error}" th:text="${error}"></div>
 
-      <form th:action="@{/users/register}" method="post">
-        <div class="form-group" style="margin-bottom:1rem;">
-          <label>Username</label>
-          <input type="text" name="username" th:value="${user?.username}" placeholder="e.g. john123" required />
+    <form th:action="@{/users/register}" method="post">
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="username">Username</label>
+          <input id="username" type="text" name="username" th:value="${user?.username}" placeholder="e.g. nimal123" required/>
         </div>
-
-        <div class="form-group" style="margin-bottom:1rem;">
-          <label>Email Address</label>
-          <input type="text" name="email" th:value="${user?.email}" placeholder="john@email.com" required />
+        <div class="form-group">
+          <label for="email">Email Address</label>
+          <input id="email" type="email" name="email" th:value="${user?.email}" placeholder="name@email.com" required/>
         </div>
-
-        <div class="form-group" style="margin-bottom:1rem;">
-          <label>Password</label>
-          <input type="password" name="password" placeholder="Min. 6 characters" required />
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input id="password" type="password" name="password" placeholder="Min. 6 characters" required/>
         </div>
-
-        <div class="form-group" style="margin-bottom:1rem;">
-          <label>Phone Number</label>
-          <input type="text" name="phone" th:value="${user?.phone}" placeholder="07XXXXXXXX" />
+        <div class="form-group">
+          <label for="phone">Phone Number</label>
+          <input id="phone" type="text" name="phone" th:value="${user?.phone}" placeholder="07XXXXXXXX"/>
         </div>
-
-        <div class="form-group" style="margin-bottom:1rem;">
-          <label>Address</label>
-          <textarea name="address" style="min-height:70px;" th:text="${user?.address}"
-            placeholder="No. 12, Main Street, Colombo"></textarea>
+        <div class="form-group full">
+          <label for="address">Address</label>
+          <textarea id="address" name="address" th:text="${user?.address}" placeholder="Delivery address"></textarea>
         </div>
-
-        <div class="form-group" style="margin-bottom:1.5rem;">
-          <label>Role</label>
-          <select name="role">
-            <option value="CUSTOMER">Customer</option>
-            <option value="ADMIN">Admin</option>
-          </select>
-        </div>
-
-        <button type="submit" class="btn btn-primary"
-          style="width:100%;justify-content:center; font-size:1rem;padding:0.75rem;">
-          Create Account
-        </button>
-      </form>
-
-      <div class="auth-footer">
-        Already have an account?
-        <a href="/users/login">Log in</a>
       </div>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary" style="width:100%;">Create Customer Account</button>
+      </div>
+    </form>
+
+    <div class="auth-footer">
+      Already registered?
+      <a href="/users/login">Log in</a>
     </div>
-  </div>
-
+  </section>
+</main>
 </body>
-
 </html>

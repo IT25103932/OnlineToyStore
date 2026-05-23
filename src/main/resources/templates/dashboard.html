@@ -3,216 +3,123 @@
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Admin Dashboard — Online Toy Store</title>
+    <title>Admin Dashboard - Online Toy Store</title>
     <link rel="stylesheet" th:href="@{/css/style.css}"/>
 </head>
 <body>
-
-<!-- Navbar -->
-<!-- Replace the static navbar in dashboard.html with: -->
 <nav class="navbar">
-    <a href="/" class="navbar-brand">🧸 <span>ToyStore</span></a>
+    <a href="/" class="navbar-brand"><span>ToyMart</span></a>
     <ul class="navbar-nav">
-        <li><a href="/toys">Toys</a></li>
-        <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
-            <a href="/dashboard" class="active">Dashboard</a>
-        </li>
-        <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
-            <a href="/users">Users</a>
-        </li>
-        <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
-            <a href="/orders">All Orders</a>
-        </li>
-        <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
-            <a href="/inventory">Inventory</a>
-        </li>
-        <li th:if="${session.loggedInUser != null}">
-            <a href="/users/profile">
-                👤 <span th:text="${session.loggedInUser?.username}"></span>
-            </a>
-        </li>
-        <li th:if="${session.loggedInUser != null}">
-            <a href="/users/logout"
-               style="color:rgba(255,150,150,0.85);">Logout</a>
-        </li>
+        <li><a href="/toys">Catalog</a></li>
+        <li th:if="${session.loggedInUser?.role == 'ADMIN'}"><a href="/dashboard" class="active">Dashboard</a></li>
+        <li th:if="${session.loggedInUser?.role == 'ADMIN'}"><a href="/users">Users</a></li>
+        <li th:if="${session.loggedInUser?.role == 'ADMIN'}"><a href="/orders">Orders</a></li>
+        <li th:if="${session.loggedInUser?.role == 'ADMIN'}"><a href="/inventory">Inventory</a></li>
+        <li th:if="${session.loggedInUser != null}"><a href="/users/profile" th:text="${session.loggedInUser?.username}">Profile</a></li>
+        <li th:if="${session.loggedInUser != null}"><a href="/users/logout">Logout</a></li>
     </ul>
 </nav>
 
-<div style="max-width:1200px;margin:0 auto;padding:2rem 1.25rem;">
-
-    <!-- Welcome -->
-    <div style="margin-bottom:2rem;">
-        <h1 style="font-family:'Fredoka One',cursive;font-size:1.9rem;
-                   color:var(--secondary);">
-            👋 Welcome,
-            <span th:text="${session.loggedInUser?.username}">Admin</span>
-        </h1>
-        <p style="color:var(--muted);">
-            Here is what is happening in your store today.
-        </p>
-    </div>
-
-    <!-- Stats grid -->
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);
-                gap:1rem;margin-bottom:2rem;">
-
-        <div style="background:#fff;border-radius:14px;padding:1.25rem;
-                    border:1px solid var(--border);
-                    box-shadow:0 2px 12px rgba(27,42,74,0.07);">
-            <p style="font-size:0.7rem;color:var(--muted);font-weight:700;
-                      text-transform:uppercase;margin:0 0 4px;">Total Toys</p>
-            <p style="font-family:'Fredoka One',cursive;font-size:2rem;
-                      color:var(--secondary);margin:0;"
-               th:text="${totalToys}">0</p>
-            <a href="/toys" style="font-size:0.78rem;color:var(--primary);
-                                   font-weight:700;text-decoration:none;">
-                View all →
-            </a>
-        </div>
-
-        <div style="background:#fff;border-radius:14px;padding:1.25rem;
-                    border:1px solid var(--border);
-                    box-shadow:0 2px 12px rgba(27,42,74,0.07);">
-            <p style="font-size:0.7rem;color:var(--muted);font-weight:700;
-                      text-transform:uppercase;margin:0 0 4px;">Total Users</p>
-            <p style="font-family:'Fredoka One',cursive;font-size:2rem;
-                      color:var(--secondary);margin:0;"
-               th:text="${totalUsers}">0</p>
-            <a href="/users" style="font-size:0.78rem;color:var(--primary);
-                                    font-weight:700;text-decoration:none;">
-                View all →
-            </a>
-        </div>
-
-        <div style="background:#fff;border-radius:14px;padding:1.25rem;
-                    border:1px solid var(--border);
-                    box-shadow:0 2px 12px rgba(27,42,74,0.07);">
-            <p style="font-size:0.7rem;color:var(--muted);font-weight:700;
-                      text-transform:uppercase;margin:0 0 4px;">
-                Total Orders
+<main class="page">
+    <section class="premium-hero">
+        <div>
+            <p class="section-eyebrow">Admin Workspace</p>
+            <h1>Good evening, <span th:text="${session.loggedInUser?.username}">Admin</span>.</h1>
+            <p>
+                Monitor store performance, respond to low stock, process customer orders,
+                and keep the toy catalog ready for customers.
             </p>
-            <p style="font-family:'Fredoka One',cursive;font-size:2rem;
-                      color:var(--secondary);margin:0;"
-               th:text="${totalOrders}">0</p>
-            <span style="font-size:0.75rem;color:#FF6D00;font-weight:700;"
-                  th:text="${pendingOrders} + ' pending'"></span>
-        </div>
-
-        <div style="background:#fff;border-radius:14px;padding:1.25rem;
-                    border:1px solid var(--border);
-                    box-shadow:0 2px 12px rgba(27,42,74,0.07);">
-            <p style="font-size:0.7rem;color:var(--muted);font-weight:700;
-                      text-transform:uppercase;margin:0 0 4px;">Revenue (PAID)</p>
-            <p style="font-family:'Fredoka One',cursive;font-size:1.5rem;
-                      color:var(--primary);margin:0;">
-                Rs. <span th:text="${#numbers.formatDecimal(
-                            totalRevenue,1,'COMMA',0,'POINT')}"></span>
-            </p>
-        </div>
-
-    </div>
-
-    <div style="display:grid;grid-template-columns:1fr 1fr;
-                gap:1.5rem;margin-bottom:2rem;">
-
-        <!-- Low stock alert -->
-        <div style="background:#fff;border-radius:14px;padding:1.4rem;
-                    border:1px solid var(--border);
-                    box-shadow:0 2px 12px rgba(27,42,74,0.07);">
-            <h3 style="font-family:'Fredoka One',cursive;font-size:1.1rem;
-                       color:var(--secondary);margin:0 0 1rem;">
-                ⚠️ Low Stock Alert
-            </h3>
-
-            <div th:if="${lowStockToys == null or lowStockToys.isEmpty()}"
-                 style="color:var(--muted);font-size:0.88rem;padding:1rem 0;">
-                ✅ All toys have healthy stock levels.
+            <div class="dashboard-actions">
+                <a href="/toys/add" class="btn btn-primary">Add Toy</a>
+                <a href="/orders?status=PENDING" class="btn btn-outline">Pending Orders</a>
+                <a href="/inventory" class="btn btn-outline">Inventory</a>
             </div>
-
-            <div th:each="toy : ${lowStockToys}"
-                 style="display:flex;justify-content:space-between;
-                        align-items:center;padding:0.6rem 0;
-                        border-bottom:1px solid var(--border);">
-                <span style="font-weight:700;font-size:0.88rem;"
-                      th:text="${toy.name}"></span>
-                <span th:text="${toy.stockQuantity} + ' left'"
-                      style="font-size:0.78rem;font-weight:800;
-                             color:var(--danger);"></span>
-            </div>
-
-            <a href="/inventory" style="display:inline-block;margin-top:0.75rem;
-                                        font-size:0.82rem;color:var(--primary);
-                                        font-weight:700;text-decoration:none;">
-                Manage inventory →
-            </a>
         </div>
-
-        <!-- Recent orders -->
-        <div style="background:#fff;border-radius:14px;padding:1.4rem;
-                    border:1px solid var(--border);
-                    box-shadow:0 2px 12px rgba(27,42,74,0.07);">
-            <h3 style="font-family:'Fredoka One',cursive;font-size:1.1rem;
-                       color:var(--secondary);margin:0 0 1rem;">
-                📦 Recent Orders
-            </h3>
-
-            <div th:if="${recentOrders == null or recentOrders.isEmpty()}"
-                 style="color:var(--muted);font-size:0.88rem;padding:1rem 0;">
-                No orders yet.
+        <div class="hero-panel">
+            <div class="panel-list-item">
+                <span>Paid revenue</span>
+                <strong>Rs. <span th:text="${#numbers.formatDecimal(totalRevenue,1,'COMMA',0,'POINT')}">0</span></strong>
             </div>
+            <div class="panel-list-item">
+                <span>Pending orders</span>
+                <strong th:text="${pendingOrders}">0</strong>
+            </div>
+            <div class="panel-list-item">
+                <span>Pending reviews</span>
+                <strong th:text="${pendingReviews}">0</strong>
+            </div>
+        </div>
+    </section>
 
-            <div th:each="order : ${recentOrders}"
-                 style="display:flex;justify-content:space-between;
-                        align-items:center;padding:0.6rem 0;
-                        border-bottom:1px solid var(--border);">
+    <section class="stats-grid">
+        <div class="stat-card"><h3>Total Toys</h3><p th:text="${totalToys}">0</p></div>
+        <div class="stat-card"><h3>Total Users</h3><p th:text="${totalUsers}">0</p></div>
+        <div class="stat-card"><h3>Total Orders</h3><p th:text="${totalOrders}">0</p></div>
+        <div class="stat-card"><h3>Delivered Orders</h3><p th:text="${deliveredOrders}">0</p></div>
+    </section>
+
+    <section class="dashboard-grid" style="margin-top:1rem;">
+        <div class="dashboard-panel">
+            <div class="page-header" style="margin-bottom:0.5rem;">
                 <div>
-                    <div style="font-weight:700;font-size:0.85rem;"
-                         th:text="${order.toyName}"></div>
-                    <div style="font-size:0.72rem;color:var(--muted);"
-                         th:text="${order.username} + ' • ' + ${order.orderDate}"></div>
+                    <p class="section-eyebrow">Stock Control</p>
+                    <h1 style="font-size:1.2rem;">Low Stock</h1>
+                </div>
+                <a href="/inventory" class="btn btn-outline btn-sm">Manage</a>
+            </div>
+            <div th:if="${lowStockToys == null or lowStockToys.isEmpty()}" class="empty-state">
+                <h3>Stock looks healthy</h3>
+                <p>No toys are below the low-stock threshold.</p>
+            </div>
+            <div th:each="toy : ${lowStockToys}" class="panel-list-item">
+                <div>
+                    <strong th:text="${toy.name}">Toy name</strong>
+                    <div style="color:var(--text-muted);font-size:0.82rem;" th:text="${toy.category}">Category</div>
+                </div>
+                <span class="stock-badge out-stock" th:text="${toy.stockQuantity} + ' left'">0 left</span>
+            </div>
+        </div>
+
+        <div class="dashboard-panel">
+            <div class="page-header" style="margin-bottom:0.5rem;">
+                <div>
+                    <p class="section-eyebrow">Fulfilment</p>
+                    <h1 style="font-size:1.2rem;">Recent Orders</h1>
+                </div>
+                <a href="/orders" class="btn btn-outline btn-sm">View all</a>
+            </div>
+            <div th:if="${recentOrders == null or recentOrders.isEmpty()}" class="empty-state">
+                <h3>No orders yet</h3>
+                <p>Orders placed by customers will appear here.</p>
+            </div>
+            <div th:each="order : ${recentOrders}" class="panel-list-item">
+                <div>
+                    <strong th:text="${order.toyName}">Toy name</strong>
+                    <div style="color:var(--text-muted);font-size:0.82rem;">
+                        <span th:text="${order.username}">Customer</span>
+                        <span> / </span>
+                        <span th:text="${order.orderDate}">Date</span>
+                    </div>
                 </div>
                 <span th:text="${order.status}"
-                      style="font-size:0.72rem;font-weight:800;padding:3px 8px;border-radius:20px;"
-                      th:style="${order.status=='PENDING'} ?
-                                'background:#FFF3E0;color:#E65100;' :
-                                (order.status=='DELIVERED' ?
-                                'background:#E8F5E9;color:#2E7D32;' :
-                                'background:#E3F2FD;color:#1565C0;')">
+                      th:class="${order.status=='PENDING'} ? 'badge-status s-pending' :
+                                (order.status=='DELIVERED' ? 'badge-status s-delivered' :
+                                (order.status=='CANCELLED' ? 'badge-status s-cancelled' : 'badge-status s-shipped'))">
+                    PENDING
                 </span>
             </div>
-
-            <a href="/orders" style="display:inline-block;margin-top:0.75rem;
-                                     font-size:0.82rem;color:var(--primary);
-                                     font-weight:700;text-decoration:none;">
-                View all orders →
-            </a>
         </div>
+    </section>
 
-    </div>
-
-    <!-- Quick actions -->
-    <div style="background:#fff;border-radius:14px;padding:1.4rem;
-                border:1px solid var(--border);
-                box-shadow:0 2px 12px rgba(27,42,74,0.07);">
-        <h3 style="font-family:'Fredoka One',cursive;font-size:1.1rem;
-                   color:var(--secondary);margin:0 0 1rem;">
-            ⚡ Quick Actions
-        </h3>
-        <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
-            <a href="/toys/add"         class="btn btn-primary">+ Add Toy</a>
-            <a href="/users/register"   class="btn btn-outline">+ Add User</a>
-            <a href="/orders?status=PENDING" class="btn btn-outline">
-                View Pending Orders
-            </a>
-            <a href="/reviews?status=PENDING" class="btn btn-outline">
-                Moderate Reviews
-            </a>
-            <a href="/inventory"        class="btn btn-outline">
-                Check Inventory
-            </a>
+    <section class="dashboard-panel" style="margin-top:1rem;">
+        <p class="section-eyebrow">Quick Actions</p>
+        <div class="dashboard-actions" style="margin-top:0.75rem;">
+            <a href="/toys/add" class="btn btn-primary">Add Product</a>
+            <a href="/users/register" class="btn btn-outline">Register User</a>
+            <a href="/reviews?status=PENDING" class="btn btn-outline">Moderate Reviews</a>
+            <a href="/suppliers" class="btn btn-outline">Suppliers</a>
         </div>
-    </div>
-
-</div>
+    </section>
+</main>
 </body>
 </html>
