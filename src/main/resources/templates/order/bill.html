@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Bill - ToyMart</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body class="bill-body">
+<main class="bill-page" th:if="${order != null}">
+    <div class="bill-toolbar">
+        <a href="/orders/history" class="btn btn-outline">Back to Orders</a>
+        <a th:href="@{/orders/bill/{id}/email(id=${order.orderId})}" class="btn btn-outline">Email Receipt</a>
+        <button type="button" class="btn btn-primary" onclick="window.print()">Download / Save PDF</button>
+    </div>
+
+    <div class="alert alert-success" th:if="${success != null}" th:text="${success}"></div>
+
+    <section class="bill-card">
+        <div class="bill-header">
+            <div>
+                <p class="section-eyebrow">ToyMart Invoice</p>
+                <h1>Customer Bill</h1>
+            </div>
+            <div class="bill-brand">ToyMart</div>
+        </div>
+
+        <div class="bill-meta">
+            <div><span>Order ID</span><strong th:text="${order.orderId}">ORD</strong></div>
+            <div><span>Date</span><strong th:text="${order.orderDate}">Date</strong></div>
+            <div><span>Customer</span><strong th:text="${order.username}">Customer</strong></div>
+            <div><span>Payment</span><strong th:text="${order.paymentMethod == 'ONLINE' ? 'Online Payment' : 'Cash on Delivery'}">Payment</strong></div>
+        </div>
+
+        <table class="bill-table">
+            <thead>
+            <tr>
+                <th>Toy</th>
+                <th>Quantity</th>
+                <th>Unit Price</th>
+                <th>Total</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td th:text="${order.toyName}">Toy</td>
+                <td th:text="${order.quantity}">1</td>
+                <td>Rs. <span th:text="${#numbers.formatDecimal(unitPrice,1,'COMMA',2,'POINT')}">0.00</span></td>
+                <td>Rs. <span th:text="${#numbers.formatDecimal(order.totalAmount,1,'COMMA',2,'POINT')}">0.00</span></td>
+            </tr>
+            </tbody>
+        </table>
+
+        <div class="bill-total">
+            <span>Grand Total</span>
+            <strong>Rs. <span th:text="${#numbers.formatDecimal(order.totalAmount,1,'COMMA',2,'POINT')}">0.00</span></strong>
+        </div>
+
+        <div class="bill-status">
+            <span>Status: <strong th:text="${order.status}">PENDING</strong></span>
+            <span>Payment Status: <strong th:text="${order.paymentStatus}">PAID</strong></span>
+        </div>
+    </section>
+</main>
+</body>
+</html>
