@@ -48,6 +48,12 @@
 			<artifactId>spring-boot-starter-thymeleaf</artifactId>
 		</dependency>
 
+		<!-- Gmail / SMTP email support -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-mail</artifactId>
+		</dependency>
+
 		<!-- Reduces boilerplate: @Getter, @Setter, @Constructor -->
 		<dependency>
 			<groupId>org.projectlombok</groupId>
