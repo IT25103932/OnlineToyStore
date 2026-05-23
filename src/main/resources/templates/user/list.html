@@ -39,7 +39,7 @@
       align-items: center;
       justify-content: center;
       font-size:
-        1.2rem;
+              1.2rem;
       flex-shrink: 0;
     }
 
@@ -50,13 +50,13 @@
       letter-spacing: 0.5px;
       font-weight: 700;
       margin-bottom:
-        2px;
+              2px;
     }
 
     .mini-stat p {
       font-family: 'Fredoka One', cursive;
       font-size:
-        1.6rem;
+              1.6rem;
       color: var(--secondary);
       line-height: 1;
     }
@@ -157,47 +157,47 @@
     <li><a href="/toys">Toys</a></li>
 
     <!-- Admin only links -->
-    <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
+    <li th:if="${isAdmin}">
       <a href="/dashboard">Dashboard</a>
     </li>
-    <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
+    <li th:if="${isAdmin}">
       <a href="/users">Users</a>
     </li>
-    <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
+    <li th:if="${isAdmin}">
       <a href="/orders">All Orders</a>
     </li>
-    <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
+    <li th:if="${isAdmin}">
       <a href="/inventory">Inventory</a>
     </li>
 
     <!-- Any logged-in user -->
-    <li th:if="${session.loggedInUser != null}">
+    <li th:if="${isCustomer}">
       <a href="/cart">🛒 Cart</a>
     </li>
-    <li th:if="${session.loggedInUser != null}">
+    <li th:if="${isCustomer}">
       <a href="/orders/history">My Orders</a>
     </li>
-    <li th:if="${session.loggedInUser != null}">
+    <li th:if="${isLoggedIn}">
       <a href="/reviews">Reviews</a>
     </li>
-    <li th:if="${session.loggedInUser != null}">
+    <li th:if="${isLoggedIn}">
       <a href="/users/profile"
          style="color:var(--accent);">
-        👤 <span th:text="${session.loggedInUser?.username}">
+        👤 <span th:text="${loggedInUser?.username}">
                 </span>
       </a>
     </li>
 
     <!-- Guest only -->
-    <li th:if="${session.loggedInUser == null}">
+    <li th:if="${!isLoggedIn}">
       <a href="/users/login">Login</a>
     </li>
-    <li th:if="${session.loggedInUser == null}">
+    <li th:if="${!isLoggedIn}">
       <a href="/users/register">Register</a>
     </li>
 
     <!-- Logout -->
-    <li th:if="${session.loggedInUser != null}">
+    <li th:if="${isLoggedIn}">
       <a href="/users/logout"
          style="color:rgba(255,150,150,0.85);">
         Logout
@@ -205,99 +205,106 @@
     </li>
   </ul>
 </nav>
-  <div class="user-page">
-    <!-- Header -->
-    <div class="page-header">
-      <h1
-        style="font-family:'Fredoka One',cursive;font-size:1.7rem; color:var(--secondary);display:flex;align-items:center;gap:8px;">
-        User Management
-      </h1>
-      <div style="display:flex;gap:0.6rem;">
-        <a href="/users/search" class="btn btn-outline">
-          Search</a>
-        <a href="/users/register" class="btn btn-primary">+ Add User</a>
-      </div>
-    </div>
-
-    <!-- Stats -->
-    <div class="stats-row">
-      <div class="mini-stat">
-        <div class="si" style="background:#E3F2FD;"> </div>
-        <div>
-          <h3>Total Users</h3>
-          <p th:text="${totalCount}">0</p>
-        </div>
-      </div>
-      <div class="mini-stat">
-        <div class="si" style="background:#E8F5E9;"> </div>
-        <div>
-          <h3>Customers</h3>
-          <p th:text="${customerCount}">0</p>
-        </div>
-      </div>
-      <div class="mini-stat">
-        <div class="si" style="background:#FFF3E0;"> </div>
-        <div>
-          <h3>Admins</h3>
-          <p th:text="${adminCount}">0</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Table -->
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>User</th>
-            <th>User ID</th>
-            <th>Email</th>
-            <th>Phone</th>
-            <th>Role</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-
-          <tr th:if="${users == null or users.isEmpty()}">
-            <td colspan="6" style="text-align:center;padding:3rem;color:var(--muted);">
-              <span style="font-size:2.5rem;display:block;margin-bottom:0.75rem;"> </span>
-              No users registered yet.
-              <br /><br />
-              <a href="/users/register" class="btn btn-primary">+
-                Add First User</a>
-            </td>
-          </tr>
-
-          <tr th:each="user : ${users}">
-            <td>
-              <div class="user-cell">
-                <div class="user-avatar" th:text="${#strings.substring(user.username, 0, 1).toUpperCase()}">
-                </div>
-                <span style="font-weight:700;" th:text="${user.username}"></span>
-              </div>
-            </td>
-            <td style="color:var(--muted);font-size:0.78rem;font-weight:700;" th:text="${user.userId}"></td>
-            <td th:text="${user.email}"></td>
-            <td th:text="${user.phone != null and !user.phone.isEmpty()} ? ${user.phone} : '—'"></td>
-            <td>
-              <span th:text="${user.role}" th:class="${user.role == 'ADMIN'} ? 'roleadmin' : 'role-customer'">
-              </span>
-            </td>
-            <td>
-              <div style="display:flex;gap:6px;">
-                <a th:href="@{/users/edit/{id}(id=${user.userId})}" class="btn btn-outline btn-sm"
-                  style="padding:4px 10px;font-size:0.78rem;">
-                  Edit</a>
-                <a th:href="@{/users/delete/{id}(id=${user.userId})}" class="btn btn-danger btn-sm"
-                  style="padding:4px 10px;font-size:0.78rem;" onclick="return confirm('Delete this user?')"> </a>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+<div class="user-page">
+  <!-- Header -->
+  <div class="page-header">
+    <h1
+            style="font-family:'Fredoka One',cursive;font-size:1.7rem; color:var(--secondary);display:flex;align-items:center;gap:8px;">
+      User Management
+    </h1>
+    <div style="display:flex;gap:0.6rem;">
+      <a href="/users/search" class="btn btn-outline">
+        Search</a>
+      <a href="/users/register" class="btn btn-primary">+ Add User</a>
     </div>
   </div>
+  <div class="alert alert-danger" th:if="${param.error}" th:text="${param.error}"></div>
+
+  <!-- Stats -->
+  <div class="stats-row">
+    <div class="mini-stat">
+      <div class="si" style="background:#E3F2FD;"> </div>
+      <div>
+        <h3>Total Users</h3>
+        <p th:text="${totalCount}">0</p>
+      </div>
+    </div>
+    <div class="mini-stat">
+      <div class="si" style="background:#E8F5E9;"> </div>
+      <div>
+        <h3>Customers</h3>
+        <p th:text="${customerCount}">0</p>
+      </div>
+    </div>
+    <div class="mini-stat">
+      <div class="si" style="background:#FFF3E0;"> </div>
+      <div>
+        <h3>Admins</h3>
+        <p th:text="${adminCount}">0</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="table-wrap">
+    <table>
+      <thead>
+      <tr>
+        <th>User</th>
+        <th>User ID</th>
+        <th>Email</th>
+        <th>Phone</th>
+        <th>Role</th>
+        <th>Actions</th>
+      </tr>
+      </thead>
+      <tbody>
+
+      <tr th:if="${users == null or users.isEmpty()}">
+        <td colspan="6" style="text-align:center;padding:3rem;color:var(--muted);">
+          <span style="font-size:2.5rem;display:block;margin-bottom:0.75rem;"> </span>
+          No users registered yet.
+          <br /><br />
+          <a href="/users/register" class="btn btn-primary">+
+            Add First User</a>
+        </td>
+      </tr>
+
+      <tr th:each="user : ${users}">
+        <td>
+          <div class="user-cell">
+            <div class="user-avatar" th:text="${#strings.substring(user.username, 0, 1).toUpperCase()}">
+            </div>
+            <span style="font-weight:700;" th:text="${user.username}"></span>
+          </div>
+        </td>
+        <td style="color:var(--muted);font-size:0.78rem;font-weight:700;" th:text="${user.userId}"></td>
+        <td th:text="${user.email}"></td>
+        <td th:text="${user.phone != null and !user.phone.isEmpty()} ? ${user.phone} : '—'"></td>
+        <td>
+              <span th:text="${user.role == 'SUPER_ADMIN' ? 'SUPER ADMIN' : user.role}"
+                    th:class="${user.role == 'SUPER_ADMIN' || user.role == 'ADMIN'} ? 'role-admin' : 'role-customer'">
+              </span>
+        </td>
+        <td>
+          <div style="display:flex;gap:6px;">
+            <a th:if="${isSuperAdmin || user.role != 'SUPER_ADMIN'}"
+               th:href="@{/users/edit/{id}(id=${user.userId})}" class="btn btn-outline btn-sm"
+               style="padding:4px 10px;font-size:0.78rem;">
+              Edit</a>
+            <a th:if="${user.role != 'SUPER_ADMIN' && loggedInUser.userId != user.userId && (isSuperAdmin || user.role == 'CUSTOMER')}"
+               th:href="@{/users/delete/{id}(id=${user.userId})}" class="btn btn-danger btn-sm"
+               style="padding:4px 10px;font-size:0.78rem;" onclick="return confirm('Delete this user?')">Delete</a>
+            <span th:if="${user.role == 'SUPER_ADMIN'}"
+                  style="font-size:0.75rem;color:var(--muted);font-weight:800;">Protected</span>
+          </div>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
 </body>
 
 </html>
+
