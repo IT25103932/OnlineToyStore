@@ -3,233 +3,167 @@
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Reviews — Online Toy Store</title>
+    <title>Reviews - ToyMart</title>
     <link rel="stylesheet" th:href="@{/css/style.css}"/>
-    <style>
-        .rev-page { max-width:1150px; margin:0 auto; padding:2rem 1.25rem; }
-        .stats-row { display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; margin-bottom:1.75rem; }
-        .stat-box { background:#fff; border-radius:12px; padding:1.1rem 1.25rem; border:1px solid var(--border); display:flex; align-items:center; gap:0.8rem; }
-        .stat-box .si { width:44px; height:44px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.25rem; }
-        .stat-box h3 { font-size:0.7rem; color:var(--muted); text-transform:uppercase; font-weight:700; margin-bottom:2px; }
-        .stat-box p { font-size:1.65rem; color:var(--secondary); line-height:1; }
-        .filter-bar { display:flex; gap:0.5rem; margin-bottom:1.25rem; flex-wrap:wrap; }
-        .filter-btn { padding:6px 16px; border-radius:20px; font-weight:700; font-size:0.82rem; text-decoration:none; border:1.5px solid var(--border); color:var(--text); background:#fff; }
-        .filter-btn.act { background:var(--secondary); color:#fff; border-color:var(--secondary); }
-        .filter-btn.pending.act { background:#FF6D00; border-color:#FF6D00; }
-        .filter-btn.approved.act { background:var(--success); border-color:var(--success); }
-        .filter-btn.rejected.act { background:var(--danger); border-color:var(--danger); }
-        .review-card { background:#fff; border:1px solid var(--border); border-radius:13px; padding:1.25rem; margin-bottom:0.85rem; display:flex; flex-direction:column; gap:0.6rem; position:relative; }
-        .review-card::before { content:''; position:absolute; left:0; top:0; bottom:0; width:4px; border-radius:13px 0 0 13px; }
-        .review-card.pending::before { background:#FF6D00; }
-        .review-card.approved::before { background:var(--success); }
-        .review-card.rejected::before { background:var(--danger); }
-        .rev-header { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.5rem; }
-        .rev-user { display:flex; align-items:center; gap:8px; }
-        .rev-avatar { width:34px; height:34px; border-radius:50%; background:linear-gradient(135deg,#667eea,#764ba2); display:flex; align-items:center; justify-content:center; color:#fff; font-weight:800; font-size:0.85rem; }
-        .rev-username { font-weight:800; font-size:0.92rem; color:var(--secondary); }
-        .rev-date { font-size:0.75rem; color:var(--muted); }
-        .rev-stars { color:#FFB300; font-size:1.05rem; }
-        .rev-comment { font-size:0.9rem; color:var(--text); line-height:1.55; }
-        .status-badge { padding:3px 10px; border-radius:20px; font-size:0.72rem; font-weight:800; }
-        .badge-pending { background:#FFF3E0; color:#E65100; }
-        .badge-approved { background:#E8F5E9; color:#2E7D32; }
-        .badge-rejected { background:#FFE0E0; color:#C62828; }
-        .rev-actions { display:flex; gap:6px; flex-wrap:wrap; margin-top:4px; }
-        .btn-approve { background:#E8F5E9; color:#2E7D32; border:1.5px solid #A5D6A7; border-radius:8px; padding:5px 12px; font-weight:700; font-size:0.8rem; text-decoration:none; }
-        .btn-reject { background:#FFE0E0; color:#C62828; border:1.5px solid #FFCDD2; border-radius:8px; padding:5px 12px; font-weight:700; font-size:0.8rem; text-decoration:none; }
-        .empty-state { background:#fff; border-radius:13px; padding:4rem 2rem; text-align:center; border:1px solid var(--border); }
-    </style>
 </head>
 <body>
-<!-- PASTE THIS NAVBAR into EVERY .html template -->
 <nav class="navbar">
-    <a href="/" class="navbar-brand">🧸 <span>ToyStore</span></a>
+    <a href="/" class="navbar-brand">ToyMart</a>
     <ul class="navbar-nav">
-
         <li><a href="/toys">Toys</a></li>
-
-        <!-- Admin only links -->
-        <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
-            <a href="/dashboard">Dashboard</a>
+        <li th:if="${isAdmin}"><a href="/dashboard">Dashboard</a></li>
+        <li th:if="${isAdmin}"><a href="/users">Users</a></li>
+        <li th:if="${isAdmin}"><a href="/orders">All Orders</a></li>
+        <li th:if="${isAdmin}"><a href="/inventory">Inventory</a></li>
+        <li th:if="${isCustomer}">
+            <a href="/cart" class="nav-cart-link" data-cart-open>Cart <span class="nav-cart-badge" th:text="${cartItemCount}">0</span></a>
         </li>
-        <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
-            <a href="/users">Users</a>
+        <li th:if="${isCustomer}"><a href="/orders/history">My Orders</a></li>
+        <li th:if="${isLoggedIn}"><a href="/reviews" class="active">Reviews</a></li>
+        <li th:if="${isCustomer}"><a href="/messages/mine">Messages</a></li>
+        <li th:if="${isAdmin}"><a href="/messages/admin">Inbox</a></li>
+        <li th:if="${isLoggedIn}">
+            <a href="/users/profile" style="color:var(--accent);" th:text="${loggedInUser?.username}">Profile</a>
         </li>
-        <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
-            <a href="/orders">All Orders</a>
-        </li>
-        <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
-            <a href="/inventory">Inventory</a>
-        </li>
-
-        <!-- Any logged-in user -->
-        <li th:if="${session.loggedInUser != null}">
-            <a href="/cart">🛒 Cart</a>
-        </li>
-        <li th:if="${session.loggedInUser != null}">
-            <a href="/orders/history">My Orders</a>
-        </li>
-        <li th:if="${session.loggedInUser != null}">
-            <a href="/reviews">Reviews</a>
-        </li>
-        <li th:if="${session.loggedInUser != null}">
-            <a href="/users/profile"
-               style="color:var(--accent);">
-                👤 <span th:text="${session.loggedInUser?.username}">
-                </span>
-            </a>
-        </li>
-
-        <!-- Guest only -->
-        <li th:if="${session.loggedInUser == null}">
-            <a href="/users/login">Login</a>
-        </li>
-        <li th:if="${session.loggedInUser == null}">
-            <a href="/users/register">Register</a>
-        </li>
-
-        <!-- Logout -->
-        <li th:if="${session.loggedInUser != null}">
-            <a href="/users/logout"
-               style="color:rgba(255,150,150,0.85);">
-                Logout
-            </a>
-        </li>
+        <li th:if="${!isLoggedIn}"><a href="/users/login">Login</a></li>
+        <li th:if="${!isLoggedIn}"><a href="/users/register">Register</a></li>
+        <li th:if="${isLoggedIn}"><a href="/users/logout" style="color:rgba(255,150,150,0.85);">Logout</a></li>
     </ul>
 </nav>
 
-<div class="rev-page">
-    <div class="page-header">
-        <h1 style="font-size:1.7rem; color:var(--secondary);">
-            ⭐ Review Management
-        </h1>
-        <a href="/reviews/submit" class="btn btn-primary">✏️ Write a Review</a>
-    </div>
-
-    <!-- Stats -->
-    <div class="stats-row">
-        <div class="stat-box">
-            <div class="si" style="background:#F3E5F5;">⭐</div>
-            <div><h3>Total Reviews</h3>
-                <p th:text="${totalCount}">0</p></div>
+<main th:if="${!isAdmin}" class="review-wall-page">
+    <section class="review-wall-hero">
+        <div>
+            <p class="section-eyebrow">ToyMart voices</p>
+            <h1>Customer Reviews</h1>
+            <p>Real feedback from shoppers about toys, delivery, payment, and the ToyMart experience.</p>
         </div>
-        <div class="stat-box">
-            <div class="si" style="background:#FFF3E0;">⏳</div>
-            <div><h3>Pending</h3>
-                <p th:text="${pendingCount}" style="color:#FF6D00;">0</p></div>
-        </div>
-        <div class="stat-box">
-            <div class="si" style="background:#E8F5E9;">✅</div>
-            <div><h3>Approved</h3>
-                <p th:text="${approvedCount}" style="color:var(--success);">0</p></div>
-        </div>
-        <div class="stat-box">
-            <div class="si" style="background:#FFE0E0;">❌</div>
-            <div><h3>Rejected</h3>
-                <p th:text="${rejectedCount}" style="color:var(--danger);">0</p></div>
-        </div>
-    </div>
+        <a href="/reviews/submit" class="btn btn-primary">Write a Review</a>
+    </section>
 
-    <!-- Filter bar -->
-    <div class="filter-bar">
-        <a th:href="@{/reviews}"
-           th:class="${currentStatus == 'ALL'} ? 'filter-btn act' : 'filter-btn'">
-            All Reviews
-        </a>
-        <a th:href="@{/reviews(status='PENDING')}"
-           th:class="${currentStatus == 'PENDING'} ? 'filter-btn pending act' : 'filter-btn pending'">
-            Pending
-        </a>
-        <a th:href="@{/reviews(status='APPROVED')}"
-           th:class="${currentStatus == 'APPROVED'} ? 'filter-btn approved act' : 'filter-btn approved'">
-            Approved
-        </a>
-        <a th:href="@{/reviews(status='REJECTED')}"
-           th:class="${currentStatus == 'REJECTED'} ? 'filter-btn rejected act' : 'filter-btn rejected'">
-            Rejected
-        </a>
-    </div>
-
-    <!-- Empty state -->
-    <div class="empty-state"
-         th:if="${reviews == null or reviews.isEmpty()}">
-        <h3>No reviews found</h3>
-        <p style="color:var(--muted); margin-bottom:1.25rem;">
-            No reviews match this filter yet.
-        </p>
-        <a href="/reviews/submit" class="btn btn-primary">
-            Write First Review
-        </a>
-    </div>
-
-    <!-- Review cards -->
-    <div th:if="${reviews != null and !reviews.isEmpty()}">
-        <p style="font-size:0.82rem; color:var(--muted); font-weight:600; margin-bottom:1rem;">
-            Showing <strong th:text="${reviews.size()}"></strong> review(s)
-        </p>
-
-        <div th:each="review : ${reviews}">
-            <div th:class="'review-card ' + ${review.status.toLowerCase()}">
-                <div class="rev-header">
-                    <div class="rev-user">
-                        <div class="rev-avatar"
-                             th:text="${#strings.substring(review.username,0,1).toUpperCase()}">
-                        </div>
-                        <div>
-                            <div class="rev-username" th:text="${review.username}"></div>
-                            <div class="rev-date" th:text="${review.date}"></div>
-                        </div>
+    <section class="review-wall-stage" th:if="${reviews != null and !reviews.isEmpty()}">
+        <div class="review-wall-glow"></div>
+        <div class="review-masonry">
+            <article th:each="review, stat : ${reviews}" class="customer-review-card"
+                     th:classappend="${stat.index % 3 == 1 ? ' lift-card' : (stat.index % 3 == 2 ? ' soft-card' : '')}">
+                <div class="customer-review-top">
+                    <div class="review-stars" th:text="${'★'.repeat(review.rating) + '☆'.repeat(5 - review.rating)}">★★★★★</div>
+                    <span class="review-source-mark">T</span>
+                </div>
+                <h2 th:text="${!#strings.isEmpty(review.toyName) ? review.toyName : 'ToyMart Review'}">
+                    ToyMart Review
+                </h2>
+                <p class="customer-review-text" th:text="${review.comment}">
+                    Review comment
+                </p>
+                <div class="customer-review-person">
+                    <div class="review-avatar"
+                         th:text="${!#strings.isEmpty(review.username) ? #strings.substring(review.username,0,1).toUpperCase() : 'U'}">
+                        U
                     </div>
-                    <div style="display:flex; align-items:center; gap:8px;">
-                        <span class="rev-stars"
-                              th:text="${'★'.repeat(review.rating) + '☆'.repeat(5 - review.rating)}">
-                        </span>
-                        <span th:text="${review.rating} + '/5'" style="font-weight:800;"></span>
+                    <div>
+                        <strong th:text="${review.username}">Customer</strong>
+                        <span th:text="${review.date}">2026-05-21</span>
+                    </div>
+                </div>
+            </article>
+        </div>
+    </section>
+
+    <section class="review-empty-state" th:if="${reviews == null or reviews.isEmpty()}">
+        <span>ToyMart</span>
+        <h2>No approved reviews yet</h2>
+        <p>Be the first customer to share your ToyMart experience.</p>
+        <a href="/reviews/submit" class="btn btn-primary">Write First Review</a>
+    </section>
+</main>
+
+<main th:if="${isAdmin}" class="page admin-review-page">
+    <section class="orders-hero">
+        <div>
+            <p class="section-eyebrow">Moderation</p>
+            <h1>Review Management</h1>
+            <p>Approve, reject, edit, and remove customer reviews before they appear publicly.</p>
+        </div>
+        <a href="/reviews/submit" class="btn btn-primary">Write a Review</a>
+    </section>
+
+    <section class="review-admin-stats">
+        <div class="review-stat-card">
+            <span>Total</span>
+            <strong th:text="${totalCount}">0</strong>
+        </div>
+        <div class="review-stat-card pending">
+            <span>Pending</span>
+            <strong th:text="${pendingCount}">0</strong>
+        </div>
+        <div class="review-stat-card approved">
+            <span>Approved</span>
+            <strong th:text="${approvedCount}">0</strong>
+        </div>
+        <div class="review-stat-card rejected">
+            <span>Rejected</span>
+            <strong th:text="${rejectedCount}">0</strong>
+        </div>
+    </section>
+
+    <nav class="order-filter-tabs" aria-label="Review status filters">
+        <a th:href="@{/reviews}" th:class="${currentStatus == 'ALL'} ? 'order-filter-tab active' : 'order-filter-tab'">
+            <span>All</span><strong th:text="${totalCount}">0</strong>
+        </a>
+        <a th:href="@{/reviews(status='PENDING')}" th:class="${currentStatus == 'PENDING'} ? 'order-filter-tab pending active' : 'order-filter-tab pending'">
+            <span>Pending</span><strong th:text="${pendingCount}">0</strong>
+        </a>
+        <a th:href="@{/reviews(status='APPROVED')}" th:class="${currentStatus == 'APPROVED'} ? 'order-filter-tab delivered active' : 'order-filter-tab delivered'">
+            <span>Approved</span><strong th:text="${approvedCount}">0</strong>
+        </a>
+        <a th:href="@{/reviews(status='REJECTED')}" th:class="${currentStatus == 'REJECTED'} ? 'order-filter-tab cancelled active' : 'order-filter-tab cancelled'">
+            <span>Rejected</span><strong th:text="${rejectedCount}">0</strong>
+        </a>
+    </nav>
+
+    <section class="admin-review-list" th:if="${reviews != null and !reviews.isEmpty()}">
+        <article th:each="review : ${reviews}" class="admin-review-card">
+            <div class="admin-review-main">
+                <div class="review-avatar"
+                     th:text="${!#strings.isEmpty(review.username) ? #strings.substring(review.username,0,1).toUpperCase() : 'U'}">
+                    U
+                </div>
+                <div>
+                    <div class="admin-review-heading">
+                        <strong th:text="${review.username}">Customer</strong>
                         <span th:text="${review.status}"
                               th:class="${review.status == 'APPROVED'} ? 'status-badge badge-approved' :
-                                        (review.status == 'REJECTED' ? 'status-badge badge-rejected' :
-                                        'status-badge badge-pending')">
+                                      (review.status == 'REJECTED' ? 'status-badge badge-rejected' : 'status-badge badge-pending')">
+                            PENDING
                         </span>
                     </div>
-                </div>
-
-                <div style="font-size:0.78rem; color:var(--muted); font-weight:600;">
-                    Toy: <span style="color:var(--secondary); font-weight:700;"
-                               th:text="${review.toyName != null and !review.toyName.isEmpty()} ? review.toyName : review.toyId">
-                    </span>
-                </div>
-
-                <div class="rev-comment" th:text="${review.comment}"></div>
-
-                <div class="rev-actions">
-                    <!-- Admin only: Approve and Reject -->
-                    <th:block th:if="${isAdmin}">
-                        <a th:if="${review.status != 'APPROVED'}"
-                           th:href="@{/reviews/approve/{id}(id=${review.reviewId})}"
-                           class="btn-approve">✅ Approve</a>
-                        <a th:if="${review.status != 'REJECTED'}"
-                           th:href="@{/reviews/reject/{id}(id=${review.reviewId})}"
-                           class="btn-reject">❌ Reject</a>
-                        <a th:href="@{/reviews/edit/{id}(id=${review.reviewId})}"
-                           class="btn btn-outline"
-                           style="padding:5px 12px;font-size:0.8rem;">✏️ Edit</a>
-                        <a th:href="@{/reviews/delete/{id}(id=${review.reviewId})}"
-                           class="btn btn-danger"
-                           style="padding:5px 12px;font-size:0.8rem;"
-                           onclick="return confirm('Delete this review?')">🗑️ Delete</a>
-                    </th:block>
-                    <!-- Customer: can only write a review -->
-                    <th:block th:if="${!isAdmin and session.loggedInUser != null}">
-                        <a href="/reviews/submit"
-                           class="btn btn-outline"
-                           style="padding:5px 12px;font-size:0.8rem;">
-                            ✍️ Write a Review
-                        </a>
-                    </th:block>
+                    <p class="admin-review-meta">
+                        <span th:text="${!#strings.isEmpty(review.toyName) ? review.toyName : review.toyId}">Toy</span>
+                        <span th:text="${review.date}">Date</span>
+                        <span th:text="${review.rating} + '/5'">5/5</span>
+                    </p>
+                    <p class="admin-review-comment" th:text="${review.comment}">Review comment</p>
                 </div>
             </div>
-        </div>
-    </div>
-</div>
+            <div class="admin-review-actions">
+                <a th:if="${review.status != 'APPROVED'}" th:href="@{/reviews/approve/{id}(id=${review.reviewId})}" class="btn-approve">Approve</a>
+                <a th:if="${review.status != 'REJECTED'}" th:href="@{/reviews/reject/{id}(id=${review.reviewId})}" class="btn-reject">Reject</a>
+                <a th:href="@{/reviews/edit/{id}(id=${review.reviewId})}" class="btn btn-outline">Edit</a>
+                <a th:href="@{/reviews/delete/{id}(id=${review.reviewId})}" class="btn btn-danger"
+                   onclick="return confirm('Delete this review?')">Delete</a>
+            </div>
+        </article>
+    </section>
+
+    <section class="review-empty-state" th:if="${reviews == null or reviews.isEmpty()}">
+        <span>ToyMart</span>
+        <h2>No reviews found</h2>
+        <p>No reviews match this filter yet.</p>
+    </section>
+</main>
+
+<div th:if="${isCustomer}" th:replace="~{fragments/cart-drawer :: cartDrawer}"></div>
+<script th:if="${isCustomer}" th:src="@{/js/cart-drawer.js}"></script>
 </body>
 </html>
