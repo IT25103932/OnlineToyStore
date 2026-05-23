@@ -10,7 +10,7 @@ public class CustomerUser extends User {
   private int loyaltyPoints;
 
   public CustomerUser(String userId, String username, String email,
-      String password, String address, String phone) {
+                      String password, String address, String phone) {
     super(userId, username, email, password, address, phone, "CUSTOMER");
     this.loyaltyPoints = 0;
   }
