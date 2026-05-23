@@ -1,6 +1,7 @@
 package com.OnlineToyStore.Sllit.service;
 
 import com.OnlineToyStore.Sllit.model.Review;
+import com.OnlineToyStore.Sllit.util.FileStorageUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +19,7 @@ public class ReviewService {
     private String dataFilePath;
 
     private String getFilePath() {
-        return dataFilePath + "reviews.txt";
+        return FileStorageUtil.ensureDataFilePath(dataFilePath, "reviews.txt");
     }
 
     // READ ALL reviews

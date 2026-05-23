@@ -33,26 +33,26 @@
         <table>
             <thead><tr><th>ID</th><th>User</th><th>Toy</th><th>Rating</th><th>Comment</th><th>Type</th><th>Actions</th></tr></thead>
             <tbody>
-                <tr th:each="rev : ${reviews}">
-                    <td class="td-mono" th:text="${rev.reviewId}"></td>
-                    <td class="td-name" th:text="${rev.username}"></td>
-                    <td class="td-muted" th:text="${rev.toyName}"></td>
-                    <td style="color:var(--accent); font-size:0.85rem;" th:text="${rev.rating} + ' / 5'"></td>
-                    <td class="td-muted" style="max-width:220px;" th:text="${rev.comment}"></td>
-                    <td>
+            <tr th:each="rev : ${reviews}">
+                <td class="td-mono" th:text="${rev.reviewId}"></td>
+                <td class="td-name" th:text="${rev.username}"></td>
+                <td class="td-muted" th:text="${rev.toyName}"></td>
+                <td style="color:var(--accent); font-size:0.85rem;" th:text="${rev.rating} + ' / 5'"></td>
+                <td class="td-muted" style="max-width:220px;" th:text="${rev.comment}"></td>
+                <td>
                         <span th:text="${rev.verified} ? 'Verified' : 'Public'"
                               th:classappend="${rev.verified} ? 'badge badge-success' : 'badge badge-muted'"></span>
-                    </td>
-                    <td>
-                        <div class="td-actions">
-                            <a th:href="@{/reviews/delete/{id}(id=${rev.reviewId})}" class="btn btn-danger btn-sm"
-                               onclick="return confirm('Delete this review?')">✕ Remove</a>
-                        </div>
-                    </td>
-                </tr>
-                <tr th:if="${reviews == null or reviews.isEmpty()}">
-                    <td colspan="7"><div class="empty-state"><span class="empty-icon">⭐</span><h3>No reviews to moderate</h3></div></td>
-                </tr>
+                </td>
+                <td>
+                    <div class="td-actions">
+                        <a th:href="@{/reviews/delete/{id}(id=${rev.reviewId})}" class="btn btn-danger btn-sm"
+                           onclick="return confirm('Delete this review?')">✕ Remove</a>
+                    </div>
+                </td>
+            </tr>
+            <tr th:if="${reviews == null or reviews.isEmpty()}">
+                <td colspan="7"><div class="empty-state"><span class="empty-icon">⭐</span><h3>No reviews to moderate</h3></div></td>
+            </tr>
             </tbody>
         </table>
     </div>
