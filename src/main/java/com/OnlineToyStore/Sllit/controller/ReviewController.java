@@ -2,6 +2,7 @@ package com.OnlineToyStore.Sllit.controller;
 
 import com.OnlineToyStore.Sllit.model.Review;
 import com.OnlineToyStore.Sllit.model.User;
+import com.OnlineToyStore.Sllit.service.EmailService;
 import com.OnlineToyStore.Sllit.service.ReviewService;
 import com.OnlineToyStore.Sllit.service.ToyService;
 import com.OnlineToyStore.Sllit.util.SessionHelper;
@@ -20,6 +21,9 @@ public class ReviewController {
 
     @Autowired
     private ToyService toyService;
+
+    @Autowired
+    private EmailService emailService;
 
     // Admin — view all reviews with filter
     // REPLACE listReviews in ReviewController.java
@@ -116,6 +120,7 @@ public class ReviewController {
         }
 
         reviewService.submitReview(review);
+        emailService.notifyAdminNewReview(review);
         return "redirect:/reviews?submitted=true";
     }
 
@@ -134,9 +139,23 @@ public class ReviewController {
     // CRUD 3 — Show edit form
     @GetMapping("/edit/{reviewId}")
     public String showEditForm(
-            @PathVariable String reviewId, Model model) {
+            @PathVariable String reviewId,
+            HttpSession session,
+            Model model) {
 
-        model.addAttribute("review", reviewService.getReviewById(reviewId));
+        if (!SessionHelper.isLoggedIn(session)) {
+            return "redirect:/users/login";
+        }
+
+        Review review = reviewService.getReviewById(reviewId);
+        if (review == null) {
+            return "redirect:/reviews";
+        }
+        if (!canEditReview(session, review)) {
+            return "redirect:/access-denied";
+        }
+
+        model.addAttribute("review", review);
         model.addAttribute("toys", toyService.getAllToys());
         return "review/edit";
     }
@@ -145,11 +164,42 @@ public class ReviewController {
     @PostMapping("/edit/{reviewId}")
     public String editReview(
             @PathVariable String reviewId,
-            @ModelAttribute Review review) {
+            @ModelAttribute Review review,
+            HttpSession session) {
+
+        if (!SessionHelper.isLoggedIn(session)) {
+            return "redirect:/users/login";
+        }
+
+        Review existing = reviewService.getReviewById(reviewId);
+        if (existing == null) {
+            return "redirect:/reviews";
+        }
+        if (!canEditReview(session, existing)) {
+            return "redirect:/access-denied";
+        }
 
         review.setReviewId(reviewId);
+        review.setUserId(existing.getUserId());
+        review.setUsername(existing.getUsername());
+        review.setDate(existing.getDate());
+        review.setStatus(existing.getStatus());
+        if (review.getToyId() != null && !review.getToyId().isEmpty()) {
+            var toy = toyService.getToyById(review.getToyId());
+            if (toy != null) {
+                review.setToyName(toy.getName());
+            }
+        }
         reviewService.updateReview(review);
         return "redirect:/reviews";
+    }
+
+    private boolean canEditReview(HttpSession session, Review review) {
+        if (SessionHelper.isAdmin(session)) {
+            return true;
+        }
+        User loggedIn = SessionHelper.getUser(session);
+        return loggedIn != null && loggedIn.getUserId().equals(review.getUserId());
     }
 
     // Admin — Approve a review
