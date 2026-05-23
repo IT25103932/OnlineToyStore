@@ -2,6 +2,7 @@ package com.OnlineToyStore.Sllit.service;
 
 import com.OnlineToyStore.Sllit.model.Order;
 import com.OnlineToyStore.Sllit.model.Toy;
+import com.OnlineToyStore.Sllit.util.FileStorageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -23,7 +24,7 @@ public class OrderService {
     private ToyService toyService;
 
     private String getFilePath() {
-        return dataFilePath + "orders.txt";
+        return FileStorageUtil.ensureDataFilePath(dataFilePath, "orders.txt");
     }
 
     // ── READ ALL orders ───────────────────────────────
@@ -35,7 +36,14 @@ public class OrderService {
             String line;
             while ((line = reader.readLine()) != null) {
                 if (!line.trim().isEmpty()) {
-                    orders.add(Order.fromFileString(line));
+                    try {
+                        Order order = Order.fromFileString(line);
+                        if (isUsableOrder(order)) {
+                            orders.add(order);
+                        }
+                    } catch (RuntimeException ex) {
+                        System.err.println("Skipping invalid order row: " + line);
+                    }
                 }
             }
         } catch (IOException e) {
@@ -105,12 +113,15 @@ public class OrderService {
         List<Order> all = getAllOrders();
         for (Order o : all) {
             if (o.getOrderId().equals(orderId)) {
+                String previousStatus = o.getStatus();
                 o.setStatus(status);
                 if ("DELIVERED".equals(status) && "COD".equals(o.getPaymentMethod())) {
                     o.setPaymentStatus("PAID");
                 }
-                if ("CANCELLED".equals(status) && "ONLINE".equals(o.getPaymentMethod())) {
-                    o.setPaymentStatus("REFUNDED");
+                if ("CANCELLED".equals(status) && !"CANCELLED".equalsIgnoreCase(previousStatus)) {
+                    if ("ONLINE".equals(o.getPaymentMethod())) {
+                        o.setPaymentStatus("REFUNDED");
+                    }
                     Toy toy = toyService.getToyById(o.getToyId());
                     if (toy != null) {
                         toy.setStockQuantity(toy.getStockQuantity() + o.getQuantity());
@@ -150,8 +161,29 @@ public class OrderService {
                 .sum();
     }
 
+    public double getPendingRevenue() {
+        return getAllOrders().stream()
+                .filter(o -> "PENDING".equalsIgnoreCase(o.getStatus()))
+                .mapToDouble(Order::getTotalAmount)
+                .sum();
+    }
+
+    public double getTotalOrderValue() {
+        return getAllOrders().stream()
+                .mapToDouble(Order::getTotalAmount)
+                .sum();
+    }
+
     public long countTotal() {
         return getAllOrders().size();
+    }
+
+    private boolean isUsableOrder(Order order) {
+        return order != null
+                && order.getOrderId() != null
+                && order.getOrderId().startsWith("ORD-")
+                && order.getQuantity() > 0
+                && order.getTotalAmount() >= 0;
     }
 
     // ── Private helper ────────────────────────────────

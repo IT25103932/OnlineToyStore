@@ -35,35 +35,35 @@
         <table>
             <thead><tr><th>Order ID</th><th>Customer</th><th>Date</th><th>Total</th><th>Payment</th><th>Status</th><th>Update Status</th></tr></thead>
             <tbody>
-                <tr th:each="order : ${orders}">
-                    <td class="td-mono" th:text="'#' + ${order.orderId}"></td>
-                    <td class="td-name" th:text="${order.userId}"></td>
-                    <td class="td-muted" th:text="${order.orderDate}"></td>
-                    <td style="font-family:'JetBrains Mono',monospace; font-weight:700; color:var(--accent);"
-                        th:text="'Rs.' + ${#numbers.formatDecimal(order.totalAmount,1,'COMMA',2,'POINT')}"></td>
-                    <td><span class="badge badge-muted" th:text="${order.paymentMethod}"></span></td>
-                    <td>
+            <tr th:each="order : ${orders}">
+                <td class="td-mono" th:text="'#' + ${order.orderId}"></td>
+                <td class="td-name" th:text="${order.userId}"></td>
+                <td class="td-muted" th:text="${order.orderDate}"></td>
+                <td style="font-family:'JetBrains Mono',monospace; font-weight:700; color:var(--accent);"
+                    th:text="'Rs.' + ${#numbers.formatDecimal(order.totalAmount,1,'COMMA',2,'POINT')}"></td>
+                <td><span class="badge badge-muted" th:text="${order.paymentMethod}"></span></td>
+                <td>
                         <span th:text="${order.status}"
                               th:classappend="${order.status == 'DELIVERED'} ? 'badge badge-success' :
                                               (${order.status == 'SHIPPED'} ? 'badge badge-info' :
                                               (${order.status == 'PENDING'} ? 'badge badge-accent' : 'badge badge-danger'))">
                         </span>
-                    </td>
-                    <td>
-                        <form th:action="@{/orders/admin/status/{id}(id=${order.orderId})}" method="post" style="display:flex; gap:6px;">
-                            <select class="form-select" name="status" style="width:130px; padding:5px 8px; font-size:0.8rem;">
-                                <option value="PENDING"   th:selected="${order.status == 'PENDING'}">Pending</option>
-                                <option value="SHIPPED"   th:selected="${order.status == 'SHIPPED'}">Shipped</option>
-                                <option value="DELIVERED" th:selected="${order.status == 'DELIVERED'}">Delivered</option>
-                                <option value="CANCELLED" th:selected="${order.status == 'CANCELLED'}">Cancelled</option>
-                            </select>
-                            <button type="submit" class="btn btn-ghost btn-sm">✓</button>
-                        </form>
-                    </td>
-                </tr>
-                <tr th:if="${orders == null or orders.isEmpty()}">
-                    <td colspan="7"><div class="empty-state"><span class="empty-icon">📦</span><h3>No orders yet</h3></div></td>
-                </tr>
+                </td>
+                <td>
+                    <form th:action="@{/orders/admin/status/{id}(id=${order.orderId})}" method="post" style="display:flex; gap:6px;">
+                        <select class="form-select" name="status" style="width:130px; padding:5px 8px; font-size:0.8rem;">
+                            <option value="PENDING"   th:selected="${order.status == 'PENDING'}">Pending</option>
+                            <option value="SHIPPED"   th:selected="${order.status == 'SHIPPED'}">Shipped</option>
+                            <option value="DELIVERED" th:selected="${order.status == 'DELIVERED'}">Delivered</option>
+                            <option value="CANCELLED" th:selected="${order.status == 'CANCELLED'}">Cancelled</option>
+                        </select>
+                        <button type="submit" class="btn btn-ghost btn-sm">✓</button>
+                    </form>
+                </td>
+            </tr>
+            <tr th:if="${orders == null or orders.isEmpty()}">
+                <td colspan="7"><div class="empty-state"><span class="empty-icon">📦</span><h3>No orders yet</h3></div></td>
+            </tr>
             </tbody>
         </table>
     </div>

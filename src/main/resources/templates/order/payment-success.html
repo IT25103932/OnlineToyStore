@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Payment Success - ToyMart</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<main class="payment-success-page">
+    <section class="payment-success-card">
+        <p class="section-eyebrow">Payment processed</p>
+        <h1 th:text="${order.paymentMethod == 'ONLINE'} ? 'Card payment successful' : 'Order placed successfully'">Payment successful</h1>
+        <p th:text="${order.paymentMethod == 'ONLINE'} ? 'Your card payment was processed successfully. You can now view or download the bill.' : 'Your order was placed with Cash on Delivery. You can now view or download the bill.'">
+            You can now view or download the bill.
+        </p>
+        <div class="payment-success-actions">
+            <a th:href="@{/orders/bill/{id}(id=${order.orderId})}" class="btn btn-primary">View Bill</a>
+            <a href="/orders/history" class="btn btn-outline">My Orders</a>
+        </div>
+    </section>
+</main>
+</body>
+</html>
