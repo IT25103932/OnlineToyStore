@@ -11,20 +11,21 @@
     <a href="/" class="navbar-brand"><span>ToyMart</span></a>
     <ul class="navbar-nav">
         <li><a href="/toys">Catalog</a></li>
-        <li th:if="${session.loggedInUser?.role == 'ADMIN'}"><a href="/dashboard" class="active">Dashboard</a></li>
-        <li th:if="${session.loggedInUser?.role == 'ADMIN'}"><a href="/users">Users</a></li>
-        <li th:if="${session.loggedInUser?.role == 'ADMIN'}"><a href="/orders">Orders</a></li>
-        <li th:if="${session.loggedInUser?.role == 'ADMIN'}"><a href="/inventory">Inventory</a></li>
-        <li th:if="${session.loggedInUser != null}"><a href="/users/profile" th:text="${session.loggedInUser?.username}">Profile</a></li>
-        <li th:if="${session.loggedInUser != null}"><a href="/users/logout">Logout</a></li>
+        <li th:if="${isAdmin}"><a href="/dashboard" class="active">Dashboard</a></li>
+        <li th:if="${isAdmin}"><a href="/users">Users</a></li>
+        <li th:if="${isAdmin}"><a href="/orders">Orders</a></li>
+        <li th:if="${isAdmin}"><a href="/inventory">Inventory</a></li>
+        <li th:if="${isAdmin}"><a href="/messages/admin">Inbox</a></li>
+        <li th:if="${isLoggedIn}"><a href="/users/profile" th:text="${loggedInUser?.username}">Profile</a></li>
+        <li th:if="${isLoggedIn}"><a href="/users/logout">Logout</a></li>
     </ul>
 </nav>
 
 <main class="page">
-    <section class="premium-hero">
+    <section class="premium-hero admin-hero">
         <div>
             <p class="section-eyebrow">Admin Workspace</p>
-            <h1>Good evening, <span th:text="${session.loggedInUser?.username}">Admin</span>.</h1>
+            <h1>Welcome, <span th:text="${loggedInUser?.username}">Admin</span>.</h1>
             <p>
                 Monitor store performance, respond to low stock, process customer orders,
                 and keep the toy catalog ready for customers.
@@ -33,12 +34,18 @@
                 <a href="/toys/add" class="btn btn-primary">Add Toy</a>
                 <a href="/orders?status=PENDING" class="btn btn-outline">Pending Orders</a>
                 <a href="/inventory" class="btn btn-outline">Inventory</a>
+                <a href="/admin/email/promotions" class="btn btn-outline">Promotions</a>
+                <a href="/dashboard/report" class="btn btn-outline">Generate Report</a>
             </div>
         </div>
         <div class="hero-panel">
             <div class="panel-list-item">
                 <span>Paid revenue</span>
                 <strong>Rs. <span th:text="${#numbers.formatDecimal(totalRevenue,1,'COMMA',0,'POINT')}">0</span></strong>
+            </div>
+            <div class="panel-list-item">
+                <span>Total order value</span>
+                <strong>Rs. <span th:text="${#numbers.formatDecimal(totalOrderValue,1,'COMMA',0,'POINT')}">0</span></strong>
             </div>
             <div class="panel-list-item">
                 <span>Pending orders</span>
@@ -48,6 +55,10 @@
                 <span>Pending reviews</span>
                 <strong th:text="${pendingReviews}">0</strong>
             </div>
+            <div class="panel-list-item">
+                <span>Open customer messages</span>
+                <strong th:text="${openMessages}">0</strong>
+            </div>
         </div>
     </section>
 
@@ -55,7 +66,80 @@
         <div class="stat-card"><h3>Total Toys</h3><p th:text="${totalToys}">0</p></div>
         <div class="stat-card"><h3>Total Users</h3><p th:text="${totalUsers}">0</p></div>
         <div class="stat-card"><h3>Total Orders</h3><p th:text="${totalOrders}">0</p></div>
-        <div class="stat-card"><h3>Delivered Orders</h3><p th:text="${deliveredOrders}">0</p></div>
+        <div class="stat-card"><h3>Customer Messages</h3><p th:text="${totalMessages}">0</p></div>
+    </section>
+
+    <section class="dashboard-chart-grid" style="margin-top:1rem;">
+        <div class="chart-card">
+            <div class="chart-card-header">
+                <div>
+                    <p class="section-eyebrow">Sales Pipeline</p>
+                    <h2>Orders by Status</h2>
+                </div>
+                <a href="/orders" class="btn btn-outline btn-sm">Orders</a>
+            </div>
+            <div class="empty-state" th:if="${!hasOrderChartData}">
+                <h3>No data yet</h3>
+                <p>Orders will appear here after customers place them.</p>
+            </div>
+            <div class="chart-row">
+                <span>Pending</span>
+                <div class="chart-track"><div class="chart-fill chart-pending" th:style="'width:' + ${pendingOrders > 0 and pendingOrderPercent < 6 ? 6 : pendingOrderPercent} + '%'"></div></div>
+                <strong th:text="${pendingOrders}">0</strong>
+            </div>
+            <div class="chart-row">
+                <span>Shipped</span>
+                <div class="chart-track"><div class="chart-fill chart-shipped" th:style="'width:' + ${shippedOrders > 0 and shippedOrderPercent < 6 ? 6 : shippedOrderPercent} + '%'"></div></div>
+                <strong th:text="${shippedOrders}">0</strong>
+            </div>
+            <div class="chart-row">
+                <span>Delivered</span>
+                <div class="chart-track"><div class="chart-fill chart-delivered" th:style="'width:' + ${deliveredOrders > 0 and deliveredOrderPercent < 6 ? 6 : deliveredOrderPercent} + '%'"></div></div>
+                <strong th:text="${deliveredOrders}">0</strong>
+            </div>
+            <div class="chart-row">
+                <span>Cancelled</span>
+                <div class="chart-track"><div class="chart-fill chart-cancelled" th:style="'width:' + ${cancelledOrders > 0 and cancelledOrderPercent < 6 ? 6 : cancelledOrderPercent} + '%'"></div></div>
+                <strong th:text="${cancelledOrders}">0</strong>
+            </div>
+            <div class="revenue-summary">
+                <span>Pending value</span>
+                <strong>Rs. <span th:text="${#numbers.formatDecimal(pendingRevenue,1,'COMMA',0,'POINT')}">0</span></strong>
+            </div>
+        </div>
+
+        <div class="chart-card">
+            <div class="chart-card-header">
+                <div>
+                    <p class="section-eyebrow">Inventory Health</p>
+                    <h2>Stock State</h2>
+                </div>
+                <a href="/inventory" class="btn btn-outline btn-sm">Inventory</a>
+            </div>
+            <div class="empty-state" th:if="${!hasInventoryChartData}">
+                <h3>No inventory yet</h3>
+                <p>Add toys to see inventory health.</p>
+            </div>
+            <div class="chart-row">
+                <span>Healthy</span>
+                <div class="chart-track"><div class="chart-fill chart-healthy" th:style="'width:' + ${healthyStockCount > 0 and healthyStockPercent < 6 ? 6 : healthyStockPercent} + '%'"></div></div>
+                <strong th:text="${healthyStockCount}">0</strong>
+            </div>
+            <div class="chart-row">
+                <span>Low Stock</span>
+                <div class="chart-track"><div class="chart-fill chart-low" th:style="'width:' + ${lowStockCount > 0 and lowStockPercent < 6 ? 6 : lowStockPercent} + '%'"></div></div>
+                <strong th:text="${lowStockCount}">0</strong>
+            </div>
+            <div class="chart-row">
+                <span>Out</span>
+                <div class="chart-track"><div class="chart-fill chart-out" th:style="'width:' + ${outOfStockCount > 0 and outOfStockPercent < 6 ? 6 : outOfStockPercent} + '%'"></div></div>
+                <strong th:text="${outOfStockCount}">0</strong>
+            </div>
+            <div class="revenue-summary">
+                <span>Total units in stock</span>
+                <strong th:text="${totalUnits}">0</strong>
+            </div>
+        </div>
     </section>
 
     <section class="dashboard-grid" style="margin-top:1rem;">
@@ -117,9 +201,11 @@
             <a href="/toys/add" class="btn btn-primary">Add Product</a>
             <a href="/users/register" class="btn btn-outline">Register User</a>
             <a href="/reviews?status=PENDING" class="btn btn-outline">Moderate Reviews</a>
+            <a href="/messages/admin" class="btn btn-outline">Customer Inbox</a>
             <a href="/suppliers" class="btn btn-outline">Suppliers</a>
         </div>
     </section>
 </main>
 </body>
 </html>
+
