@@ -2,136 +2,136 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8"/>
-    <title>My Profile — Online Toy Store</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>My Profile - ToyMart</title>
     <link rel="stylesheet" th:href="@{/css/style.css}"/>
 </head>
 <body>
-<!-- PASTE THIS NAVBAR into EVERY .html template -->
 <nav class="navbar">
-    <a href="/" class="navbar-brand">🧸 <span>ToyMart</span></a>
+    <a href="/" class="navbar-brand">ToyMart</a>
     <ul class="navbar-nav">
-
         <li><a href="/toys">Toys</a></li>
-
-        <!-- Admin only links -->
-        <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
-            <a href="/dashboard">Dashboard</a>
+        <li th:if="${isAdmin}"><a href="/dashboard">Dashboard</a></li>
+        <li th:if="${isAdmin}"><a href="/users">Users</a></li>
+        <li th:if="${isAdmin}"><a href="/orders">All Orders</a></li>
+        <li th:if="${isAdmin}"><a href="/inventory">Inventory</a></li>
+        <li th:if="${user.role == 'CUSTOMER'}">
+            <a href="/cart" class="nav-cart-link" data-cart-open>Cart <span class="nav-cart-badge" th:text="${cartItemCount}">0</span></a>
         </li>
-        <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
-            <a href="/users">Users</a>
+        <li th:if="${user.role == 'CUSTOMER'}"><a href="/orders/history">My Orders</a></li>
+        <li th:if="${isLoggedIn}"><a href="/reviews">Reviews</a></li>
+        <li th:if="${user.role == 'CUSTOMER'}"><a href="/messages/mine">Messages</a></li>
+        <li th:if="${isAdmin}"><a href="/messages/admin">Inbox</a></li>
+        <li th:if="${isLoggedIn}">
+            <a href="/users/profile" class="active" style="color:var(--accent);" th:text="${loggedInUser?.username}">Profile</a>
         </li>
-        <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
-            <a href="/orders">All Orders</a>
-        </li>
-        <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
-            <a href="/inventory">Inventory</a>
-        </li>
-
-        <!-- Any logged-in user -->
-        <li th:if="${session.loggedInUser != null}">
-            <a href="/cart">🛒 Cart</a>
-        </li>
-        <li th:if="${session.loggedInUser != null}">
-            <a href="/orders/history">My Orders</a>
-        </li>
-        <li th:if="${session.loggedInUser != null}">
-            <a href="/reviews">Reviews</a>
-        </li>
-        <li th:if="${session.loggedInUser != null}">
-            <a href="/users/profile"
-               style="color:var(--accent);">
-                👤 <span th:text="${session.loggedInUser?.username}">
-                </span>
-            </a>
-        </li>
-
-        <!-- Guest only -->
-        <li th:if="${session.loggedInUser == null}">
-            <a href="/users/login">Login</a>
-        </li>
-        <li th:if="${session.loggedInUser == null}">
-            <a href="/users/register">Register</a>
-        </li>
-
-        <!-- Logout -->
-        <li th:if="${session.loggedInUser != null}">
-            <a href="/users/logout"
-               style="color:rgba(255,150,150,0.85);">
-                Logout
-            </a>
-        </li>
+        <li th:if="${!isLoggedIn}"><a href="/users/login">Login</a></li>
+        <li th:if="${!isLoggedIn}"><a href="/users/register">Register</a></li>
+        <li th:if="${isLoggedIn}"><a href="/users/logout" style="color:rgba(255,150,150,0.85);">Logout</a></li>
     </ul>
 </nav>
 
-<div class="page">
-    <div class="page-header">
-        <h1 style="font-family:'Fredoka One',cursive;font-size:1.7rem;
-                   color:var(--secondary);">👤 My Profile</h1>
-    </div>
-
-    <div class="card" style="max-width:560px;">
-        <div style="display:flex;align-items:center;gap:1rem;
-                    margin-bottom:1.5rem;padding-bottom:1rem;
-                    border-bottom:1px solid var(--border);">
-            <div style="width:60px;height:60px;border-radius:50%;
-                        background:linear-gradient(135deg,#667eea,#764ba2);
-                        display:flex;align-items:center;justify-content:center;
-                        color:#fff;font-weight:800;font-size:1.4rem;">
-                <span th:text="${#strings.substring(user.username,0,1).toUpperCase()}">
-                </span>
+<main class="profile-page">
+    <section class="profile-hero">
+        <div class="profile-identity">
+            <div class="profile-avatar"
+                 th:text="${!#strings.isEmpty(user.username) ? #strings.substring(user.username,0,1).toUpperCase() : 'U'}">
+                U
             </div>
             <div>
-                <h2 style="font-weight:800;font-size:1.1rem;
-                           color:var(--secondary);margin:0;"
-                    th:text="${user.username}"></h2>
-                <span th:text="${user.role}"
-                      style="font-size:0.75rem;font-weight:700;padding:3px 10px;
-                             border-radius:20px;"
-                      th:style="${user.role=='ADMIN'} ?
-                                'background:#E3F2FD;color:#1565C0;' :
-                                'background:#E8F5E9;color:#2E7D32;'">
-                </span>
+                <p class="section-eyebrow">My account</p>
+                <h1 th:text="${user.username}">Customer Name</h1>
+                <div class="profile-role-row">
+                    <span th:text="${user.role == 'SUPER_ADMIN' ? 'Super Admin' : (#strings.capitalize(#strings.toLowerCase(user.role)))}"
+                          th:class="${user.role == 'ADMIN' or user.role == 'SUPER_ADMIN'} ? 'profile-role admin' : 'profile-role customer'">
+                        Customer
+                    </span>
+                    <span class="profile-id">ID: <strong th:text="${user.userId}">USR-000</strong></span>
+                </div>
             </div>
         </div>
+        <div class="profile-hero-actions">
+            <a th:href="@{/users/edit/{id}(id=${user.userId})}" class="btn btn-primary">Edit Profile</a>
+            <a th:if="${user.role == 'CUSTOMER'}" href="/orders/history" class="btn btn-outline">My Orders</a>
+            <a th:if="${isAdmin}" href="/dashboard" class="btn btn-outline">Dashboard</a>
+        </div>
+    </section>
 
-        <div style="display:flex;flex-direction:column;gap:0.85rem;
-                    margin-bottom:1.5rem;">
-            <div style="display:flex;gap:0.75rem;">
-                <span style="width:90px;font-size:0.78rem;font-weight:700;
-                             color:var(--muted);text-transform:uppercase;">
-                    Email
-                </span>
-                <span style="font-weight:600;"
-                      th:text="${user.email}"></span>
+    <section class="profile-grid">
+        <article class="profile-card profile-details-card">
+            <div class="profile-card-heading">
+                <div>
+                    <p class="section-eyebrow">Contact details</p>
+                    <h2>Personal Information</h2>
+                </div>
+                <span class="profile-card-mark">TM</span>
             </div>
-            <div style="display:flex;gap:0.75rem;">
-                <span style="width:90px;font-size:0.78rem;font-weight:700;
-                             color:var(--muted);text-transform:uppercase;">
-                    Phone
-                </span>
-                <span style="font-weight:600;"
-                      th:text="${user.phone!=null and !user.phone.isEmpty()}?${user.phone}:'—'">
-                </span>
-            </div>
-            <div style="display:flex;gap:0.75rem;">
-                <span style="width:90px;font-size:0.78rem;font-weight:700;
-                             color:var(--muted);text-transform:uppercase;">
-                    Address
-                </span>
-                <span style="font-weight:600;"
-                      th:text="${user.address!=null and !user.address.isEmpty()}?${user.address}:'—'">
-                </span>
-            </div>
-        </div>
 
-        <div style="display:flex;gap:0.75rem;">
-            <a th:href="@{/users/edit/{id}(id=${user.userId})}"
-               class="btn btn-primary">✏️ Edit Profile</a>
-            <a href="/orders/history" class="btn btn-outline">
-                📦 My Orders
-            </a>
+            <div class="profile-detail-list">
+                <div class="profile-detail-item">
+                    <span>Email Address</span>
+                    <strong th:text="${!#strings.isEmpty(user.email) ? user.email : 'Not provided'}">email@example.com</strong>
+                </div>
+                <div class="profile-detail-item">
+                    <span>Phone Number</span>
+                    <strong th:text="${!#strings.isEmpty(user.phone) ? user.phone : 'Not provided'}">0770000000</strong>
+                </div>
+                <div class="profile-detail-item full">
+                    <span>Delivery Address</span>
+                    <strong th:text="${!#strings.isEmpty(user.address) ? user.address : 'Not provided'}">Address</strong>
+                </div>
+            </div>
+        </article>
+
+        <aside class="profile-card profile-quick-card">
+            <p class="section-eyebrow">Quick access</p>
+            <h2>Useful Shortcuts</h2>
+            <div class="profile-shortcut-list">
+                <a href="/toys">
+                    <span>Catalog</span>
+                    <strong>Browse toys</strong>
+                </a>
+                <a th:if="${user.role == 'CUSTOMER'}" href="/cart" data-cart-open>
+                    <span>Cart</span>
+                    <strong>Review basket</strong>
+                </a>
+                <a th:if="${user.role == 'CUSTOMER'}" href="/orders/history">
+                    <span>Orders</span>
+                    <strong>Track purchases</strong>
+                </a>
+                <a href="/reviews">
+                    <span>Reviews</span>
+                    <strong>Share feedback</strong>
+                </a>
+                <a th:if="${user.role == 'CUSTOMER'}" href="/messages/mine">
+                    <span>Messages</span>
+                    <strong>Support history</strong>
+                </a>
+                <a th:if="${isAdmin}" href="/users">
+                    <span>Users</span>
+                    <strong>Manage accounts</strong>
+                </a>
+                <a th:if="${isAdmin}" href="/inventory">
+                    <span>Inventory</span>
+                    <strong>Check stock</strong>
+                </a>
+            </div>
+        </aside>
+    </section>
+
+    <section class="profile-security-card">
+        <div>
+            <p class="section-eyebrow">Account safety</p>
+            <h2>Keep your ToyMart account updated</h2>
+            <p>Your profile details are used for checkout, order tracking, support messages, and review ownership.</p>
         </div>
-    </div>
-</div>
+        <a th:href="@{/users/edit/{id}(id=${user.userId})}" class="btn btn-outline">Update Details</a>
+    </section>
+</main>
+
+<th:block th:if="${user.role == 'CUSTOMER'}">
+    <div th:replace="~{fragments/cart-drawer :: cartDrawer}"></div>
+    <script th:src="@{/js/cart-drawer.js}"></script>
+</th:block>
 </body>
 </html>

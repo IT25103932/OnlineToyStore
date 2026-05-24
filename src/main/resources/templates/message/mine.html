@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>My Messages - ToyMart</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<nav class="navbar">
+    <a href="/" class="navbar-brand">ToyMart</a>
+    <ul class="navbar-nav">
+        <li><a href="/toys">Toys</a></li>
+        <li th:if="${isCustomer}"><a href="/cart" class="nav-cart-link" data-cart-open>Cart <span class="nav-cart-badge" th:text="${cartItemCount}">0</span></a></li>
+        <li th:if="${isCustomer}"><a href="/orders/history">My Orders</a></li>
+        <li th:if="${isLoggedIn}"><a href="/reviews">Reviews</a></li>
+        <li th:if="${isLoggedIn}"><a href="/messages/mine" class="active">Messages</a></li>
+        <li th:if="${isLoggedIn}"><a href="/users/profile" th:text="${loggedInUser?.username}">Profile</a></li>
+        <li th:if="${isLoggedIn}"><a href="/users/logout">Logout</a></li>
+    </ul>
+</nav>
+
+<main class="page">
+    <div class="page-header">
+        <div>
+            <p class="section-eyebrow">Support history</p>
+            <h1>My Messages</h1>
+        </div>
+        <a href="/messages/contact" class="btn btn-primary">New Message</a>
+    </div>
+
+    <div class="alert alert-success" th:if="${param.sent}">Message sent successfully. Admin can reply from the inbox.</div>
+
+    <div class="empty-state card" th:if="${messages == null or messages.isEmpty()}">
+        <h3>No messages yet</h3>
+        <p>Send a message if you need help with orders, payment, delivery, or products.</p>
+        <a href="/messages/contact" class="btn btn-primary">Contact Admin</a>
+    </div>
+
+    <div class="message-list" th:if="${messages != null and !messages.isEmpty()}">
+        <article class="message-card" th:each="message : ${messages}">
+            <div class="message-card-header">
+                <div>
+                    <span class="badge" th:text="${message.status}">OPEN</span>
+                    <h2 th:text="${message.subject}">Subject</h2>
+                </div>
+                <span th:text="${message.date}">Date</span>
+            </div>
+            <p th:text="${message.comment}">Message text</p>
+            <div class="message-reply" th:if="${message.reply != null and !message.reply.isEmpty()}">
+                <strong>Admin Reply</strong>
+                <p th:text="${message.reply}">Reply</p>
+            </div>
+            <div class="message-reply pending" th:if="${message.reply == null or message.reply.isEmpty()}">
+                <strong>Waiting for admin reply</strong>
+            </div>
+        </article>
+    </div>
+</main>
+
+<div th:if="${isCustomer}" th:replace="~{fragments/cart-drawer :: cartDrawer}"></div>
+<script th:if="${isCustomer}" th:src="@{/js/cart-drawer.js}"></script>
+</body>
+</html>

@@ -15,6 +15,8 @@ public class HomeController {
     @Autowired private UserService userService;
     @Autowired private OrderService orderService;
     @Autowired private ReviewService reviewService;
+    @Autowired private InventoryService inventoryService;
+    @Autowired private MessageService messageService;
 
     // ── Public home page ──────────────────────────────
     @GetMapping("/")
@@ -42,42 +44,95 @@ public class HomeController {
             return "redirect:/access-denied";
         }
 
-        // Live stats for dashboard
+        populateDashboardModel(model);
+
+        return "dashboard";
+    }
+
+    @GetMapping("/dashboard/report")
+    public String dashboardReport(HttpSession session, Model model) {
+        if (!SessionHelper.isAdmin(session)) {
+            return "redirect:/access-denied";
+        }
+
+        populateDashboardModel(model);
+        return "dashboard-report";
+    }
+
+    private void populateDashboardModel(Model model) {
+        long pendingOrders = orderService.countByStatus("PENDING");
+        long shippedOrders = orderService.countByStatus("SHIPPED");
+        long deliveredOrders = orderService.countByStatus("DELIVERED");
+        long cancelledOrders = orderService.countByStatus("CANCELLED");
+        long totalOrders = orderService.countTotal();
+
+        int healthyStockCount = inventoryService.getHealthyStockToys().size();
+        int lowStockCount = inventoryService.getLowStockCount();
+        int outOfStockCount = inventoryService.getOutOfStockCount();
+        int totalToys = inventoryService.getTotalToyCount();
+
         model.addAttribute("totalToys",
-                toyService.getAllToys().size());
+                totalToys);
         model.addAttribute("totalUsers",
                 userService.getAllUsers().size());
         model.addAttribute("totalCustomers",
                 userService.countByRole("CUSTOMER"));
         model.addAttribute("totalAdmins",
-                userService.countByRole("ADMIN"));
+                userService.countByRole("ADMIN") + userService.countByRole("SUPER_ADMIN"));
         model.addAttribute("totalOrders",
-                orderService.countTotal());
+                totalOrders);
         model.addAttribute("pendingOrders",
-                orderService.countByStatus("PENDING"));
+                pendingOrders);
+        model.addAttribute("shippedOrders",
+                shippedOrders);
         model.addAttribute("deliveredOrders",
-                orderService.countByStatus("DELIVERED"));
+                deliveredOrders);
+        model.addAttribute("cancelledOrders",
+                cancelledOrders);
         model.addAttribute("totalRevenue",
                 orderService.getTotalRevenue());
+        model.addAttribute("pendingRevenue",
+                orderService.getPendingRevenue());
+        model.addAttribute("totalOrderValue",
+                orderService.getTotalOrderValue());
         model.addAttribute("totalReviews",
                 reviewService.countTotal());
         model.addAttribute("pendingReviews",
                 reviewService.countByStatus("PENDING"));
+        model.addAttribute("openMessages",
+                messageService.countOpenMessages());
+        model.addAttribute("totalMessages",
+                messageService.countTotalMessages());
 
-        // Low stock toys (qty < 5)
-        model.addAttribute("lowStockToys",
-                toyService.getAllToys().stream()
-                        .filter(t -> t.getStockQuantity() < 5)
-                        .collect(java.util.stream.Collectors.toList()));
+        model.addAttribute("healthyStockCount", healthyStockCount);
+        model.addAttribute("lowStockCount", lowStockCount);
+        model.addAttribute("outOfStockCount", outOfStockCount);
+        model.addAttribute("totalUnits", inventoryService.getTotalStockUnits());
+        model.addAttribute("lowStockToys", inventoryService.getLowStockToys());
 
-        // Recent orders (last 5)
+        model.addAttribute("pendingOrderPercent", percent(pendingOrders, totalOrders));
+        model.addAttribute("shippedOrderPercent", percent(shippedOrders, totalOrders));
+        model.addAttribute("deliveredOrderPercent", percent(deliveredOrders, totalOrders));
+        model.addAttribute("cancelledOrderPercent", percent(cancelledOrders, totalOrders));
+        model.addAttribute("healthyStockPercent", percent(healthyStockCount, totalToys));
+        model.addAttribute("lowStockPercent", percent(lowStockCount, totalToys));
+        model.addAttribute("outOfStockPercent", percent(outOfStockCount, totalToys));
+        model.addAttribute("hasOrderChartData", totalOrders > 0);
+        model.addAttribute("hasInventoryChartData", totalToys > 0);
+
         java.util.List<com.OnlineToyStore.Sllit.model.Order> allOrders =
                 orderService.getAllOrders();
         int size = allOrders.size();
         model.addAttribute("recentOrders",
                 allOrders.subList(Math.max(0, size - 5), size));
+        model.addAttribute("allOrders", allOrders);
+    }
 
-        return "dashboard";
+    private int percent(long value, long total) {
+        if (total <= 0) {
+            return 0;
+        }
+        return (int) Math.round((value * 100.0) / total);
     }
 
     // ── Access denied page ────────────────────────────

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Promotional Emails - ToyMart</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<nav class="navbar">
+    <a href="/" class="navbar-brand">ToyMart</a>
+    <ul class="navbar-nav">
+        <li><a href="/dashboard">Dashboard</a></li>
+        <li><a href="/users">Users</a></li>
+        <li><a href="/orders">Orders</a></li>
+        <li><a href="/inventory">Inventory</a></li>
+        <li><a href="/reviews">Reviews</a></li>
+        <li><a href="/messages/admin">Inbox</a></li>
+        <li><a href="/users/logout">Logout</a></li>
+    </ul>
+</nav>
+
+<main class="profile-page">
+    <section class="profile-hero">
+        <div>
+            <p class="section-eyebrow">Marketing</p>
+            <h1>Promotional Emails</h1>
+            <p>Send discount offers, new arrival updates, and holiday campaigns to ToyMart customers.</p>
+        </div>
+        <a href="/dashboard" class="btn btn-outline">Back to Dashboard</a>
+    </section>
+
+    <section class="profile-card profile-details-card">
+        <div class="profile-card-heading">
+            <div>
+                <p class="section-eyebrow">Recipients</p>
+                <h2><span th:text="${customerCount}">0</span> customer email(s)</h2>
+            </div>
+            <span class="profile-card-mark">Mail</span>
+        </div>
+
+        <div class="alert-success" th:if="${success}" th:text="${success}"></div>
+        <div class="alert-error" th:if="${error}" th:text="${error}"></div>
+
+        <form th:action="@{/admin/email/promotions}" method="post" class="auth-form">
+            <div class="form-group">
+                <label for="subject">Email Subject</label>
+                <input id="subject" name="subject" type="text" placeholder="20% OFF on Educational Toys" required/>
+            </div>
+            <div class="form-group">
+                <label for="message">Promotion Message</label>
+                <textarea id="message" name="message" rows="8"
+                          placeholder="Dear ToyMart customer, enjoy this weekend offer..." required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Send Promotion</button>
+        </form>
+    </section>
+</main>
+</body>
+</html>

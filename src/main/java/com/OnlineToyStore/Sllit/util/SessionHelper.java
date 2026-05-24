@@ -22,11 +22,19 @@ public class SessionHelper {
         return session.getAttribute(SESSION_KEY) != null;
     }
 
-    // Check if logged-in user is ADMIN
+    // Check if logged-in user is ADMIN or SUPER_ADMIN
     public static boolean isAdmin(HttpSession session) {
         User user = getUser(session);
         return user != null &&
-                "ADMIN".equalsIgnoreCase(user.getRole());
+                ("ADMIN".equalsIgnoreCase(user.getRole()) ||
+                        "SUPER_ADMIN".equalsIgnoreCase(user.getRole()));
+    }
+
+    // Check if logged-in user is SUPER_ADMIN
+    public static boolean isSuperAdmin(HttpSession session) {
+        User user = getUser(session);
+        return user != null &&
+                "SUPER_ADMIN".equalsIgnoreCase(user.getRole());
     }
 
     // Check if logged-in user is CUSTOMER

@@ -1,6 +1,7 @@
 package com.OnlineToyStore.Sllit.service;
 
 import com.OnlineToyStore.Sllit.model.Supplier;
+import com.OnlineToyStore.Sllit.util.FileStorageUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -19,7 +20,7 @@ public class SupplierService {
 
     // Builds the full path to suppliers.txt
     private String getFilePath() {
-        return dataFilePath + "suppliers.txt";
+        return FileStorageUtil.ensureDataFilePath(dataFilePath, "suppliers.txt");
     }
 
     // ── READ ALL — gets every supplier from suppliers.txt ─────────────────────

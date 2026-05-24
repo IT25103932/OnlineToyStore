@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Admin Report - ToyMart</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body class="report-body">
+<main class="report-page">
+    <div class="report-toolbar">
+        <a href="/dashboard" class="btn btn-outline">Back to Dashboard</a>
+        <button type="button" class="btn btn-primary" onclick="window.print()">Print / Save PDF</button>
+    </div>
+
+    <section class="report-hero">
+        <p class="section-eyebrow">ToyMart Admin Report</p>
+        <h1>Sales and Inventory Summary</h1>
+        <p>Printable operational report generated from the current flat-file project data.</p>
+    </section>
+
+    <section class="stats-grid report-stats">
+        <div class="stat-card"><h3>Revenue</h3><p>Rs. <span th:text="${#numbers.formatDecimal(totalRevenue,1,'COMMA',0,'POINT')}">0</span></p></div>
+        <div class="stat-card"><h3>Order Value</h3><p>Rs. <span th:text="${#numbers.formatDecimal(totalOrderValue,1,'COMMA',0,'POINT')}">0</span></p></div>
+        <div class="stat-card"><h3>Total Orders</h3><p th:text="${totalOrders}">0</p></div>
+        <div class="stat-card"><h3>Total Toys</h3><p th:text="${totalToys}">0</p></div>
+        <div class="stat-card"><h3>Low Stock</h3><p th:text="${lowStockCount}">0</p></div>
+        <div class="stat-card"><h3>Open Messages</h3><p th:text="${openMessages}">0</p></div>
+    </section>
+
+    <section class="report-grid">
+        <div class="dashboard-panel">
+            <h2>Sales by Status</h2>
+            <table>
+                <tbody>
+                <tr><th>Pending</th><td th:text="${pendingOrders}">0</td></tr>
+                <tr><th>Shipped</th><td th:text="${shippedOrders}">0</td></tr>
+                <tr><th>Delivered</th><td th:text="${deliveredOrders}">0</td></tr>
+                <tr><th>Cancelled</th><td th:text="${cancelledOrders}">0</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="dashboard-panel">
+            <h2>Inventory by State</h2>
+            <table>
+                <tbody>
+                <tr><th>Healthy</th><td th:text="${healthyStockCount}">0</td></tr>
+                <tr><th>Low Stock</th><td th:text="${lowStockCount}">0</td></tr>
+                <tr><th>Out of Stock</th><td th:text="${outOfStockCount}">0</td></tr>
+                <tr><th>Total Units</th><td th:text="${totalUnits}">0</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="dashboard-panel report-section">
+        <h2>Low Stock List</h2>
+        <table>
+            <thead>
+            <tr><th>Toy</th><th>Category</th><th>Stock</th><th>Price</th></tr>
+            </thead>
+            <tbody>
+            <tr th:if="${lowStockToys == null or lowStockToys.isEmpty()}">
+                <td colspan="4">No low-stock toys.</td>
+            </tr>
+            <tr th:each="toy : ${lowStockToys}">
+                <td th:text="${toy.name}">Toy</td>
+                <td th:text="${toy.category}">Category</td>
+                <td th:text="${toy.stockQuantity}">0</td>
+                <td>Rs. <span th:text="${#numbers.formatDecimal(toy.price,1,2)}">0.00</span></td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <section class="dashboard-panel report-section">
+        <h2>Recent Orders</h2>
+        <table>
+            <thead>
+            <tr><th>Order</th><th>Customer</th><th>Toy</th><th>Status</th><th>Total</th></tr>
+            </thead>
+            <tbody>
+            <tr th:if="${recentOrders == null or recentOrders.isEmpty()}">
+                <td colspan="5">No recent orders.</td>
+            </tr>
+            <tr th:each="order : ${recentOrders}">
+                <td th:text="${order.orderId}">ORD</td>
+                <td th:text="${order.username}">Customer</td>
+                <td th:text="${order.toyName}">Toy</td>
+                <td th:text="${order.status}">PENDING</td>
+                <td>Rs. <span th:text="${#numbers.formatDecimal(order.totalAmount,1,2)}">0.00</span></td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
+</main>
+</body>
+</html>

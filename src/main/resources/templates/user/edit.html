@@ -17,47 +17,47 @@
     <li><a href="/toys">Toys</a></li>
 
     <!-- Admin only links -->
-    <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
+    <li th:if="${isAdmin}">
       <a href="/dashboard">Dashboard</a>
     </li>
-    <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
+    <li th:if="${isAdmin}">
       <a href="/users">Users</a>
     </li>
-    <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
+    <li th:if="${isAdmin}">
       <a href="/orders">All Orders</a>
     </li>
-    <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
+    <li th:if="${isAdmin}">
       <a href="/inventory">Inventory</a>
     </li>
 
     <!-- Any logged-in user -->
-    <li th:if="${session.loggedInUser != null}">
+    <li th:if="${isCustomer}">
       <a href="/cart">🛒 Cart</a>
     </li>
-    <li th:if="${session.loggedInUser != null}">
+    <li th:if="${isCustomer}">
       <a href="/orders/history">My Orders</a>
     </li>
-    <li th:if="${session.loggedInUser != null}">
+    <li th:if="${isLoggedIn}">
       <a href="/reviews">Reviews</a>
     </li>
-    <li th:if="${session.loggedInUser != null}">
+    <li th:if="${isLoggedIn}">
       <a href="/users/profile"
          style="color:var(--accent);">
-        👤 <span th:text="${session.loggedInUser?.username}">
+        👤 <span th:text="${loggedInUser?.username}">
                 </span>
       </a>
     </li>
 
     <!-- Guest only -->
-    <li th:if="${session.loggedInUser == null}">
+    <li th:if="${!isLoggedIn}">
       <a href="/users/login">Login</a>
     </li>
-    <li th:if="${session.loggedInUser == null}">
+    <li th:if="${!isLoggedIn}">
       <a href="/users/register">Register</a>
     </li>
 
     <!-- Logout -->
-    <li th:if="${session.loggedInUser != null}">
+    <li th:if="${isLoggedIn}">
       <a href="/users/logout"
          style="color:rgba(255,150,150,0.85);">
         Logout
@@ -66,76 +66,92 @@
   </ul>
 </nav>
 
-  <div class="page">
-    <div class="page-header">
-      <h1
-        style="font-family:'Fredoka One',cursive;font-size:1.7rem; color:var(--secondary);display:flex;align-items:center;gap:8px;">
-        Edit User
-      </h1>
-      <a href="/users" class="btn btn-outline">← Back to Users</a>
-    </div>
-
-    <p style="color:var(--muted);font-size:0.8rem;margin-bottom:1.25rem;font-weight:600;">
-      Editing: <strong style="color:var(--secondary);" th:text="${user.userId}"></strong>
-    </p>
-
-    <div class="card">
-      <form th:action="@{/users/edit/{id}(id=${user.userId})}" method="post">
-        <div class="form-grid">
-
-          <div class="form-group">
-            <label>Username</label>
-            <input type="text" name="username" th:value="${user.username}" required />
-          </div>
-
-          <div class="form-group">
-            <label>Email Address</label>
-            <input type="text" name="email" th:value="${user.email}" required />
-          </div>
-
-          <div class="form-group">
-            <label>Password</label>
-            <input type="password" name="password" th:value="${user.password}" />
-          </div>
-
-          <div class="form-group">
-            <label>Phone Number</label>
-            <input type="text" name="phone" th:value="${user.phone}" placeholder="07XXXXXXXX" />
-          </div>
-
-          <div class="form-group">
-            <label>Role</label>
-            <select name="role">
-              <option value="CUSTOMER" th:selected="${user.role == 'CUSTOMER'}">
-                Customer
-              </option>
-              <option value="ADMIN" th:selected="${user.role == 'ADMIN'}">
-                Admin
-              </option>
-            </select>
-          </div>
-
-          <div class="form-group full">
-            <label>Address</label>
-            <textarea name="address" th:text="${user.address}" style="min-height:70px;"></textarea>
-          </div>
-
-        </div>
-
-        <div class="form-actions">
-          <button type="submit" class="btn btn-primary">
-            Save Changes
-          </button>
-          <a href="/users" class="btn btn-outline">Cancel</a>
-          <a th:href="@{/users/delete/{id}(id=${user.userId})}" class="btn btn-danger" style="margin-left:auto;"
-            onclick="return confirm('Delete this user permanently?')">
-            Delete User
-          </a>
-        </div>
-      </form>
-    </div>
+<div class="page">
+  <div class="page-header">
+    <h1
+            style="font-family:'Fredoka One',cursive;font-size:1.7rem; color:var(--secondary);display:flex;align-items:center;gap:8px;">
+      Edit User
+    </h1>
+    <a href="/users" class="btn btn-outline">← Back to Users</a>
   </div>
+
+  <p style="color:var(--muted);font-size:0.8rem;margin-bottom:1.25rem;font-weight:600;">
+    Editing: <strong style="color:var(--secondary);" th:text="${user.userId}"></strong>
+  </p>
+  <div class="alert alert-danger" th:if="${param.error}" th:text="${param.error}"></div>
+
+  <div class="card">
+    <form th:action="@{/users/edit/{id}(id=${user.userId})}" method="post">
+      <div class="form-grid">
+
+        <div class="form-group">
+          <label>Username</label>
+          <input type="text" name="username" th:value="${user.username}" required />
+        </div>
+
+        <div class="form-group">
+          <label>Email Address</label>
+          <input type="text" name="email" th:value="${user.email}" required />
+        </div>
+
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" name="password" placeholder="Leave blank to keep current password" />
+        </div>
+
+        <div class="form-group">
+          <label>Phone Number</label>
+          <input type="text" name="phone" th:value="${user.phone}" placeholder="07XXXXXXXX" />
+        </div>
+
+        <div class="form-group" th:if="${canManageRoles}">
+          <label>Role</label>
+          <select name="role">
+            <option value="CUSTOMER" th:selected="${user.role == 'CUSTOMER'}">
+              Customer
+            </option>
+            <option value="ADMIN" th:selected="${user.role == 'ADMIN'}">
+              Admin
+            </option>
+          </select>
+        </div>
+        <div class="form-group" th:unless="${canManageRoles}">
+          <label>Role</label>
+          <input type="text"
+                 th:value="${user.role == 'SUPER_ADMIN' ? 'Super Admin' : (user.role == 'ADMIN' ? 'Admin' : 'Customer')}"
+                 readonly />
+          <input type="hidden" name="role" th:value="${user.role}" />
+          <small th:if="${!isSuperAdmin}" style="color:var(--muted);font-weight:700;">
+            Only the super admin can change user roles.
+          </small>
+        </div>
+
+        <div class="form-group full">
+          <label>Address</label>
+          <textarea name="address" th:text="${user.address}" style="min-height:70px;"></textarea>
+        </div>
+
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">
+          Save Changes
+        </button>
+        <a href="/users" class="btn btn-outline">Cancel</a>
+        <a th:if="${canDeleteUser}"
+           th:href="@{/users/delete/{id}(id=${user.userId})}" class="btn btn-danger" style="margin-left:auto;"
+           onclick="return confirm('Delete this user permanently?')">
+          Delete User
+        </a>
+        <span th:unless="${canDeleteUser}" style="margin-left:auto;color:var(--muted);font-weight:800;">
+            Protected account
+          </span>
+      </div>
+    </form>
+  </div>
+</div>
 
 </body>
 
 </html>
+

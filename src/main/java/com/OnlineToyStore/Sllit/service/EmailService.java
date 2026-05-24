@@ -25,6 +25,9 @@ public class EmailService {
     @Value("${toymart.mail.enabled:true}")
     private boolean mailEnabled;
 
+    @Value("${toymart.mail.provider:gmail}")
+    private String mailProvider;
+
     @Value("${spring.mail.username:}")
     private String username;
 
@@ -166,33 +169,51 @@ public class EmailService {
             return;
         }
         try {
-            if (isBrevoReady()) {
+            if (shouldUseBrevo()) {
                 sendEmailWithBrevo(to, subject, body);
                 return;
             }
 
-            SimpleMailMessage mail = new SimpleMailMessage();
-            mail.setFrom(fromAddress);
-            mail.setTo(to);
-            mail.setSubject(subject);
-            mail.setText(body);
-            mailSender.send(mail);
+            if (isGmailReady()) {
+                sendEmailWithGmail(to, subject, body);
+                return;
+            }
+
+            if (isBrevoReady()) {
+                sendEmailWithBrevo(to, subject, body);
+            }
         } catch (RuntimeException ex) {
             System.err.println("ToyMart email failed: " + ex.getMessage());
         }
     }
 
     private boolean isMailReady() {
-        return mailEnabled && (isBrevoReady()
-                || (mailSender != null
+        return mailEnabled && (isGmailReady() || isBrevoReady());
+    }
+
+    private boolean isGmailReady() {
+        return mailSender != null
                 && username != null
                 && !username.trim().isEmpty()
                 && password != null
-                && !password.trim().isEmpty()));
+                && !password.trim().isEmpty();
+    }
+
+    private boolean shouldUseBrevo() {
+        return "brevo".equalsIgnoreCase(mailProvider) && isBrevoReady();
     }
 
     private boolean isBrevoReady() {
         return brevoApiKey != null && !brevoApiKey.trim().isEmpty();
+    }
+
+    private void sendEmailWithGmail(String to, String subject, String body) {
+        SimpleMailMessage mail = new SimpleMailMessage();
+        mail.setFrom(fromAddress);
+        mail.setTo(to);
+        mail.setSubject(subject);
+        mail.setText(body);
+        mailSender.send(mail);
     }
 
     private void sendEmailWithBrevo(String to, String subject, String body) {

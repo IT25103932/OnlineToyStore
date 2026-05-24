@@ -11,19 +11,19 @@
         /* Stats row — 4 boxes across the top */
         .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.75rem; }
         .stat-box { background: #fff; border-radius: 12px; padding: 1.1rem 1.25rem; border: 1px solid var(--border);
-                    box-shadow: 0 2px 12px rgba(27,42,74,0.07); display: flex; align-items: center; gap: 0.8rem; transition: transform 0.2s; }
+            box-shadow: 0 2px 12px rgba(27,42,74,0.07); display: flex; align-items: center; gap: 0.8rem; transition: transform 0.2s; }
         .stat-box:hover { transform: translateY(-3px); }
         .stat-box .si { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center;
-                        justify-content: center; font-size: 1.25rem; flex-shrink: 0; }
+            justify-content: center; font-size: 1.25rem; flex-shrink: 0; }
         .stat-box h3 { font-size: 0.7rem; color: var(--muted); text-transform: uppercase;
-                       letter-spacing: 0.5px; font-weight: 700; margin-bottom: 2px; }
+            letter-spacing: 0.5px; font-weight: 700; margin-bottom: 2px; }
         .stat-box p  { font-family: 'Fredoka One', cursive; font-size: 1.65rem; color: var(--secondary); line-height: 1; }
 
         /* Filter buttons */
         .filter-bar { display: flex; gap: 0.5rem; margin-bottom: 1.25rem; flex-wrap: wrap; }
         .filter-btn { padding: 6px 16px; border-radius: 20px; font-family: 'Nunito', sans-serif;
-                      font-weight: 700; font-size: 0.82rem; text-decoration: none; border: 1.5px solid var(--border);
-                      color: var(--text); background: #fff; transition: all 0.15s; }
+            font-weight: 700; font-size: 0.82rem; text-decoration: none; border: 1.5px solid var(--border);
+            color: var(--text); background: #fff; transition: all 0.15s; }
         .filter-btn:hover  { border-color: var(--primary); color: var(--primary); }
         .filter-btn.active { background: var(--secondary); color: #fff; border-color: var(--secondary); }
         .filter-btn.danger         { border-color: rgba(230,57,70,0.4); color: var(--danger); }
@@ -35,12 +35,12 @@
 
         /* Table */
         .table-wrap { overflow-x: auto; border-radius: 12px; border: 1px solid var(--border);
-                      box-shadow: 0 2px 12px rgba(27,42,74,0.07); }
+            box-shadow: 0 2px 12px rgba(27,42,74,0.07); }
         table { width: 100%; border-collapse: collapse; background: #fff;
-                font-size: 0.87rem; font-family: 'Nunito', sans-serif; }
+            font-size: 0.87rem; font-family: 'Nunito', sans-serif; }
         thead { background: var(--secondary); color: #fff; }
         thead th { padding: 11px 14px; text-align: left; font-weight: 700;
-                   font-size: 0.74rem; letter-spacing: 0.5px; text-transform: uppercase; }
+            font-size: 0.74rem; letter-spacing: 0.5px; text-transform: uppercase; }
         tbody tr { border-bottom: 1px solid var(--border); transition: background 0.12s; }
         tbody tr:last-child { border-bottom: none; }
         tbody tr:hover { background: rgba(255,107,53,0.04); }
@@ -61,8 +61,8 @@
         /* Restock form inside table cell */
         .restock-form { display: flex; align-items: center; gap: 6px; }
         .restock-form input { width: 65px; padding: 5px 8px; border: 1.5px solid var(--border);
-                              border-radius: 7px; font-family: 'Nunito', sans-serif;
-                              font-size: 0.85rem; text-align: center; }
+            border-radius: 7px; font-family: 'Nunito', sans-serif;
+            font-size: 0.85rem; text-align: center; }
         .restock-form input:focus { outline: none; border-color: var(--primary); }
 
         @media(max-width: 768px) { .stats-row { grid-template-columns: 1fr 1fr; } }
@@ -78,47 +78,47 @@
         <li><a href="/toys">Toys</a></li>
 
         <!-- Admin only links -->
-        <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
+        <li th:if="${isAdmin}">
             <a href="/dashboard">Dashboard</a>
         </li>
-        <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
+        <li th:if="${isAdmin}">
             <a href="/users">Users</a>
         </li>
-        <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
+        <li th:if="${isAdmin}">
             <a href="/orders">All Orders</a>
         </li>
-        <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
+        <li th:if="${isAdmin}">
             <a href="/inventory">Inventory</a>
         </li>
 
         <!-- Any logged-in user -->
-        <li th:if="${session.loggedInUser != null}">
+        <li th:if="${isCustomer}">
             <a href="/cart">🛒 Cart</a>
         </li>
-        <li th:if="${session.loggedInUser != null}">
+        <li th:if="${isCustomer}">
             <a href="/orders/history">My Orders</a>
         </li>
-        <li th:if="${session.loggedInUser != null}">
+        <li th:if="${isLoggedIn}">
             <a href="/reviews">Reviews</a>
         </li>
-        <li th:if="${session.loggedInUser != null}">
+        <li th:if="${isLoggedIn}">
             <a href="/users/profile"
                style="color:var(--accent);">
-                👤 <span th:text="${session.loggedInUser?.username}">
+                👤 <span th:text="${loggedInUser?.username}">
                 </span>
             </a>
         </li>
 
         <!-- Guest only -->
-        <li th:if="${session.loggedInUser == null}">
+        <li th:if="${!isLoggedIn}">
             <a href="/users/login">Login</a>
         </li>
-        <li th:if="${session.loggedInUser == null}">
+        <li th:if="${!isLoggedIn}">
             <a href="/users/register">Register</a>
         </li>
 
         <!-- Logout -->
-        <li th:if="${session.loggedInUser != null}">
+        <li th:if="${isLoggedIn}">
             <a href="/users/logout"
                style="color:rgba(255,150,150,0.85);">
                 Logout
@@ -139,6 +139,13 @@
             <a href="/suppliers" class="btn btn-outline">🏭 Suppliers</a>
             <a href="/toys/add"  class="btn btn-primary">+ Add Toy</a>
         </div>
+    </div>
+
+    <div class="alert alert-success" th:if="${successMessage != null}" th:text="${successMessage}">
+        Inventory updated successfully.
+    </div>
+    <div class="alert alert-error" th:if="${errorMessage != null}" th:text="${errorMessage}">
+        Restock quantity must be at least 1.
     </div>
 
     <!-- Stats boxes — data comes from InventoryController via model.addAttribute -->
@@ -248,26 +255,24 @@
 
                 <!-- Stock quantity coloured by level -->
                 <td>
-                        <span th:text="${toy.stockQuantity}"
-                              th:class="${toy.stockQuantity == 0}   ? 'stock-out'     :
-                                        (toy.stockQuantity <= 5     ? 'stock-low'     :
-                                                                       'stock-healthy')">
+                        <span th:text="${toy.getStockQuantity()}"
+                              th:class="${toy.getStockQuantity() == 0 ? 'stock-out' : (toy.getStockQuantity() <= 5 ? 'stock-low' : 'stock-healthy')}">
                         </span> units
                 </td>
 
                 <!-- Status badge -->
                 <td>
-                        <span th:if="${toy.stockQuantity == 0}"
+                        <span th:if="${toy.getStockQuantity() == 0}"
                               style="background:#FFE0E0; color:#C62828; padding:3px 9px;
                                      border-radius:20px; font-size:0.72rem; font-weight:800;">
                             Out of Stock
                         </span>
-                    <span th:if="${toy.stockQuantity > 0 and toy.stockQuantity <= 5}"
+                    <span th:if="${toy.getStockQuantity() > 0 and toy.getStockQuantity() <= 5}"
                           style="background:#FFF3E0; color:#E65100; padding:3px 9px;
                                      border-radius:20px; font-size:0.72rem; font-weight:800;">
                             Low Stock
                         </span>
-                    <span th:if="${toy.stockQuantity > 5}"
+                    <span th:if="${toy.getStockQuantity() > 5}"
                           style="background:#E8F5E9; color:#2E7D32; padding:3px 9px;
                                      border-radius:20px; font-size:0.72rem; font-weight:800;">
                             In Stock
@@ -294,3 +299,5 @@
 </div>
 </body>
 </html>
+
+
