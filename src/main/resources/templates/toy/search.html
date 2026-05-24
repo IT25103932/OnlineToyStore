@@ -11,19 +11,21 @@
     <a href="/" class="navbar-brand">🧸 <span>ToyMart</span></a>
     <ul class="navbar-nav">
         <li><a href="/toys">Toys</a></li>
-        <li th:if="${session.loggedInUser?.role == 'ADMIN'}"><a href="/dashboard">Dashboard</a></li>
-        <li th:if="${session.loggedInUser?.role == 'ADMIN'}"><a href="/users">Users</a></li>
-        <li th:if="${session.loggedInUser?.role == 'ADMIN'}"><a href="/orders">All Orders</a></li>
-        <li th:if="${session.loggedInUser?.role == 'ADMIN'}"><a href="/inventory">Inventory</a></li>
-        <li th:if="${session.loggedInUser != null}"><a href="/cart">Cart</a></li>
-        <li th:if="${session.loggedInUser != null}"><a href="/orders/history">My Orders</a></li>
-        <li th:if="${session.loggedInUser != null}"><a href="/reviews">Reviews</a></li>
-        <li th:if="${session.loggedInUser != null}">
-            <a href="/users/profile" style="color:var(--accent);" th:text="${session.loggedInUser?.username}"></a>
+        <li th:if="${isAdmin}"><a href="/dashboard">Dashboard</a></li>
+        <li th:if="${isAdmin}"><a href="/users">Users</a></li>
+        <li th:if="${isAdmin}"><a href="/orders">All Orders</a></li>
+        <li th:if="${isAdmin}"><a href="/inventory">Inventory</a></li>
+        <li th:if="${isCustomer}"><a href="/cart" class="nav-cart-link" data-cart-open>Cart <span class="nav-cart-badge" th:text="${cartItemCount}">0</span></a></li>
+        <li th:if="${isCustomer}"><a href="/orders/history">My Orders</a></li>
+        <li th:if="${isLoggedIn}"><a href="/reviews">Reviews</a></li>
+        <li th:if="${isCustomer}"><a href="/messages/mine">Messages</a></li>
+        <li th:if="${isAdmin}"><a href="/messages/admin">Inbox</a></li>
+        <li th:if="${isLoggedIn}">
+            <a href="/users/profile" style="color:var(--accent);" th:text="${loggedInUser?.username}"></a>
         </li>
-        <li th:if="${session.loggedInUser == null}"><a href="/users/login">Login</a></li>
-        <li th:if="${session.loggedInUser == null}"><a href="/users/register">Register</a></li>
-        <li th:if="${session.loggedInUser != null}">
+        <li th:if="${!isLoggedIn}"><a href="/users/login">Login</a></li>
+        <li th:if="${!isLoggedIn}"><a href="/users/register">Register</a></li>
+        <li th:if="${isLoggedIn}">
             <a href="/users/logout" style="color:rgba(255,150,150,0.85);">Logout</a>
         </li>
     </ul>
@@ -54,66 +56,147 @@
         Showing results for <strong th:text="'&quot;' + ${keyword} + '&quot;'"></strong>
     </p>
 
-    <div class="empty-state card" th:if="${keyword == null or #strings.isEmpty(keyword)}">
-        <span class="empty-icon">Search</span>
-        <h3>Search for a toy</h3>
-        <p>Type a toy name, category or description above to get started.</p>
-    </div>
-
-    <div class="empty-state card" th:if="${keyword != null and !#strings.isEmpty(keyword) and (toys == null or toys.isEmpty())}">
-        <span class="empty-icon">No results</span>
-        <h3>No toys found</h3>
-        <p>Try searching with a different keyword.</p>
-    </div>
-
-    <section class="toy-grid" th:if="${keyword != null and !#strings.isEmpty(keyword) and toys != null and !toys.isEmpty()}">
-        <article class="toy-card" th:each="toy : ${toys}">
-            <div class="toy-card-image">
-                <img th:if="${toy.imageUrl != null and !#strings.isEmpty(toy.imageUrl)}"
-                     th:src="${toy.imageUrl}"
-                     th:alt="${toy.name}"
-                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"/>
-                <span class="toy-image-fallback"
-                      th:style="${toy.imageUrl != null and !#strings.isEmpty(toy.imageUrl)} ? 'display:none' : 'display:flex'">
-                    Toy Photo
-                </span>
+    <div class="catalog-layout">
+        <aside class="catalog-sidebar">
+            <div class="catalog-sidebar-header">
+                <span class="sidebar-icon">Filter</span>
+                <div>
+                    <h2>Toy Categories</h2>
+                    <p>Filter search results</p>
+                </div>
             </div>
 
-            <div class="toy-card-body">
-                <div class="toy-card-meta">
+            <nav class="category-menu" aria-label="Toy categories">
+                <a th:href="@{/toys/search(keyword=${keyword})}" th:class="${selectedCategory == null or #strings.isEmpty(selectedCategory)} ? 'category-menu-item active' : 'category-menu-item'">
+                    <span class="cat-dot cat-all"></span>
+                    <span>All Toys</span>
+                    <strong th:text="${totalCount}">0</strong>
+                </a>
+                <a th:href="@{/toys/search(keyword=${keyword}, category='EDUCATIONAL')}" th:class="${selectedCategory == 'EDUCATIONAL'} ? 'category-menu-item active' : 'category-menu-item'">
+                    <span class="cat-dot cat-educational"></span>
+                    <span>Educational & Learning</span>
+                    <strong th:text="${educationalCount}">0</strong>
+                </a>
+                <a th:href="@{/toys/search(keyword=${keyword}, category='ELECTRONIC')}" th:class="${selectedCategory == 'ELECTRONIC'} ? 'category-menu-item active' : 'category-menu-item'">
+                    <span class="cat-dot cat-electronic"></span>
+                    <span>Electronic & RC Toys</span>
+                    <strong th:text="${electronicCount}">0</strong>
+                </a>
+                <a th:href="@{/toys/search(keyword=${keyword}, category='SOFT')}" th:class="${selectedCategory == 'SOFT'} ? 'category-menu-item active' : 'category-menu-item'">
+                    <span class="cat-dot cat-soft"></span>
+                    <span>Soft Toys & Plush</span>
+                    <strong th:text="${softCount}">0</strong>
+                </a>
+                <a th:href="@{/toys/search(keyword=${keyword}, category='GENERAL')}" th:class="${selectedCategory == 'GENERAL'} ? 'category-menu-item active' : 'category-menu-item'">
+                    <span class="cat-dot cat-general"></span>
+                    <span>Games, Dolls & Others</span>
+                    <strong th:text="${generalCount}">0</strong>
+                </a>
+            </nav>
+
+            <div class="sidebar-section">
+                <h3>Popular Searches</h3>
+                <a href="/toys/search?keyword=car">Cars & Vehicles</a>
+                <a href="/toys/search?keyword=blocks">Blocks</a>
+                <a href="/toys/search?keyword=doll">Dolls</a>
+                <a href="/toys/search?keyword=rc">RC Toys</a>
+            </div>
+        </aside>
+
+        <div class="catalog-results">
+            <div class="catalog-results-bar">
+                <div>
+                    <span class="section-eyebrow">Search Results</span>
+                    <h2 th:text="${selectedCategory == null or #strings.isEmpty(selectedCategory)} ? 'Matching Toys' : ${selectedCategory} + ' Matches'">Matching Toys</h2>
+                </div>
+                <span class="result-count"><span th:text="${toys == null ? 0 : toys.size()}">0</span> items</span>
+            </div>
+
+            <div class="empty-state card" th:if="${toys == null or toys.isEmpty()}">
+                <span class="empty-icon">No results</span>
+                <h3>No toys found</h3>
+                <p>Try searching with a different keyword or category.</p>
+            </div>
+
+            <section class="toy-grid" th:if="${toys != null and !toys.isEmpty()}">
+                <article class="toy-card" th:each="toy : ${toys}">
+                    <a class="toy-card-image toy-card-link" th:href="@{/toys/{id}(id=${toy.toyId})}">
+                        <img th:if="${toy.imageUrl != null and !#strings.isEmpty(toy.imageUrl)}"
+                             th:src="${toy.imageUrl}"
+                             th:alt="${toy.name}"
+                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"/>
+                        <span class="toy-image-fallback"
+                              th:style="${toy.imageUrl != null and !#strings.isEmpty(toy.imageUrl)} ? 'display:none' : 'display:flex'">
+                    Toy Photo
+                </span>
+                    </a>
+
+                    <div class="toy-card-body">
+                        <div class="toy-card-meta">
                     <span class="badge"
                           th:text="${toy.category}"
                           th:classappend="${toy.category == 'EDUCATIONAL'} ? ' badge-educational' :
                                           (${toy.category == 'ELECTRONIC'} ? ' badge-electronic' :
                                           (${toy.category == 'SOFT'} ? ' badge-soft' : ' badge-general'))"></span>
-                    <span th:class="${toy.stockQuantity > 0} ? 'stock-badge in-stock' : 'stock-badge out-stock'"
-                          th:text="${toy.stockQuantity > 0} ? |In Stock ${toy.stockQuantity}| : 'Sold Out'"></span>
-                </div>
+                            <span th:class="${toy.stockQuantity > 0} ? 'stock-badge in-stock' : 'stock-badge out-stock'"
+                                  th:text="${toy.stockQuantity > 0 ? 'In Stock ' + toy.stockQuantity : 'Sold Out'}"></span>
+                        </div>
 
-                <h2 th:text="${toy.name}">Toy Name</h2>
-                <p class="toy-description" th:text="${toy.description}">Toy description</p>
-                <div class="toy-price">Rs. <span th:text="${#numbers.formatDecimal(toy.price, 1, 2)}">0.00</span></div>
+                        <h2>
+                            <a class="toy-title-link"
+                               th:href="@{/toys/{id}(id=${toy.toyId})}"
+                               th:text="${toy.name}">Toy Name</a>
+                        </h2>
+                        <p class="toy-description" th:text="${toy.description}">Toy description</p>
+                        <div class="toy-price">Rs. <span th:text="${#numbers.formatDecimal(toy.price, 1, 2)}">0.00</span></div>
 
-                <div class="toy-card-actions">
-                    <th:block th:if="${session.loggedInUser?.role == 'ADMIN'}">
-                        <a th:href="@{/toys/edit/{id}(id=${toy.toyId})}" class="btn btn-outline btn-sm">Edit</a>
-                        <a th:href="@{/toys/delete/{id}(id=${toy.toyId})}"
-                           class="btn btn-danger btn-sm"
-                           onclick="return confirm('Delete this toy?')">Delete</a>
-                    </th:block>
-                    <th:block th:if="${session.loggedInUser?.role == 'CUSTOMER'}">
-                        <a th:href="@{/orders/checkout(toyId=${toy.toyId})}"
-                           class="btn btn-primary btn-sm"
-                           th:if="${toy.stockQuantity > 0}">Buy Now</a>
-                        <button class="btn btn-disabled btn-sm" th:unless="${toy.stockQuantity > 0}" disabled>Sold Out</button>
-                    </th:block>
-                    <th:block th:if="${session.loggedInUser == null}">
-                        <a href="/users/login" class="btn btn-outline btn-sm">Login to Buy</a>
-                    </th:block>
-                </div>
-            </div>
-        </article>
-    </section>
+                        <form class="toy-select-row add-to-cart-form" th:if="${isCustomer and toy.stockQuantity > 0}">
+                            <input type="hidden" name="toyId" th:value="${toy.toyId}"/>
+                            <label th:for="'quantity_' + ${toy.toyId}">Qty</label>
+                            <select class="quantity-mini"
+                                    name="quantity"
+                                    th:id="'quantity_' + ${toy.toyId}"
+                                    aria-label="Quantity">
+                                <option th:each="qty : ${#numbers.sequence(1, toy.stockQuantity)}"
+                                        th:value="${qty}"
+                                        th:text="${qty}"></option>
+                            </select>
+                            <button type="submit" class="btn btn-primary btn-sm">Add to Cart</button>
+                        </form>
+
+                        <div class="toy-card-actions">
+                            <th:block th:if="${isAdmin}">
+                                <a th:href="@{/toys/{id}(id=${toy.toyId})}" class="btn btn-outline btn-sm">View</a>
+                                <a th:href="@{/toys/edit/{id}(id=${toy.toyId})}" class="btn btn-outline btn-sm">Edit</a>
+                                <a th:href="@{/toys/delete/{id}(id=${toy.toyId})}"
+                                   class="btn btn-danger btn-sm"
+                                   onclick="return confirm('Delete this toy?')">Delete</a>
+                            </th:block>
+                            <th:block th:if="${isCustomer}">
+                                <a th:href="@{/toys/{id}(id=${toy.toyId})}" class="btn btn-outline btn-sm">Details</a>
+                                <a th:href="@{/reviews/toy/{id}(id=${toy.toyId})}" class="btn btn-outline btn-sm">Reviews</a>
+                                <a th:href="@{/reviews/submit(toyId=${toy.toyId})}" class="btn btn-outline btn-sm">Write Review</a>
+                                <a th:href="@{/orders/checkout(toyId=${toy.toyId})}"
+                                   class="btn btn-primary btn-sm"
+                                   th:if="${toy.stockQuantity > 0}">Buy Now</a>
+                                <button class="btn btn-disabled btn-sm" th:unless="${toy.stockQuantity > 0}" disabled>Sold Out</button>
+                            </th:block>
+                            <th:block th:if="${!isLoggedIn}">
+                                <a th:href="@{/toys/{id}(id=${toy.toyId})}" class="btn btn-outline btn-sm">Details</a>
+                                <a th:href="@{/reviews/toy/{id}(id=${toy.toyId})}" class="btn btn-outline btn-sm">Reviews</a>
+                                <a href="/users/login" class="btn btn-outline btn-sm">Login to Buy</a>
+                            </th:block>
+                        </div>
+                    </div>
+                </article>
+            </section>
+        </div>
+    </div>
 </main>
+<div th:if="${isCustomer}" th:replace="~{fragments/cart-drawer :: cartDrawer}"></div>
+<script th:if="${isCustomer}" th:src="@{/js/cart-drawer.js}"></script>
 </body>
 </html>
+
+
+

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="cartDrawer">
+    <div class="cart-drawer-overlay" data-cart-close></div>
+    <aside class="cart-drawer" aria-label="Shopping cart" aria-hidden="true">
+        <div class="cart-drawer-header">
+            <div class="cart-drawer-title">
+                <span class="cart-drawer-icon">Cart</span>
+                <div>
+                    <strong>Your Cart</strong>
+                    <small><span data-cart-count th:text="${cartItemCount}">0</span> item(s)</small>
+                </div>
+            </div>
+            <button type="button" class="cart-drawer-close" data-cart-close aria-label="Close cart">X</button>
+        </div>
+
+        <div class="cart-drawer-message" data-cart-message></div>
+        <div class="cart-drawer-items" data-cart-items></div>
+
+        <div class="cart-drawer-empty" data-cart-empty>
+            <strong>Your cart is empty</strong>
+            <span>Add a toy from the catalog to start checkout.</span>
+        </div>
+
+        <div class="cart-drawer-footer">
+            <div class="cart-drawer-row">
+                <span>Subtotal</span>
+                <strong>Rs. <span data-cart-subtotal>0.00</span></strong>
+            </div>
+            <a href="/cart/checkout" class="btn btn-primary cart-checkout-button">Proceed to Checkout</a>
+            <a href="/cart" class="cart-full-link">View Full Cart</a>
+            <button type="button" class="cart-continue" data-cart-close>Continue Shopping</button>
+        </div>
+    </aside>
+</div>
+</body>
+</html>

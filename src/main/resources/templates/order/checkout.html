@@ -3,221 +3,185 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Checkout — Online Toy Store</title>
+  <title>Checkout - Online Toy Store</title>
   <link rel="stylesheet" th:href="@{/css/style.css}"/>
-  <style>
-    .checkout-layout {
-      max-width: 900px; margin: 0 auto; padding: 2rem 1.25rem;
-      display: grid; grid-template-columns: 1fr 300px;
-      gap: 1.5rem; align-items: start;
-    }
-    .alert-error {
-      background: #FFE0E0; color: #C62828; border: 1px solid #FFCDD2;
-      border-radius: 9px; padding: 0.75rem 1rem; font-size: 0.88rem;
-      font-weight: 600; margin-bottom: 1.25rem;
-    }
-    .summary-card {
-      background: #fff; border-radius: 14px; padding: 1.4rem;
-      border: 1px solid var(--border); box-shadow: 0 2px 14px rgba(27,42,74,0.08);
-      position: sticky; top: 80px;
-    }
-    .summary-card h3 {
-      font-family: 'Fredoka One', cursive; font-size: 1.15rem;
-      color: var(--secondary); margin-bottom: 1rem;
-    }
-    .sum-row { display: flex; justify-content: space-between; font-size: 0.88rem; margin-bottom: 0.5rem; }
-    .sum-row.total {
-      font-weight: 800; font-size: 1rem; border-top: 1px solid var(--border);
-      padding-top: 0.75rem; margin-top: 0.5rem;
-    }
-    .sum-row.total span:last-child {
-      font-family: 'Fredoka One', cursive; font-size: 1.15rem; color: var(--primary);
-    }
-    .pay-method { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-top: 0.5rem; }
-    .pay-option {
-      border: 2px solid var(--border); border-radius: 10px;
-      padding: 0.9rem; cursor: pointer; transition: all 0.2s; text-align: center;
-    }
-    .pay-option:has(input:checked) {
-      border-color: var(--primary); background: rgba(255,107,53,0.05);
-    }
-    .pay-option input { display: none; }
-    .pay-option .pay-icon { font-size: 1.5rem; display: block; margin-bottom: 4px; }
-    .pay-option .pay-label { font-size: 0.82rem; font-weight: 700; color: var(--secondary); }
-
-    @media(max-width: 700px) {
-      .checkout-layout { grid-template-columns: 1fr; }
-    }
-  </style>
 </head>
-<body>
-<!-- PASTE THIS NAVBAR into EVERY .html template -->
+<body class="checkout-modern-page">
 <nav class="navbar">
-  <a href="/" class="navbar-brand">🧸 <span>ToyMart</span></a>
+  <a href="/" class="navbar-brand">ToyMart</a>
   <ul class="navbar-nav">
-
     <li><a href="/toys">Toys</a></li>
-
-    <!-- Admin only links -->
-    <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
-      <a href="/dashboard">Dashboard</a>
-    </li>
-    <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
-      <a href="/users">Users</a>
-    </li>
-    <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
-      <a href="/orders">All Orders</a>
-    </li>
-    <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
-      <a href="/inventory">Inventory</a>
-    </li>
-
-    <!-- Any logged-in user -->
-    <li th:if="${session.loggedInUser != null}">
-      <a href="/cart">🛒 Cart</a>
-    </li>
-    <li th:if="${session.loggedInUser != null}">
-      <a href="/orders/history">My Orders</a>
-    </li>
-    <li th:if="${session.loggedInUser != null}">
-      <a href="/reviews">Reviews</a>
-    </li>
-    <li th:if="${session.loggedInUser != null}">
-      <a href="/users/profile"
-         style="color:var(--accent);">
-        👤 <span th:text="${session.loggedInUser?.username}">
-                </span>
-      </a>
-    </li>
-
-    <!-- Guest only -->
-    <li th:if="${session.loggedInUser == null}">
-      <a href="/users/login">Login</a>
-    </li>
-    <li th:if="${session.loggedInUser == null}">
-      <a href="/users/register">Register</a>
-    </li>
-
-    <!-- Logout -->
-    <li th:if="${session.loggedInUser != null}">
-      <a href="/users/logout"
-         style="color:rgba(255,150,150,0.85);">
-        Logout
-      </a>
-    </li>
+    <li th:if="${isCustomer}"><a href="/cart" class="nav-cart-link" data-cart-open>Cart <span class="nav-cart-badge" th:text="${cartItemCount}">0</span></a></li>
+    <li th:if="${isCustomer}"><a href="/orders/history">My Orders</a></li>
+    <li th:if="${isLoggedIn}"><a href="/reviews">Reviews</a></li>
+    <li th:if="${isLoggedIn}"><a href="/users/profile" th:text="${loggedInUser?.username}">Profile</a></li>
+    <li th:if="${isLoggedIn}"><a href="/users/logout">Logout</a></li>
   </ul>
 </nav>
 
-<div style="max-width:900px; margin:0 auto; padding:1.75rem 1.25rem 0;">
-  <div class="page-header">
-    <h1 style="font-family:'Fredoka One',cursive; font-size:1.7rem; color:var(--secondary); display:flex; align-items:center; gap:8px;">
-      Checkout
-      <a href="/orders" class="btn btn-outline">← All Orders</a>
-    </h1>
-  </div>
-</div>
+<main class="modern-checkout-shell">
+  <div class="modern-checkout-layout">
+    <section class="checkout-main-column">
+      <a href="/" class="checkout-logo">ToyMart</a>
 
-<div class="checkout-layout">
-  <div>
-    <div class="card">
       <div class="alert-error" th:if="${error}" th:text="${error}"></div>
-      <form action="/orders/place" method="post" id="checkout-form">
-        <div class="form-group" style="margin-bottom:1rem;">
-          <label>Select Toy</label>
-          <select name="toyId" id="toySelect" onchange="updateSummary()" required>
-            <option value="">-- Choose a toy --</option>
-            <option th:each="toy : ${toys}"
-                    th:value="${toy.toyId}"
-                    th:text="${toy.name} + ' — Rs.' + ${toy.price}"
-                    th:attr="data-price=${toy.price}, data-stock=${toy.stockQuantity}"
-                    th:selected="${selectedToy != null && toy.toyId == selectedToy.toyId}">
-            </option>
-          </select>
-        </div>
-        <div class="form-group" style="margin-bottom:1rem;">
-          <label>Quantity</label>
-          <input type="number" name="quantity" id="qtyInput" value="1" min="1" max="99" oninput="updateSummary()" required/>
-          <small style="color:var(--muted); font-size:0.75rem;" id="stockHint"></small>
-        </div>
-        <div class="form-group" style="margin-bottom:1.5rem;">
-          <label>Payment Method</label>
-          <div class="pay-method">
-            <label class="pay-option">
-              <input type="radio" name="paymentMethod" value="ONLINE" checked onchange="updateSummary()"/>
-              <span class="pay-icon">💳</span>
-              <span class="pay-label">Online Payment</span>
+
+      <form action="/orders/place" method="post" id="checkout-form" class="modern-checkout-form">
+        <input type="hidden" name="toyId" id="toyIdInput" th:value="${selectedToy != null ? selectedToy.toyId : selectedToyId}"/>
+
+        <section class="checkout-section">
+          <div class="section-title-row">
+            <h2>Contact information</h2>
+          </div>
+          <input class="checkout-input full" type="email" name="email" placeholder="Email address" th:value="${loggedInUser?.email}" required/>
+          <label class="checkout-checkbox">
+            <input type="checkbox" checked/>
+            <span>Email me order updates and offers</span>
+          </label>
+        </section>
+
+        <section class="checkout-section">
+          <h2>Shipping address</h2>
+          <div class="checkout-field-grid">
+            <input class="checkout-input half" type="text" name="fullName" placeholder="Full name" th:value="${loggedInUser?.username}" minlength="3" required/>
+            <input class="checkout-input half" type="tel" name="phone" placeholder="07XXXXXXXX" th:value="${loggedInUser?.phone}" inputmode="numeric" pattern="[0-9]{10}" maxlength="10" title="Enter a 10 digit phone number" required/>
+            <input class="checkout-input full" type="text" name="address" placeholder="House number, street, area" th:value="${loggedInUser?.address}" minlength="6" required/>
+            <input class="checkout-input half" type="text" name="city" placeholder="City" pattern="[A-Za-z ]{2,}" title="Use letters and spaces only" required/>
+            <input class="checkout-input half" type="text" name="postalCode" placeholder="Postal code" inputmode="numeric" pattern="[0-9]{5}" maxlength="5" title="Enter a 5 digit postal code"/>
+          </div>
+        </section>
+
+        <section class="checkout-section">
+          <h2>Order item</h2>
+          <div class="checkout-field-grid">
+            <select class="checkout-input full" name="toyPicker" id="toySelect" onchange="updateSummary()">
+              <option th:each="toy : ${toys}"
+                      th:value="${toy.toyId}"
+                      th:text="${toy.name} + ' - Rs.' + ${toy.price}"
+                      th:attr="data-price=${toy.price}, data-stock=${toy.stockQuantity}, data-image=${toy.imageUrl}"
+                      th:selected="${selectedToy != null && toy.toyId == selectedToy.toyId}">
+              </option>
+            </select>
+            <input class="checkout-input half" type="number" name="quantity" id="qtyInput" th:value="${quantity}" min="1" max="99" oninput="updateSummary()" required/>
+            <small class="stock-hint" id="stockHint"></small>
+          </div>
+        </section>
+
+        <section class="checkout-section">
+          <h2>Payment method</h2>
+          <div class="checkout-pay-options">
+            <label class="checkout-pay-option">
+              <input type="radio" name="paymentMethod" value="ONLINE" checked onchange="updateSummary(); toggleCardDetails();"/>
+              <span>
+                <strong>Card payment</strong>
+                <small>Pay securely before order confirmation</small>
+              </span>
             </label>
-            <label class="pay-option">
-              <input type="radio" name="paymentMethod" value="COD" onchange="updateSummary()"/>
-              <span class="pay-icon">💵</span>
-              <span class="pay-label">Cash on Delivery</span>
+            <label class="checkout-pay-option">
+              <input type="radio" name="paymentMethod" value="COD" onchange="updateSummary(); toggleCardDetails();"/>
+              <span>
+                <strong>Cash on delivery</strong>
+                <small>Pay when your toys arrive</small>
+              </span>
             </label>
           </div>
+
+          <div id="cardDetails" class="modern-card-details">
+            <input class="checkout-input full" type="text" name="cardHolder" data-card-field placeholder="Name on card" minlength="3" pattern="[A-Za-z ]{3,}" title="Enter the card holder name"/>
+            <input class="checkout-input full" type="text" name="cardNumber" data-card-field inputmode="numeric" maxlength="19" placeholder="1234 5678 9012 3456" pattern="[0-9 ]{13,19}" title="Enter a valid card number"/>
+            <input class="checkout-input half" type="text" name="cardExpiry" data-card-field placeholder="MM/YY" maxlength="5" pattern="(0[1-9]|1[0-2])\/[0-9]{2}" title="Use MM/YY format"/>
+            <input class="checkout-input half" type="password" name="cardCvv" data-card-field inputmode="numeric" maxlength="4" pattern="[0-9]{3,4}" title="Enter 3 or 4 digit CVV" placeholder="CVV"/>
+          </div>
+        </section>
+
+        <div class="checkout-action-row">
+          <a href="/toys">Return to catalog</a>
+          <button type="submit" class="modern-pay-button">Proceed Payment</button>
         </div>
-        <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center; font-size:1rem; padding:0.8rem;">
-          Place Order →
-        </button>
       </form>
-    </div>
-  </div>
+    </section>
 
-  <div class="summary-card">
-    <h3>Order Summary</h3>
-    <div class="sum-row">
-      <span>Toy</span>
-      <span id="sum-toy" style="font-weight:700; color:var(--secondary);">—</span>
-    </div>
-    <div class="sum-row">
-      <span>Unit Price</span>
-      <span id="sum-price">—</span>
-    </div>
-    <div class="sum-row">
-      <span>Quantity</span>
-      <span id="sum-qty">—</span>
-    </div>
-    <div class="sum-row">
-      <span>Payment</span>
-      <span id="sum-method">Online</span>
-    </div>
-    <div class="sum-row total">
-      <span>Total</span>
-      <span id="sum-total">—</span>
-    </div>
-  </div>
-</div>
+    <aside class="checkout-summary-column">
+      <div class="checkout-summary-card">
+        <div class="summary-item">
+          <div class="summary-product-image">
+            <img id="sum-image"
+                 th:if="${selectedToy != null and selectedToy.imageUrl != null and !#strings.isEmpty(selectedToy.imageUrl)}"
+                 th:src="${selectedToy.imageUrl}"
+                 th:alt="${selectedToy.name}"/>
+            <span id="sum-image-fallback"
+                  th:style="${selectedToy != null and selectedToy.imageUrl != null and !#strings.isEmpty(selectedToy.imageUrl)} ? 'display:none' : 'display:grid'">Toy</span>
+            <em id="sum-qty-badge" th:text="${quantity}">1</em>
+          </div>
+          <div>
+            <strong id="sum-toy" th:text="${selectedToy != null ? selectedToy.name : 'Selected toy'}">Selected toy</strong>
+            <small id="sum-line">Qty <span th:text="${quantity}">1</span></small>
+          </div>
+          <b id="sum-total-small">Rs. <span th:text="${#numbers.formatDecimal(totalAmount,1,'COMMA',2,'POINT')}">0.00</span></b>
+        </div>
 
+        <div class="discount-row">
+          <input type="text" placeholder="Gift card or discount code"/>
+          <button type="button">Apply</button>
+        </div>
+
+        <div class="summary-lines">
+          <div><span>Subtotal</span><strong id="sum-subtotal">Rs. <span th:text="${#numbers.formatDecimal(totalAmount,1,'COMMA',2,'POINT')}">0.00</span></strong></div>
+          <div><span>Payment</span><small id="sum-method">Card Payment</small></div>
+          <div><span>Shipping</span><small>Calculated after confirmation</small></div>
+          <div class="summary-note">Delivery usually takes 2-5 working days depending on your city.</div>
+          <div class="grand-total"><span>Total</span><strong id="sum-total">Rs. <span th:text="${#numbers.formatDecimal(totalAmount,1,'COMMA',2,'POINT')}">0.00</span></strong></div>
+        </div>
+      </div>
+    </aside>
+  </div>
+</main>
+
+<div th:if="${isCustomer}" th:replace="~{fragments/cart-drawer :: cartDrawer}"></div>
+<script th:if="${isCustomer}" th:src="@{/js/cart-drawer.js}"></script>
 <script>
   function updateSummary() {
-    const sel = document.getElementById('toySelect');
-    const qtyInput = document.getElementById('qtyInput');
-    const qty = parseInt(qtyInput.value) || 0;
-    const opt = sel.options[sel.selectedIndex];
+    const select = document.getElementById("toySelect");
+    const quantityInput = document.getElementById("qtyInput");
+    const toyIdInput = document.getElementById("toyIdInput");
+    const option = select.options[select.selectedIndex];
+    const quantity = parseInt(quantityInput.value, 10) || 1;
     const method = document.querySelector('input[name="paymentMethod"]:checked');
+    const isCard = method && method.value === "ONLINE";
+    document.getElementById("sum-method").textContent = isCard ? "Card Payment" : "Cash on Delivery";
 
-    if (sel.value && opt.dataset.price) {
-      const price = parseFloat(opt.dataset.price);
-      const stock = parseInt(opt.dataset.stock);
-      const total = price * qty;
-      const toyName = opt.text.split(' — ')[0];
+    if (!option || !option.dataset.price) return;
 
-      document.getElementById('sum-toy').textContent = toyName;
-      document.getElementById('sum-price').textContent = 'Rs.' + price.toFixed(2);
-      document.getElementById('sum-qty').textContent = qty;
-      document.getElementById('sum-total').textContent = 'Rs.' + total.toFixed(2);
-      document.getElementById('stockHint').textContent = stock + ' units available';
-
-      if (method) {
-        document.getElementById('sum-method').textContent =
-                method.value === 'ONLINE' ? 'Online Payment' : 'Cash on Delivery';
-      }
-    } else {
-      ['sum-toy', 'sum-price', 'sum-qty', 'sum-total'].forEach(id => {
-        document.getElementById(id).textContent = '—';
-      });
-      document.getElementById('stockHint').textContent = '';
-    }
+    const price = Number(option.dataset.price);
+    const stock = Number(option.dataset.stock);
+    const total = price * quantity;
+    const toyName = option.text.split(" - Rs.")[0];
+    toyIdInput.value = option.value;
+    quantityInput.max = stock;
+    document.getElementById("stockHint").textContent = stock + " unit(s) available";
+    document.getElementById("sum-toy").textContent = toyName;
+    document.getElementById("sum-qty-badge").textContent = quantity;
+    document.getElementById("sum-line").textContent = "Qty " + quantity + " x Rs. " + price.toFixed(2);
+    document.getElementById("sum-total-small").textContent = "Rs. " + total.toFixed(2);
+    document.getElementById("sum-subtotal").textContent = "Rs. " + total.toFixed(2);
+    document.getElementById("sum-total").textContent = "Rs. " + total.toFixed(2);
+    const image = document.getElementById("sum-image");
+    const fallback = document.getElementById("sum-image-fallback");
+    if (image && option.dataset.image) image.src = option.dataset.image;
+    if (fallback) fallback.style.display = option.dataset.image ? "none" : "grid";
   }
-  window.onload = updateSummary;
+
+  function toggleCardDetails() {
+    const method = document.querySelector('input[name="paymentMethod"]:checked');
+    const needsCard = method && method.value === "ONLINE";
+    document.getElementById("cardDetails").classList.toggle("is-hidden", !needsCard);
+    document.querySelectorAll("[data-card-field]").forEach(field => field.required = needsCard);
+  }
+
+  window.addEventListener("load", () => {
+    updateSummary();
+    toggleCardDetails();
+  });
 </script>
 </body>
 </html>

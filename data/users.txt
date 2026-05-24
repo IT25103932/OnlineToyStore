@@ -1,0 +1,6 @@
+USR-ADMIN-0001|admin|admin@toystore.lk|admin123|ToyStore HQ|0112345678|SUPER_ADMIN
+USR-6C39A637|kalana|kalana132@gmail|kalana123||0768331405|CUSTOMER
+USR-E4A4AE11|disna|disna@gmail.com|12345|no:12 matara|0768331405|CUSTOMER
+USR-53736BE2|Thisal|Thisal@12gmail.com|Thisal123|Kalutara|0765337405|CUSTOMER
+USR-7D31EA95|Nisansala|nis123@gmail.com|nis123|no:15/A nandikadal, Jaffna|079833879|CUSTOMER
+USR-0269DD2E|kalana02|kalanagamage02@gmail.com|{sha256}jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=|suriyawewa|0768331405|CUSTOMER
