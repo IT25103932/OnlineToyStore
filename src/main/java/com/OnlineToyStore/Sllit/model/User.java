@@ -36,6 +36,9 @@ public class User {
     // Read one line from users.txt → User object
     public static User fromFileString(String line) {
         String[] p = line.split("\\|", -1);
+        if (p.length < 4) {
+            throw new IllegalArgumentException("Invalid user data row: " + line);
+        }
         User u = new User();
         u.setUserId(p[0]);
         u.setUsername(p[1]);

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Admin Inbox - ToyMart</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<nav class="navbar">
+    <a href="/" class="navbar-brand">ToyMart</a>
+    <ul class="navbar-nav">
+        <li><a href="/dashboard">Dashboard</a></li>
+        <li><a href="/users">Users</a></li>
+        <li><a href="/orders">Orders</a></li>
+        <li><a href="/inventory">Inventory</a></li>
+        <li><a href="/reviews">Reviews</a></li>
+        <li><a href="/messages/admin" class="active">Inbox</a></li>
+        <li><a href="/users/profile" th:text="${loggedInUser?.username}">Profile</a></li>
+        <li><a href="/users/logout">Logout</a></li>
+    </ul>
+</nav>
+
+<main class="page">
+    <div class="page-header">
+        <div>
+            <p class="section-eyebrow">Customer support</p>
+            <h1>Admin Inbox</h1>
+        </div>
+        <a href="/dashboard" class="btn btn-outline">Back to Dashboard</a>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <h3>Total Messages</h3>
+            <p th:text="${totalCount}">0</p>
+        </div>
+        <div class="stat-card">
+            <h3>Open Messages</h3>
+            <p th:text="${openCount}">0</p>
+        </div>
+    </div>
+
+    <div class="alert alert-success" th:if="${param.replied}">Reply saved successfully.</div>
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+            <tr>
+                <th>Customer</th>
+                <th>Subject</th>
+                <th>Status</th>
+                <th>Date</th>
+                <th>Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:if="${messages == null or messages.isEmpty()}">
+                <td colspan="5" style="text-align:center;padding:2rem;">No customer messages yet.</td>
+            </tr>
+            <tr th:each="message : ${messages}">
+                <td>
+                    <strong th:text="${message.username}">Customer</strong><br/>
+                    <small th:text="${message.email}">email</small>
+                </td>
+                <td>
+                    <strong th:text="${message.subject}">Subject</strong><br/>
+                    <small th:text="${message.comment}">Message</small>
+                </td>
+                <td><span class="badge" th:text="${message.status}">OPEN</span></td>
+                <td th:text="${message.date}">Date</td>
+                <td>
+                    <a th:href="@{/messages/reply/{id}(id=${message.messageId})}" class="btn btn-outline btn-sm">Reply</a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+</body>
+</html>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Online Toy Store Management System</title>
+    <title>ToyMart - Online Toy Store</title>
     <link rel="stylesheet" th:href="@{/css/style.css}"/>
 </head>
 <body>
@@ -11,232 +11,219 @@
     <a href="/" class="navbar-brand">
         <img src="/images/toymart-logo.png" alt="ToyMart Logo" class="brand-logo">
     </a>
-    <div class="train-track">
-        <img src="/images/train.png" alt="Toy Train" class="moving-train">
+    <div class="train-track" aria-hidden="true">
+        <img src="/images/train.png" alt="" class="moving-train">
     </div>
     <ul class="navbar-nav">
         <li><a href="/toys">Catalog</a></li>
-        <li th:if="${session.loggedInUser?.role == 'ADMIN'}"><a href="/dashboard">Dashboard</a></li>
-        <li th:if="${session.loggedInUser?.role == 'ADMIN'}"><a href="/users">Users</a></li>
-        <li th:if="${session.loggedInUser?.role == 'ADMIN'}"><a href="/orders">Orders</a></li>
-        <li th:if="${session.loggedInUser?.role == 'ADMIN'}"><a href="/inventory">Inventory</a></li>
-        <li th:if="${session.loggedInUser != null}"><a href="/cart">Cart</a></li>
-        <li th:if="${session.loggedInUser != null}"><a href="/orders/history">My Orders</a></li>
-        <li th:if="${session.loggedInUser != null}"><a href="/reviews">Reviews</a></li>
-        <li th:if="${session.loggedInUser != null}">
-            <a href="/users/profile" th:text="${session.loggedInUser?.username}">Profile</a>
+        <li th:if="${isAdmin}"><a href="/dashboard">Dashboard</a></li>
+        <li th:if="${isAdmin}"><a href="/users">Users</a></li>
+        <li th:if="${isAdmin}"><a href="/orders">Orders</a></li>
+        <li th:if="${isAdmin}"><a href="/inventory">Inventory</a></li>
+        <li th:if="${loggedInUser != null and loggedInUser.role == 'CUSTOMER'}">
+            <a href="/cart" class="nav-cart-link" data-cart-open>Cart <span class="nav-cart-badge" th:text="${cartItemCount}">0</span></a>
         </li>
-        <li th:if="${session.loggedInUser == null}"><a href="/users/login">Login</a></li>
-        <li th:if="${session.loggedInUser == null}"><a href="/users/register">Register</a></li>
-        <li th:if="${session.loggedInUser != null}"><a href="/users/logout">Logout</a></li>
+        <li th:if="${loggedInUser != null and loggedInUser.role == 'CUSTOMER'}"><a href="/orders/history">My Orders</a></li>
+        <li th:if="${isLoggedIn}"><a href="/reviews">Reviews</a></li>
+        <li th:if="${loggedInUser != null and loggedInUser.role == 'CUSTOMER'}"><a href="/messages/mine">Messages</a></li>
+        <li th:if="${isAdmin}"><a href="/messages/admin">Inbox</a></li>
+        <li th:if="${isLoggedIn}">
+            <a href="/users/profile" th:text="${loggedInUser?.username}">Profile</a>
+        </li>
+        <li th:if="${!isLoggedIn}"><a href="/users/login">Login</a></li>
+        <li th:if="${!isLoggedIn}"><a href="/users/register">Register</a></li>
+        <li th:if="${isLoggedIn}"><a href="/users/logout">Logout</a></li>
     </ul>
 </nav>
 
-<main class="lego-home">
-
-    <!-- HERO SECTION -->
-    <section class="store-hero">
-        <div class="hero-content">
-            <p class="section-eyebrow">Online Toy Store</p>
-            <h1>Big fun starts with little toys.</h1>
+<main class="home-page">
+    <section class="home-hero">
+        <div class="home-hero-copy">
+            <p class="section-eyebrow">ToyMart Sri Lanka</p>
+            <h1>Find toys that make every day feel brighter.</h1>
             <p>
-                Shop safe, colourful and educational toys for kids of every age.
-                Find soft toys, building blocks, puzzles, remote-control cars,
-                pretend-play sets and more.
+                Browse playful, safe, and educational toys with a clean shopping experience,
+                quick checkout, real reviews, and easy order tracking.
             </p>
-
-            <div class="hero-actions">
-                <a href="/toys" class="btn btn-primary">Shop Now</a>
-                <a th:if="${session.loggedInUser == null}" href="/users/login" class="btn btn-outline">Login</a>
-                <a th:if="${session.loggedInUser?.role == 'ADMIN'}" href="/dashboard" class="btn btn-outline">Admin Dashboard</a>
+            <div class="home-hero-actions">
+                <a href="/toys" class="btn btn-primary">Shop Catalog</a>
+                <a th:if="${!isLoggedIn}" href="/users/register" class="btn btn-outline">Create Account</a>
+                <a th:if="${isAdmin}" href="/dashboard" class="btn btn-outline">Admin Dashboard</a>
+                <a th:if="${loggedInUser != null and loggedInUser.role == 'CUSTOMER'}" href="/orders/history" class="btn btn-outline">My Orders</a>
+            </div>
+            <div class="home-trust-row">
+                <span><strong th:text="${totalToys}">0</strong> toys</span>
+                <span><strong th:text="${totalOrders}">0</strong> orders</span>
+                <span><strong th:text="${totalReviews}">0</strong> reviews</span>
             </div>
         </div>
 
-        <div class="hero-toy-scene">
-            <div class="toy-bubble toy-one">🧸</div>
-            <div class="toy-bubble toy-two">🚗</div>
-            <div class="toy-bubble toy-three">🧩</div>
-            <div class="toy-bubble toy-four">🎮</div>
+        <div class="home-hero-showcase">
+            <div class="hero-photo-stack">
+                <img src="/images/hero-toys-1.jpg" alt="ToyMart toy collection" class="hero-photo-main">
+                <img src="/images/category-educational.png" alt="Educational toys" class="hero-photo-float float-one">
+                <img src="/images/category-electronic.png" alt="Electronic toys" class="hero-photo-float float-two">
+            </div>
+            <div class="hero-mini-card">
+                <span>Featured pick</span>
+                <strong th:text="${featuredToys != null and !featuredToys.isEmpty() ? featuredToys[0].name : 'ToyMart Favorites'}">
+                    ToyMart Favorites
+                </strong>
+                <a href="/toys">View catalog</a>
+            </div>
         </div>
     </section>
 
-    <!-- CATEGORY STRIP -->
-    <section class="category-showcase">
-        <a href="/toys" class="category-box blue">
-            <span>All Toys</span>
-            <img src="/images/category-all.png" alt="All Toys">
-        </a>
-
-        <a href="/toys?category=Educational" class="category-box yellow">
-            <span>Educational</span>
-            <img src="/images/category-educational.png" alt="Educational Toys">
-        </a>
-
-        <a href="/toys?category=Electronic" class="category-box purple">
-            <span>Electronic</span>
-            <img src="/images/category-electronic.png" alt="Electronic Toys">
-        </a>
-
-        <a href="/toys?category=Soft" class="category-box pink">
-            <span>Soft Toys</span>
-            <img src="/images/category-soft.png" alt="Soft Toys">
-        </a>
-
-        <a href="/toys?category=General" class="category-box green">
-            <span>Pretend Play</span>
-            <img src="/images/category-pretend.png" alt="Pretend Play">
-        </a>
-
-        <a href="/toys" class="category-box orange">
-            <span>New Arrivals</span>
-            <img src="/images/category-new.png" alt="New Arrivals">
-        </a>
+    <section class="home-category-section">
+        <div class="section-title compact">
+            <p class="section-eyebrow">Shop by category</p>
+            <h2>Start with what they love</h2>
+        </div>
+        <div class="home-category-grid">
+            <a href="/toys" class="home-category-card all">
+                <img src="/images/category-all.png" alt="All toys">
+                <span>All Toys</span>
+                <strong>Browse everything</strong>
+            </a>
+            <a href="/toys?category=EDUCATIONAL" class="home-category-card educational">
+                <img src="/images/category-educational.png" alt="Educational toys">
+                <span>Educational</span>
+                <strong>Learning sets</strong>
+            </a>
+            <a href="/toys?category=ELECTRONIC" class="home-category-card electronic">
+                <img src="/images/category-electronic.png" alt="Electronic toys">
+                <span>Electronic</span>
+                <strong>RC and gadgets</strong>
+            </a>
+            <a href="/toys?category=SOFT" class="home-category-card soft">
+                <img src="/images/category-soft.png" alt="Soft toys">
+                <span>Soft Toys</span>
+                <strong>Plush favorites</strong>
+            </a>
+            <a href="/toys?category=GENERAL" class="home-category-card general">
+                <img src="/images/category-pretend.png" alt="Pretend play toys">
+                <span>Pretend Play</span>
+                <strong>Creative fun</strong>
+            </a>
+        </div>
     </section>
 
-    <!-- AUTO MOVING TOY LINE -->
-    <section class="moving-section">
-        <div class="section-title">
-            <p class="section-eyebrow">Popular Toys</p>
-            <h2>Find the perfect toy</h2>
+    <section class="home-featured-section" th:if="${featuredToys != null and !featuredToys.isEmpty()}">
+        <div class="home-section-header">
+            <div>
+                <p class="section-eyebrow">Popular toys</p>
+                <h2>Trending in the catalog</h2>
+            </div>
+            <a href="/toys" class="btn btn-outline">View All</a>
         </div>
 
-        <div class="toy-marquee">
-            <div class="toy-track">
-                <div class="mini-toy" th:each="toy : ${featuredToys}">
+        <div class="home-featured-grid">
+            <a class="home-toy-card"
+               th:each="toy : ${featuredToys}"
+               th:href="@{/toys/{id}(id=${toy.toyId})}">
+                <div class="home-toy-image">
                     <img th:if="${toy.imageUrl != null and !#strings.isEmpty(toy.imageUrl)}"
-                         th:src="${toy.imageUrl}" th:alt="${toy.name}"/>
-                    <div class="mini-toy-img" th:if="${toy.imageUrl == null or #strings.isEmpty(toy.imageUrl)}">🧸</div>
+                         th:src="${toy.imageUrl}"
+                         th:alt="${toy.name}"/>
+                    <span th:unless="${toy.imageUrl != null and !#strings.isEmpty(toy.imageUrl)}">ToyMart</span>
+                </div>
+                <div>
+                    <small th:text="${toy.category}">Category</small>
                     <h3 th:text="${toy.name}">Toy Name</h3>
-                    <p th:text="${toy.category}">Category</p>
-                    <strong>
-                        Rs. <span th:text="${#numbers.formatDecimal(toy.price, 1, 'COMMA', 2, 'POINT')}">0.00</span>
-                    </strong>
+                    <strong>Rs. <span th:text="${#numbers.formatDecimal(toy.price, 1, 'COMMA', 2, 'POINT')}">0.00</span></strong>
                 </div>
+            </a>
+        </div>
+    </section>
 
-                <!-- duplicate static cards for smooth movement -->
-                <div class="mini-toy">
-                    <div class="mini-toy-img">🧱</div>
-                    <h3>Building Blocks Set</h3>
-                    <p>Educational</p>
-                    <strong>Rs. 2,750.00</strong>
-                </div>
-                <div class="mini-toy">
-                    <div class="mini-toy-img">🚗</div>
-                    <h3>Remote Racing Car</h3>
-                    <p>Electronic</p>
-                    <strong>Rs. 4,750.00</strong>
-                </div>
-                <div class="mini-toy">
-                    <div class="mini-toy-img">🧸</div>
-                    <h3>Teddy Bear Plush</h3>
-                    <p>Soft Toy</p>
-                    <strong>Rs. 1,850.00</strong>
-                </div>
-                <div class="mini-toy">
-                    <div class="mini-toy-img">🧩</div>
-                    <h3>Wooden Puzzle Blocks</h3>
-                    <p>Educational</p>
-                    <strong>Rs. 2,250.00</strong>
-                </div>
+    <section class="home-experience-section">
+        <div class="home-experience-card">
+            <span>01</span>
+            <h3>Browse the catalog</h3>
+            <p>Use categories, search, product photos, and stock badges to find the right toy faster.</p>
+        </div>
+        <div class="home-experience-card">
+            <span>02</span>
+            <h3>Add to cart</h3>
+            <p>Choose quantity, review the side cart drawer, and move into checkout smoothly.</p>
+        </div>
+        <div class="home-experience-card">
+            <span>03</span>
+            <h3>Track and review</h3>
+            <p>View order history, download bills, and share reviews after purchase.</p>
+        </div>
+    </section>
+
+    <section class="home-shortcut-section">
+        <div class="home-section-header">
+            <div>
+                <p class="section-eyebrow">Quick access</p>
+                <h2>Your next action</h2>
             </div>
         </div>
-    </section>
-
-    <!-- SHORTCUTS -->
-    <section class="shortcut-section">
-        <div class="section-title">
-            <p class="section-eyebrow">Quick Access</p>
-            <h2>Store shortcuts</h2>
-        </div>
-
-        <div class="shortcut-grid">
-            <a href="/toys" class="shortcut-card">
-                <span>🛒</span>
-                <h3>Shop Catalog</h3>
-                <p>Browse all available toys.</p>
+        <div class="home-shortcut-grid">
+            <a href="/toys" class="home-shortcut-card">
+                <span>Catalog</span>
+                <strong>Browse available toys</strong>
             </a>
-
-            <a th:if="${session.loggedInUser != null}" href="/cart" class="shortcut-card">
-                <span>🧺</span>
-                <h3>My Cart</h3>
-                <p>View selected toys.</p>
+            <a th:if="${loggedInUser != null and loggedInUser.role == 'CUSTOMER'}" href="/cart" class="home-shortcut-card" data-cart-open>
+                <span>Cart</span>
+                <strong>Review selected items</strong>
             </a>
-
-            <a th:if="${session.loggedInUser != null}" href="/orders/history" class="shortcut-card">
-                <span>📦</span>
-                <h3>My Orders</h3>
-                <p>Track order history.</p>
+            <a th:if="${loggedInUser != null and loggedInUser.role == 'CUSTOMER'}" href="/orders/history" class="home-shortcut-card">
+                <span>Orders</span>
+                <strong>Track purchases</strong>
             </a>
-
-            <a th:if="${session.loggedInUser?.role == 'ADMIN'}" href="/dashboard" class="shortcut-card">
-                <span>📊</span>
-                <h3>Admin Dashboard</h3>
-                <p>Manage store activities.</p>
+            <a th:if="${isAdmin}" href="/dashboard" class="home-shortcut-card">
+                <span>Dashboard</span>
+                <strong>Manage performance</strong>
             </a>
-
-            <a th:if="${session.loggedInUser?.role == 'ADMIN'}" href="/inventory" class="shortcut-card">
-                <span>🏷️</span>
-                <h3>Inventory</h3>
-                <p>Update stock and suppliers.</p>
+            <a th:if="${isAdmin}" href="/inventory" class="home-shortcut-card">
+                <span>Inventory</span>
+                <strong>Check stock levels</strong>
             </a>
-
-            <a th:if="${session.loggedInUser == null}" href="/users/register" class="shortcut-card">
-                <span>👤</span>
-                <h3>Create Account</h3>
-                <p>Register and start shopping.</p>
+            <a th:if="${!isLoggedIn}" href="/users/login" class="home-shortcut-card">
+                <span>Login</span>
+                <strong>Continue shopping</strong>
             </a>
         </div>
     </section>
-
 </main>
 
-<!-- FOOTER -->
-<footer class="toy-footer">
-    <div class="footer-grid">
+<footer class="home-footer">
+    <div class="home-footer-grid">
         <div>
-            <h2>ToyStore</h2>
-            <p>Safe, fun and affordable toys for every child.</p>
-            <a href="/toys" class="footer-location">📍 Sri Lanka</a>
+            <img src="/images/toymart-logo.png" alt="ToyMart" class="footer-logo">
+            <p>Safe, fun, and affordable toys with a modern online shopping experience.</p>
         </div>
-
         <div>
             <h4>Shop</h4>
             <a href="/toys">All Toys</a>
-            <a href="/toys?category=Educational">Educational Toys</a>
-            <a href="/toys?category=Electronic">Electronic Toys</a>
-            <a href="/toys?category=Soft">Soft Toys</a>
+            <a href="/toys?category=EDUCATIONAL">Educational Toys</a>
+            <a href="/toys?category=ELECTRONIC">Electronic Toys</a>
+            <a href="/toys?category=SOFT">Soft Toys</a>
         </div>
-
         <div>
             <h4>Account</h4>
-            <a href="/users/login">Login</a>
-            <a href="/users/register">Register</a>
-            <a href="/cart">Cart</a>
-            <a href="/orders/history">My Orders</a>
+            <a th:if="${!isLoggedIn}" href="/users/login">Login</a>
+            <a th:if="${!isLoggedIn}" href="/users/register">Register</a>
+            <a th:if="${isLoggedIn}" href="/users/profile">My Profile</a>
+            <a th:if="${loggedInUser != null and loggedInUser.role == 'CUSTOMER'}" href="/orders/history">My Orders</a>
         </div>
-
         <div>
             <h4>Support</h4>
-            <a href="#">Contact Us</a>
-            <a href="#">Delivery Information</a>
-            <a href="#">Returns</a>
-            <a href="#">Privacy Policy</a>
-        </div>
-
-        <div>
-            <h4>Follow Us</h4>
-            <div class="social-row">
-                <a href="#">f</a>
-                <a href="#">▶</a>
-                <a href="#">◎</a>
-                <a href="#">𝕏</a>
-            </div>
+            <a href="/messages/contact">Contact Us</a>
+            <a href="/reviews">Reviews</a>
+            <a th:if="${loggedInUser != null and loggedInUser.role == 'CUSTOMER'}" href="/messages/mine">Messages</a>
+            <a th:if="${isAdmin}" href="/messages/admin">Inbox</a>
         </div>
     </div>
-
-    <p class="footer-bottom">
-        © 2026 Online Toy Store Management System. All rights reserved.
-    </p>
+    <p class="footer-bottom">© 2026 Online Toy Store Management System. All rights reserved.</p>
 </footer>
+
+<th:block th:if="${loggedInUser != null and loggedInUser.role == 'CUSTOMER'}">
+    <div th:replace="~{fragments/cart-drawer :: cartDrawer}"></div>
+    <script th:src="@{/js/cart-drawer.js}"></script>
+</th:block>
 </body>
 </html>

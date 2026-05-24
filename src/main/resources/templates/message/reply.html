@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Reply Message - ToyMart</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<nav class="navbar">
+    <a href="/" class="navbar-brand">ToyMart</a>
+    <ul class="navbar-nav">
+        <li><a href="/dashboard">Dashboard</a></li>
+        <li><a href="/messages/admin">Inbox</a></li>
+        <li><a href="/users/profile" th:text="${loggedInUser?.username}">Profile</a></li>
+        <li><a href="/users/logout">Logout</a></li>
+    </ul>
+</nav>
+
+<main class="page">
+    <div class="page-header">
+        <div>
+            <p class="section-eyebrow">Admin response</p>
+            <h1>Reply to Message</h1>
+        </div>
+        <a href="/messages/admin" class="btn btn-outline">Back to Inbox</a>
+    </div>
+
+    <div class="alert alert-danger" th:if="${error}" th:text="${error}"></div>
+
+    <div class="card">
+        <div class="message-card-header">
+            <div>
+                <span class="badge" th:text="${message.status}">OPEN</span>
+                <h2 th:text="${message.subject}">Subject</h2>
+            </div>
+            <span th:text="${message.date}">Date</span>
+        </div>
+        <p><strong th:text="${message.username}">Customer</strong> wrote:</p>
+        <p th:text="${message.comment}">Message</p>
+
+        <form th:action="@{/messages/reply/{id}(id=${message.messageId})}" method="post">
+            <div class="form-group full">
+                <label>Reply</label>
+                <textarea name="reply" th:text="${message.reply}" placeholder="Write admin reply..." required></textarea>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Send Reply</button>
+                <a href="/messages/admin" class="btn btn-outline">Cancel</a>
+            </div>
+        </form>
+    </div>
+</main>
+</body>
+</html>

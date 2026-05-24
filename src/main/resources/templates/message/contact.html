@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Contact Admin - ToyMart</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<nav class="navbar">
+    <a href="/" class="navbar-brand">ToyMart</a>
+    <ul class="navbar-nav">
+        <li><a href="/toys">Toys</a></li>
+        <li th:if="${isCustomer}"><a href="/cart" class="nav-cart-link" data-cart-open>Cart <span class="nav-cart-badge" th:text="${cartItemCount}">0</span></a></li>
+        <li th:if="${isCustomer}"><a href="/orders/history">My Orders</a></li>
+        <li th:if="${isLoggedIn}"><a href="/reviews">Reviews</a></li>
+        <li th:if="${isLoggedIn}"><a href="/messages/mine">Messages</a></li>
+        <li th:if="${isAdmin}"><a href="/messages/admin">Admin Inbox</a></li>
+        <li th:if="${isLoggedIn}"><a href="/users/profile" th:text="${loggedInUser?.username}">Profile</a></li>
+        <li th:if="${isLoggedIn}"><a href="/users/logout">Logout</a></li>
+    </ul>
+</nav>
+
+<main class="page">
+    <div class="page-header">
+        <div>
+            <p class="section-eyebrow">Support</p>
+            <h1>Contact Admin</h1>
+        </div>
+        <a href="/messages/mine" class="btn btn-outline">My Messages</a>
+    </div>
+
+    <div class="alert alert-danger" th:if="${error}" th:text="${error}"></div>
+
+    <div class="card">
+        <form action="/messages/contact" method="post">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Your Name</label>
+                    <input type="text" th:value="${message.username}" readonly/>
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="text" th:value="${message.email}" readonly/>
+                </div>
+                <div class="form-group full">
+                    <label>Subject</label>
+                    <input type="text" name="subject" th:value="${message.subject}" placeholder="Order, delivery, payment or product question" required/>
+                </div>
+                <div class="form-group full">
+                    <label>Message</label>
+                    <textarea name="comment" th:text="${message.comment}" placeholder="Write your message to the admin team..." required></textarea>
+                </div>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Send Message</button>
+                <a href="/toys" class="btn btn-outline">Back to Toys</a>
+            </div>
+        </form>
+    </div>
+</main>
+
+<div th:if="${isCustomer}" th:replace="~{fragments/cart-drawer :: cartDrawer}"></div>
+<script th:if="${isCustomer}" th:src="@{/js/cart-drawer.js}"></script>
+</body>
+</html>

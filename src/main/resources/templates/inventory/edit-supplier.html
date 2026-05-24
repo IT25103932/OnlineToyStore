@@ -9,21 +9,21 @@
     .page { max-width: 780px; margin: 0 auto; padding: 2rem 1.25rem; }
 
     .card { background: #fff; border-radius: 14px; border: 1px solid var(--border);
-            box-shadow: 0 2px 14px rgba(27,42,74,0.08); padding: 2rem; }
+      box-shadow: 0 2px 14px rgba(27,42,74,0.08); padding: 2rem; }
 
     .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
     .form-group.full { grid-column: 1 / -1; }
     .form-group { display: flex; flex-direction: column; gap: 0.4rem; }
 
     .form-group label { font-size: 0.8rem; font-weight: 700;
-                        color: var(--muted); text-transform: uppercase; letter-spacing: 0.4px; }
+      color: var(--muted); text-transform: uppercase; letter-spacing: 0.4px; }
 
     .form-group input,
     .form-group select,
     .form-group textarea { padding: 10px 13px; border: 1.5px solid var(--border);
-                            border-radius: 9px; font-family: 'Nunito', sans-serif;
-                            font-size: 0.92rem; color: var(--text);
-                            transition: border-color 0.15s; width: 100%; box-sizing: border-box; }
+      border-radius: 9px; font-family: 'Nunito', sans-serif;
+      font-size: 0.92rem; color: var(--text);
+      transition: border-color 0.15s; width: 100%; box-sizing: border-box; }
 
     .form-group input:focus,
     .form-group select:focus,
@@ -32,8 +32,8 @@
     .form-group textarea { resize: vertical; min-height: 70px; }
 
     .form-actions { display: flex; gap: 0.75rem; margin-top: 1.75rem;
-                    padding-top: 1.25rem; border-top: 1px solid var(--border);
-                    align-items: center; }
+      padding-top: 1.25rem; border-top: 1px solid var(--border);
+      align-items: center; }
 
     @media(max-width: 600px) { .form-grid { grid-template-columns: 1fr; } }
   </style>
@@ -48,47 +48,47 @@
     <li><a href="/toys">Toys</a></li>
 
     <!-- Admin only links -->
-    <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
+    <li th:if="${isAdmin}">
       <a href="/dashboard">Dashboard</a>
     </li>
-    <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
+    <li th:if="${isAdmin}">
       <a href="/users">Users</a>
     </li>
-    <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
+    <li th:if="${isAdmin}">
       <a href="/orders">All Orders</a>
     </li>
-    <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
+    <li th:if="${isAdmin}">
       <a href="/inventory">Inventory</a>
     </li>
 
     <!-- Any logged-in user -->
-    <li th:if="${session.loggedInUser != null}">
+    <li th:if="${isCustomer}">
       <a href="/cart">🛒 Cart</a>
     </li>
-    <li th:if="${session.loggedInUser != null}">
+    <li th:if="${isCustomer}">
       <a href="/orders/history">My Orders</a>
     </li>
-    <li th:if="${session.loggedInUser != null}">
+    <li th:if="${isLoggedIn}">
       <a href="/reviews">Reviews</a>
     </li>
-    <li th:if="${session.loggedInUser != null}">
+    <li th:if="${isLoggedIn}">
       <a href="/users/profile"
          style="color:var(--accent);">
-        👤 <span th:text="${session.loggedInUser?.username}">
+        👤 <span th:text="${loggedInUser?.username}">
                 </span>
       </a>
     </li>
 
     <!-- Guest only -->
-    <li th:if="${session.loggedInUser == null}">
+    <li th:if="${!isLoggedIn}">
       <a href="/users/login">Login</a>
     </li>
-    <li th:if="${session.loggedInUser == null}">
+    <li th:if="${!isLoggedIn}">
       <a href="/users/register">Register</a>
     </li>
 
     <!-- Logout -->
-    <li th:if="${session.loggedInUser != null}">
+    <li th:if="${isLoggedIn}">
       <a href="/users/logout"
          style="color:rgba(255,150,150,0.85);">
         Logout
@@ -217,3 +217,4 @@
 </div>
 </body>
 </html>
+

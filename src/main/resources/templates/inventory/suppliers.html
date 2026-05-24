@@ -13,35 +13,35 @@
 
         /* Individual supplier card */
         .supplier-card { background: #fff; border-radius: 14px; border: 1px solid var(--border);
-                         box-shadow: 0 2px 14px rgba(27,42,74,0.08); padding: 1.4rem;
-                         display: flex; flex-direction: column; gap: 0.6rem;
-                         transition: transform 0.2s, box-shadow 0.2s;
-                         position: relative; overflow: hidden; }
+            box-shadow: 0 2px 14px rgba(27,42,74,0.08); padding: 1.4rem;
+            display: flex; flex-direction: column; gap: 0.6rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+            position: relative; overflow: hidden; }
 
         /* Coloured top accent line on each card */
         .supplier-card::before { content: ''; position: absolute; top: 0; left: 0;
-                                  right: 0; height: 3px; background: var(--primary); }
+            right: 0; height: 3px; background: var(--primary); }
 
         .supplier-card:hover { transform: translateY(-3px); box-shadow: 0 6px 24px rgba(27,42,74,0.13); }
 
         .sup-name { font-weight: 800; font-size: 1.05rem; color: var(--secondary); }
 
         .sup-row { display: flex; align-items: flex-start; gap: 7px;
-                   font-size: 0.84rem; color: var(--muted); }
+            font-size: 0.84rem; color: var(--muted); }
         .sup-row span:first-child { font-size: 1rem; flex-shrink: 0; }
 
         /* Category badge at top of card */
         .sup-cat { display: inline-block; padding: 3px 10px; border-radius: 20px;
-                   font-size: 0.72rem; font-weight: 800;
-                   background: #FFF3E0; color: #E65100; margin-bottom: 4px; }
+            font-size: 0.72rem; font-weight: 800;
+            background: #FFF3E0; color: #E65100; margin-bottom: 4px; }
 
         /* Edit / Delete buttons at bottom of card */
         .sup-footer { display: flex; gap: 7px; margin-top: auto;
-                      padding-top: 0.75rem; border-top: 1px solid var(--border); }
+            padding-top: 0.75rem; border-top: 1px solid var(--border); }
 
         /* Empty state when no suppliers exist yet */
         .empty-sup { background: #fff; border-radius: 14px; padding: 4rem 2rem;
-                     text-align: center; border: 1px solid var(--border); }
+            text-align: center; border: 1px solid var(--border); }
         .empty-sup .ei { font-size: 3.5rem; display: block; margin-bottom: 1rem; }
     </style>
 </head>
@@ -55,47 +55,47 @@
         <li><a href="/toys">Toys</a></li>
 
         <!-- Admin only links -->
-        <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
+        <li th:if="${isAdmin}">
             <a href="/dashboard">Dashboard</a>
         </li>
-        <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
+        <li th:if="${isAdmin}">
             <a href="/users">Users</a>
         </li>
-        <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
+        <li th:if="${isAdmin}">
             <a href="/orders">All Orders</a>
         </li>
-        <li th:if="${session.loggedInUser?.role == 'ADMIN'}">
+        <li th:if="${isAdmin}">
             <a href="/inventory">Inventory</a>
         </li>
 
         <!-- Any logged-in user -->
-        <li th:if="${session.loggedInUser != null}">
+        <li th:if="${isCustomer}">
             <a href="/cart">🛒 Cart</a>
         </li>
-        <li th:if="${session.loggedInUser != null}">
+        <li th:if="${isCustomer}">
             <a href="/orders/history">My Orders</a>
         </li>
-        <li th:if="${session.loggedInUser != null}">
+        <li th:if="${isLoggedIn}">
             <a href="/reviews">Reviews</a>
         </li>
-        <li th:if="${session.loggedInUser != null}">
+        <li th:if="${isLoggedIn}">
             <a href="/users/profile"
                style="color:var(--accent);">
-                👤 <span th:text="${session.loggedInUser?.username}">
+                👤 <span th:text="${loggedInUser?.username}">
                 </span>
             </a>
         </li>
 
         <!-- Guest only -->
-        <li th:if="${session.loggedInUser == null}">
+        <li th:if="${!isLoggedIn}">
             <a href="/users/login">Login</a>
         </li>
-        <li th:if="${session.loggedInUser == null}">
+        <li th:if="${!isLoggedIn}">
             <a href="/users/register">Register</a>
         </li>
 
         <!-- Logout -->
-        <li th:if="${session.loggedInUser != null}">
+        <li th:if="${isLoggedIn}">
             <a href="/users/logout"
                style="color:rgba(255,150,150,0.85);">
                 Logout

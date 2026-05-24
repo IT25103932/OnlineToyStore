@@ -6,57 +6,75 @@
   <title>Register - Online Toy Store</title>
   <link rel="stylesheet" th:href="@{/css/style.css}"/>
 </head>
-<body>
+<body class="auth-page">
 <nav class="navbar">
-  <a href="/" class="navbar-brand">🧸 <span>ToyMart</span></a>
+  <a href="/" class="navbar-brand">&#129528; <span>ToyMart</span></a>
   <ul class="navbar-nav">
     <li><a href="/toys">Catalog</a></li>
-    <li th:if="${session.loggedInUser == null}"><a href="/users/login">Login</a></li>
-    <li th:if="${session.loggedInUser == null}"><a href="/users/register" class="active">Register</a></li>
+    <li th:if="${!isLoggedIn}"><a href="/users/login">Login</a></li>
+    <li th:if="${!isLoggedIn}"><a href="/users/register" class="active">Register</a></li>
   </ul>
 </nav>
 
-<main class="auth-wrapper">
-  <section class="auth-card" style="max-width:520px;">
-    <p class="section-eyebrow">Customer account</p>
-    <h1>Create account</h1>
-    <p>Register as a customer to shop toys, place orders, and submit reviews.</p>
-
-    <div class="alert-error" th:if="${error}" th:text="${error}"></div>
-
-    <form th:action="@{/users/register}" method="post">
-      <div class="form-grid">
-        <div class="form-group">
-          <label for="username">Username</label>
-          <input id="username" type="text" name="username" th:value="${user?.username}" placeholder="e.g. nimal123" required/>
+<main class="auth-shell auth-register-shell">
+  <section class="auth-panel auth-panel-wide">
+    <aside class="auth-visual auth-visual-register">
+      <a href="/" class="auth-panel-brand"><span>&#129528;</span> ToyMart</a>
+      <div class="auth-visual-copy">
+        <div class="auth-icons" aria-hidden="true">
+          <span>&#127873;</span>
+          <span>&#128118;</span>
+          <span>&#127912;</span>
         </div>
-        <div class="form-group">
-          <label for="email">Email Address</label>
-          <input id="email" type="email" name="email" th:value="${user?.email}" placeholder="name@email.com" required/>
-        </div>
-        <div class="form-group">
-          <label for="password">Password</label>
-          <input id="password" type="password" name="password" placeholder="Min. 6 characters" required/>
-        </div>
-        <div class="form-group">
-          <label for="phone">Phone Number</label>
-          <input id="phone" type="text" name="phone" th:value="${user?.phone}" placeholder="07XXXXXXXX"/>
-        </div>
-        <div class="form-group full">
-          <label for="address">Address</label>
-          <textarea id="address" name="address" th:text="${user?.address}" placeholder="Delivery address"></textarea>
-        </div>
+        <h2>Start a playful shopping journey.</h2>
+        <p>Create your account to save delivery details, order toys faster, write reviews, and contact our store team.</p>
       </div>
-      <div class="form-actions">
-        <button type="submit" class="btn btn-primary" style="width:100%;">Create Customer Account</button>
-      </div>
-    </form>
+      <p class="auth-copyright">&copy; 2026 Online Toy Store</p>
+    </aside>
 
-    <div class="auth-footer">
-      Already registered?
-      <a href="/users/login">Log in</a>
-    </div>
+    <section class="auth-form-card">
+      <p class="section-eyebrow">Customer Account</p>
+      <h1>Create Account</h1>
+      <p class="auth-subtitle">Register as a customer to shop toys, place orders, and submit reviews.</p>
+
+      <div class="alert-error" th:if="${error}" th:text="${error}"></div>
+
+      <form th:action="@{/users/register}" method="post" class="auth-form">
+        <div class="auth-form-grid">
+          <div class="form-group">
+            <label for="username">Username</label>
+            <input id="username" type="text" name="username" th:value="${user?.username}" placeholder="e.g. nimal123" required/>
+          </div>
+          <div class="form-group">
+            <label for="email">Email Address</label>
+            <input id="email" type="email" name="email" th:value="${user?.email}" placeholder="name@email.com" required/>
+          </div>
+          <div class="form-group">
+            <label for="password">Password</label>
+            <input id="password" type="password" name="password" placeholder="Min. 6 characters" required/>
+          </div>
+          <div class="form-group">
+            <label for="phone">Phone Number</label>
+            <input id="phone" type="text" name="phone" th:value="${user?.phone}" placeholder="07XXXXXXXX"/>
+          </div>
+          <div class="form-group full">
+            <label for="address">Address</label>
+            <textarea id="address" name="address" th:text="${user?.address}" placeholder="Delivery address"></textarea>
+          </div>
+        </div>
+        <button type="submit" class="auth-submit">Create Customer Account</button>
+      </form>
+
+      <div class="auth-footer">
+        Already registered?
+        <a href="/users/login">Log in</a>
+      </div>
+    </section>
   </section>
 </main>
+
+<footer class="auth-page-footer">
+  &copy; 2026 Online Toy Store Management System. All rights reserved.
+</footer>
 </body>
 </html>

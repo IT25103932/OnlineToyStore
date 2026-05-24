@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title th:text="${toy.name} + ' - ToyMart'">Toy Details - ToyMart</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<nav class="navbar">
+    <a href="/" class="navbar-brand">
+        <img src="/images/toymart-logo.png" alt="ToyMart Logo" class="brand-logo">
+    </a>
+    <ul class="navbar-nav">
+        <li><a href="/toys">Catalog</a></li>
+        <li th:if="${isAdmin}"><a href="/dashboard">Dashboard</a></li>
+        <li th:if="${isAdmin}"><a href="/users">Users</a></li>
+        <li th:if="${isAdmin}"><a href="/orders">Orders</a></li>
+        <li th:if="${isAdmin}"><a href="/inventory">Inventory</a></li>
+        <li th:if="${isCustomer}"><a href="/cart" class="nav-cart-link" data-cart-open>Cart <span class="nav-cart-badge" th:text="${cartItemCount}">0</span></a></li>
+        <li th:if="${isCustomer}"><a href="/orders/history">My Orders</a></li>
+        <li th:if="${isLoggedIn}"><a href="/reviews">Reviews</a></li>
+        <li th:if="${isLoggedIn}"><a href="/users/profile" th:text="${loggedInUser?.username}">Profile</a></li>
+        <li th:if="${!isLoggedIn}"><a href="/users/login">Login</a></li>
+        <li th:if="${!isLoggedIn}"><a href="/users/register">Register</a></li>
+        <li th:if="${isLoggedIn}"><a href="/users/logout">Logout</a></li>
+    </ul>
+</nav>
+
+<main class="toy-detail-page">
+    <section class="toy-detail-hero">
+        <div class="detail-gallery">
+            <div class="detail-image-frame">
+                <img th:if="${toy.imageUrl != null and !#strings.isEmpty(toy.imageUrl)}"
+                     th:src="${toy.imageUrl}"
+                     th:alt="${toy.name}"
+                     onerror="this.style.display='none'; this.nextElementSibling.style.display='grid';"/>
+                <div class="detail-image-fallback"
+                     th:style="${toy.imageUrl != null and !#strings.isEmpty(toy.imageUrl)} ? 'display:none' : 'display:grid'">
+                    Toy Photo
+                </div>
+            </div>
+        </div>
+
+        <div class="detail-info">
+            <div class="detail-topline">
+                <span class="badge"
+                      th:text="${toy.category}"
+                      th:classappend="${toy.category == 'EDUCATIONAL'} ? ' badge-educational' :
+                                      (${toy.category == 'ELECTRONIC'} ? ' badge-electronic' :
+                                      (${toy.category == 'SOFT'} ? ' badge-soft' : ' badge-general'))">Category</span>
+                <span th:class="${toy.stockQuantity > 0} ? 'stock-badge in-stock' : 'stock-badge out-stock'"
+                      th:text="${toy.stockQuantity > 0 ? 'In Stock ' + toy.stockQuantity : 'Out of stock'}">Stock</span>
+            </div>
+
+            <h1 th:text="${toy.name}">Toy Name</h1>
+            <p class="detail-description" th:text="${toy.description}">Toy description</p>
+
+            <div class="detail-price">
+                Rs. <span th:text="${#numbers.formatDecimal(toy.price, 1, 'COMMA', 2, 'POINT')}">0.00</span>
+            </div>
+
+            <div class="detail-actions" th:if="${isCustomer}">
+                <form class="detail-cart-form add-to-cart-form" th:if="${toy.stockQuantity > 0}">
+                    <input type="hidden" name="toyId" th:value="${toy.toyId}"/>
+                    <label th:for="'detail_quantity_' + ${toy.toyId}">Quantity</label>
+                    <select class="quantity-mini"
+                            name="quantity"
+                            th:id="'detail_quantity_' + ${toy.toyId}">
+                        <option th:each="qty : ${#numbers.sequence(1, toy.stockQuantity)}"
+                                th:value="${qty}"
+                                th:text="${qty}"></option>
+                    </select>
+                    <button type="submit" class="btn btn-primary">Add to Cart</button>
+                    <a th:href="@{/orders/checkout(toyId=${toy.toyId},quantity=1)}"
+                       class="btn btn-outline detail-buy-now"
+                       th:attr="data-toy-id=${toy.toyId}">Buy Now</a>
+                </form>
+                <button class="btn btn-disabled" th:unless="${toy.stockQuantity > 0}" disabled>Sold Out</button>
+            </div>
+
+            <div class="detail-actions" th:if="${isAdmin}">
+                <a th:href="@{/toys/edit/{id}(id=${toy.toyId})}" class="btn btn-primary">Edit Toy</a>
+                <a th:href="@{/toys/delete/{id}(id=${toy.toyId})}"
+                   class="btn btn-danger"
+                   onclick="return confirm('Delete this toy?')">Delete</a>
+            </div>
+
+            <div class="detail-actions" th:if="${!isLoggedIn}">
+                <a href="/users/login" class="btn btn-primary">Login to Buy</a>
+                <a th:href="@{/reviews/toy/{id}(id=${toy.toyId})}" class="btn btn-outline">Reviews</a>
+            </div>
+
+            <div class="detail-link-row">
+                <a th:href="@{/reviews/toy/{id}(id=${toy.toyId})}">View reviews</a>
+                <a th:if="${isCustomer}" th:href="@{/reviews/submit(toyId=${toy.toyId})}">Write a review</a>
+                <a href="/toys">Back to catalog</a>
+            </div>
+        </div>
+    </section>
+
+    <section class="related-toys-section" th:if="${relatedToys != null and !relatedToys.isEmpty()}">
+        <div class="section-title">
+            <p class="section-eyebrow">More toys</p>
+            <h2>Scroll and explore the rest</h2>
+        </div>
+
+        <div class="related-toy-row">
+            <a class="related-toy-card"
+               th:each="item : ${relatedToys}"
+               th:href="@{/toys/{id}(id=${item.toyId})}">
+                <span class="related-discount">ToyMart</span>
+                <div class="related-toy-image">
+                    <img th:if="${item.imageUrl != null and !#strings.isEmpty(item.imageUrl)}"
+                         th:src="${item.imageUrl}"
+                         th:alt="${item.name}"/>
+                    <span th:if="${item.imageUrl == null or #strings.isEmpty(item.imageUrl)}">Toy Photo</span>
+                </div>
+                <h3 th:text="${item.name}">Toy Name</h3>
+                <p th:text="${item.category}">Category</p>
+                <strong>Rs. <span th:text="${#numbers.formatDecimal(item.price, 1, 'COMMA', 2, 'POINT')}">0.00</span></strong>
+                <small th:text="${item.stockQuantity > 0 ? 'Add to Cart from details' : 'Sold Out'}">View toy</small>
+            </a>
+        </div>
+    </section>
+</main>
+
+<div th:if="${isCustomer}" th:replace="~{fragments/cart-drawer :: cartDrawer}"></div>
+<script th:if="${isCustomer}" th:src="@{/js/cart-drawer.js}"></script>
+<script>
+    const detailQuantity = document.querySelector(".detail-cart-form select[name='quantity']");
+    const detailBuyNow = document.querySelector(".detail-buy-now");
+    if (detailQuantity && detailBuyNow) {
+        const updateBuyNowUrl = () => {
+            const toyId = detailBuyNow.dataset.toyId;
+            detailBuyNow.href = `/orders/checkout?toyId=${encodeURIComponent(toyId)}&quantity=${encodeURIComponent(detailQuantity.value)}`;
+        };
+        detailQuantity.addEventListener("change", updateBuyNowUrl);
+        updateBuyNowUrl();
+    }
+</script>
+</body>
+</html>
